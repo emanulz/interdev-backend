@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  {% load i18n static %}
+  {% load widget_tweaks %}
+	<title>Inicio de sesión</title>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<link rel="stylesheet" type="text/css" href="{% static "vendor/font-awesome/css/font-awesome.min.css" %}">
+	<link rel="stylesheet" type="text/css" href="{% static "login/css/util.css" %}">
+	<link rel="stylesheet" type="text/css" href="{% static "login/css/main.css" %}">
+<!--===============================================================================================-->
+</head>
+<body>
+
+
+	<div class="limiter">
+    <div class="errors">
+
+      {% if user.is_authenticated %}
+      <p class="permissionError">
+        No tiene permiso para ingresar a la aplicación seleccionada, ¿Desea cambiar de usuario?
+      </p>
+      {% endif %}
+
+      {% if form.errors and not form.non_field_errors %}
+      <p class="errornote">
+      {% if form.errors.items|length == 1 %}{% trans "Please correct the error below." %}{% else %}{% trans "Please correct the errors below." %}{% endif %}
+      </p>
+      {% endif %}
+
+      {% if form.non_field_errors %}
+      {% for error in form.non_field_errors %}
+      <p class="errornote">
+          {{ error }}
+      </p>
+
+      {% endfor %}
+      {% endif %}
+
+
+    </div>
+
+    <div class="container-login100">
+
+			<div class="wrap-login100">
+
+				<div class="login100-form-title" style="background-image: url({% static "login/images/bg-01.jpg" %});">
+					<span class="login100-form-title-1">
+						Iniciar Sesión
+					</span>
+				</div>
+
+				<form class="login100-form validate-form" action="{{ app_path }}" method="post" id="login-form">
+          {% csrf_token %}
+					<div class="wrap-input100 validate-input m-b-26" data-validate="Usuario requerido">
+						<span class="label-input100">Usuario</span>
+            {{ form.username | add_class:"input100" | attr:"placeholder:Ingrese su Usuario" }}
+						<span class="focus-input100"></span>
+					</div>
+
+					<div class="wrap-input100 validate-input m-b-18" data-validate = "Contraseña requerida">
+						<span class="label-input100">Contraseña</span>
+            {{ form.password | add_class:"input100" | attr:"placeholder:Ingrese su Contraseña" }}
+						<span class="focus-input100"></span>
+					</div>
+
+					<div class="container-login100-form-btn">
+            <button type="submit" class="login100-form-btn">
+              Ingresar
+            </button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+
+<!--===============================================================================================-->
+  <script src="{% static "vendor/jquery/jquery-3.2.1.min.js" %}"></script>
+<!--===============================================================================================-->
+	<!-- <script src="vendor/animsition/js/animsition.min.js"></script> -->
+<!--===============================================================================================-->
+	<!-- <script src="vendor/bootstrap/js/popper.js"></script> -->
+	<!-- <script src="vendor/bootstrap/js/bootstrap.min.js"></script> -->
+<!--===============================================================================================-->
+	<!-- <script src="vendor/select2/select2.min.js"></script> -->
+<!--===============================================================================================-->
+	<!-- <script src="vendor/daterangepicker/moment.min.js"></script> -->
+	<!-- <script src="vendor/daterangepicker/daterangepicker.js"></script> -->
+<!--===============================================================================================-->
+	<!-- <script src="vendor/countdowntime/countdowntime.js"></script> -->
+  <script src="{% static "login/js/main.js" %}"></script>
+
+</body>
+</html>
