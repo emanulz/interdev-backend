@@ -34,6 +34,8 @@ INSTALLED_APPS = [
     'widget_tweaks',
     'django.contrib.admin',
     'django.contrib.auth',
+    'dynamic_preferences',
+    'dynamic_preferences.users.apps.UserPreferencesConfig',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
@@ -140,7 +142,6 @@ REST_FRAMEWORK = {
         ),
     'DEFAULT_FILTER_BACKENDS': ('django_filters.rest_framework.DjangoFilterBackend',)
     }
-
 
 
 # Static files (CSS, JavaScript, Images)
