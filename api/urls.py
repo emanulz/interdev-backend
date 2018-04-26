@@ -19,6 +19,9 @@ from apps.profiles.api.views import UserViewSet, PermissionsViewSet
 from apps.sales.api.views import SaleViewSet
 from apps.logs.api.views import LogViewSet
 from apps.credits.api.views import Credit_MovementViewSet
+from apps.taxes.api.views import TaxViewSet
+from apps.senders.api.views import SenderViewSet
+
 from dynamic_preferences.users.viewsets import UserPreferencesViewSet
 
 # API COPIED FROM  dynamic_preferences into apps.preferences.api package and modified permissions class
@@ -39,6 +42,8 @@ router.register(r'permissions', PermissionsViewSet)
 router.register(r'userprefs', UserPreferencesViewSet, base_name='userprefs')
 router.register(r'globalprefs', GlobalPreferencesViewSet, base_name='globalprefs')
 router.register(r'creditmovements', Credit_MovementViewSet)
+router.register(r'taxes', TaxViewSet)
+router.register(r'senders', SenderViewSet)
 
 
 urlpatterns = [

@@ -71,12 +71,18 @@ class Product(models.Model):
                                       blank=True, null=True)
     ask_price = models.BooleanField(default=False, verbose_name='Pide Precio al facturar?', blank=True)
 
-    use_taxes = models.BooleanField(default=False, verbose_name='Usa impuesto?', blank=True)
-    taxes = models.DecimalField(default=0, max_digits=4, decimal_places=2, verbose_name='Impuesto %', blank=True,
+    use_taxes = models.BooleanField(default=False, verbose_name='Usa impuesto 1?', blank=True)
+    taxes = models.DecimalField(default=0, max_digits=4, decimal_places=2, verbose_name='Impuesto1 %', blank=True,
                                 null=True)
+    tax_code = models.CharField(max_length=2, default='00', verbose_name='Código impuesto 1', blank=True)
     use_taxes2 = models.BooleanField(default=False, verbose_name='Usa impuesto 2?', blank=True)
     taxes2 = models.DecimalField(default=0, max_digits=4, decimal_places=2, verbose_name='Impuesto2 %', blank=True,
                                  null=True)
+    tax_code2 = models.CharField(max_length=2, default='00', verbose_name='Código impuesto 2', blank=True)
+    use_taxes3 = models.BooleanField(default=False, verbose_name='Usa impuesto 3?', blank=True)
+    taxes3 = models.DecimalField(default=0, max_digits=4, decimal_places=2, verbose_name='Impuesto3 %', blank=True,
+                                 null=True)
+    tax_code3 = models.CharField(max_length=2, default='00', verbose_name='Código impuesto 3', blank=True)
     pred_discount = models.DecimalField(default=0, max_digits=4, decimal_places=2,
                                         verbose_name='Descuento Predeterminado %', blank=True, null=True)
     max_sale_discount = models.DecimalField(default=0, max_digits=4, decimal_places=2,

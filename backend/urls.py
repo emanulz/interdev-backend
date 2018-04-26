@@ -13,6 +13,7 @@ from apps.administration.views import adminPage
 
 urlpatterns = [
     # UTILS
+    url(r'^jet/', include('jet.urls', 'jet')),  # Django JET URLS
     path('globaladmin/', admin.site.urls),
     url(r'^profile/', profile_get),
 

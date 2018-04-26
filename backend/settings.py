@@ -32,6 +32,7 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     'widget_tweaks',
+    'jet',
     'django.contrib.admin',
     'django.contrib.auth',
     'dynamic_preferences',
@@ -53,7 +54,9 @@ INSTALLED_APPS = [
     'apps.products.apps.ProductsConfig',
     'apps.suppliers.apps.SuppliersConfig',
     'apps.sales.apps.SalesConfig',
-    'apps.credits.apps.CreditsConfig'
+    'apps.credits.apps.CreditsConfig',
+    'apps.taxes.apps.TaxesConfig',
+    'apps.senders.apps.SendersConfig'
 ]
 
 MIDDLEWARE = [
