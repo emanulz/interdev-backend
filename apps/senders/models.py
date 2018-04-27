@@ -23,19 +23,32 @@ def url(instance, filename):
 
 class Sender(models.Model):
 
+    person = '01'
+    juridic = '02'
+    passport = '03'
+
+    ID_TYPE_CHOICES = ((person, 'Cédula Física'),
+                       (juridic, 'Cédula Jurídica'),
+                       (passport, 'Pasaporte'),
+                       )
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    id_type = models.CharField(max_length=3, choices=ID_TYPE_CHOICES, default=person,
+                               verbose_name='Tipo de Identificación')
     id_number = models.CharField(max_length=255, default='', verbose_name='Número de Identificación')
-    name = models.CharField(max_length=255, default='', verbose_name='Razón Social')
-    commercial_name = models.CharField(max_length=255, default='', verbose_name='Nombre comercial')
-    phone_number = models.CharField(max_length=255, default='', verbose_name='Teléfono')
-    fax_number = models.CharField(max_length=255, default='', verbose_name='Fax')
+    name = models.CharField(max_length=80, default='', verbose_name='Razón Social')
+    commercial_name = models.CharField(max_length=80, default='', verbose_name='Nombre comercial')
+    phone_country_code = models.CharField(max_length=3, default=506, verbose_name='Código de país télefono')
+    phone_number = models.CharField(max_length=20, default='', verbose_name='Teléfono')
+    fax_country_code = models.CharField(max_length=3, default=506, verbose_name='Código de país fax')
+    fax_number = models.CharField(max_length=20, default='', verbose_name='Fax')
     province = models.CharField(max_length=255, default='', verbose_name='Provincia')
     canton = models.CharField(max_length=255, default='', verbose_name='Cantón')
     district = models.CharField(max_length=255, default='', verbose_name='Distrito')
     town = models.CharField(max_length=255, default='', verbose_name='Barrio')
-    other_adress = models.CharField(max_length=255, default='', verbose_name='Otras señas')
+    other_address = models.CharField(max_length=255, default='', verbose_name='Otras señas')
     email = models.CharField(max_length=255, default='', verbose_name='Email')
-    key = models.ImageField(upload_to=url, blank=True)
+    key = models.FileField(upload_to=url, blank=True)
     pin = models.CharField(default='0000', max_length=4, verbose_name='PIN')
     user = models.CharField(default='0000', max_length=255, verbose_name='Usuario del Token')
     password = models.CharField(default='0000', max_length=255, verbose_name='Contraseña del Token')
@@ -45,7 +58,7 @@ class Sender(models.Model):
                                    verbose_name='Fecha de modificación')
 
     def __str__(self):
-        return '%s - %s' % (self.id, self.code)
+        return '%s - %s' % (self.id_number, self.name)
 
     class Meta:
         verbose_name = 'Emisor'

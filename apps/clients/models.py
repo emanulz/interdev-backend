@@ -10,9 +10,9 @@ from django.db import IntegrityError
 
 class Client(models.Model):
 
-    person = 'PER'
-    juridic = 'JUR'
-    passport = 'PAS'
+    person = '01'
+    juridic = '02'
+    passport = '03'
 
     general = 'GENERAL'
     distrib = 'DISTRIB'

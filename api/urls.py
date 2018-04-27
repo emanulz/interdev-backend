@@ -21,6 +21,7 @@ from apps.logs.api.views import LogViewSet
 from apps.credits.api.views import Credit_MovementViewSet
 from apps.taxes.api.views import TaxViewSet
 from apps.senders.api.views import SenderViewSet
+from apps.addresses.api.views import ProvinceViewSet, CantonViewSet, DistrictViewSet, TownViewSet
 
 from dynamic_preferences.users.viewsets import UserPreferencesViewSet
 
@@ -44,6 +45,10 @@ router.register(r'globalprefs', GlobalPreferencesViewSet, base_name='globalprefs
 router.register(r'creditmovements', Credit_MovementViewSet)
 router.register(r'taxes', TaxViewSet)
 router.register(r'senders', SenderViewSet)
+router.register(r'provinces', ProvinceViewSet)
+router.register(r'cantons', CantonViewSet)
+router.register(r'districts', DistrictViewSet)
+router.register(r'towns', TownViewSet)
 
 
 urlpatterns = [
