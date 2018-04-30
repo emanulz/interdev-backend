@@ -37,7 +37,12 @@ class Client(models.Model):
                                verbose_name='Tipo de Identificación')
     id_num = models.CharField(max_length=255, null=True, blank=True, verbose_name='Num Identificación')
 
-    address = models.CharField(max_length=255, null=True, blank=True, verbose_name='Dirección')
+    province = models.CharField(max_length=255, default='', verbose_name='Provincia')
+    canton = models.CharField(max_length=255, default='', verbose_name='Cantón')
+    district = models.CharField(max_length=255, default='', verbose_name='Distrito')
+    town = models.CharField(max_length=255, default='', verbose_name='Barrio')
+    other_address = models.CharField(max_length=255, default='', verbose_name='Otras señas')
+
     phone_number = models.CharField(max_length=255, null=True, blank=True, verbose_name='Teléfono')
     cellphone_number = models.CharField(max_length=255, null=True, blank=True, verbose_name='Celular')
     email = models.EmailField(max_length=255, null=True, blank=True, verbose_name='Email')
