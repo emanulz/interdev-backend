@@ -9,6 +9,18 @@ from django.db import IntegrityError
 from uuid import uuid4
 
 
+def logoUrl(instance, filename):
+    ext = filename.split('.')[-1]
+    # get filename
+    if instance.pk:
+        filename = '{}.{}'.format(instance.pk, ext)
+    else:
+        # set filename as random string
+        filename = '{}.{}'.format(uuid4().hex, ext)
+    # return the whole path to the file
+    return os.path.join('logos', filename)
+
+
 def url(instance, filename):
     ext = filename.split('.')[-1]
     # get filename
@@ -52,10 +64,24 @@ class Sender(models.Model):
     pin = models.CharField(default='0000', max_length=4, verbose_name='PIN')
     user = models.CharField(default='0000', max_length=255, verbose_name='Usuario del Token')
     password = models.CharField(default='0000', max_length=255, verbose_name='Contraseña del Token')
+    logo = models.ImageField(upload_to=logoUrl, blank=True, verbose_name='Logo para Factura')
+    logo_width = models.CharField(max_length=6, verbose_name='Ancho del Logo', blank=True, null=True)
+    default = models.BooleanField(default=False, verbose_name='Emisor Por Defecto')
     created = models.DateTimeField(auto_now=False, auto_now_add=True, blank=True, null=True,
                                    verbose_name='Fecha de creación')
     updated = models.DateTimeField(auto_now=True, auto_now_add=False, blank=True, null=True,
                                    verbose_name='Fecha de modificación')
+
+    def save(self, *args, **kwargs):
+        if self.default:
+            try:
+                temp = Sender.objects.get(default=True)
+                if self != temp:
+                    temp.default = False
+                    temp.save()
+            except Sender.DoesNotExist:
+                pass
+        super(Sender, self).save(*args, **kwargs)
 
     def __str__(self):
         return '%s - %s' % (self.id_number, self.name)

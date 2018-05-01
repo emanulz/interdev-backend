@@ -21,5 +21,5 @@ def getClientDebt(request):
                 debt += movement.amount
             if movement.movement_type == 'DEBI':
                 debt -= movement.amount
-        
+
         return HttpResponse(json.dumps({'debt': str(debt)}), content_type='application/json')

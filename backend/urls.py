@@ -17,11 +17,12 @@ urlpatterns = [
     path('globaladmin/', admin.site.urls),
     url(r'^profile/', profile_get),
 
-    # PAGES
+    # APPS
     url(r'^admin/', adminPage, name='admin'),
     url(r'^$', login_required(TemplateView.as_view(template_name='home.html'))),
     url(r'^reports/', login_required(TemplateView.as_view(template_name='reports.html'))),
     url(r'^sales/', login_required(TemplateView.as_view(template_name='sales.html'))),
+    url(r'^credits/', login_required(TemplateView.as_view(template_name='credits.html'))),
 
     # LOGIN
     url(r'^login/$', auth_views.LoginView.as_view()),
