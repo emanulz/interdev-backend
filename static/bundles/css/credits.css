@@ -3720,4 +3720,102 @@ table {
     margin-top: 45px;
     font-family: 'Source Sans Pro', sans-serif; }
 
+.unpaidSales {
+  font-family: 'Lato', sans-serif; }
+  .unpaidSales h1 {
+    font-size: 20px;
+    font-weight: bold; }
+  .unpaidSales-header {
+    font-size: 16px;
+    width: 100%;
+    display: flex;
+    flex-flow: row;
+    margin: 20px 0; }
+    .unpaidSales-header-tittle {
+      width: 150px; }
+      .unpaidSales-header-tittle div {
+        height: 40px;
+        padding: 10px;
+        line-height: 20px;
+        background-color: #354052;
+        color: white; }
+    .unpaidSales-header-data div {
+      height: 40px;
+      padding: 10px;
+      line-height: 20px; }
+  .unpaidSales-body {
+    width: 100%; }
+    .unpaidSales-body table thead th {
+      background-color: #354052;
+      color: white; }
+
+.movements {
+  font-family: 'Lato', sans-serif;
+  padding-top: 20px; }
+  .movements table {
+    font-size: 13px; }
+    .movements table thead tr {
+      font-size: 15px;
+      background-color: #354052;
+      color: white; }
+    .movements table tbody tr {
+      font-weight: bold; }
+
+.totals-sidebar th {
+  width: 30%;
+  height: 35px;
+  background-color: #354052;
+  color: white;
+  line-height: 35px;
+  font-size: 15px;
+  padding-left: 10px; }
+
+.totals-sidebar td {
+  font-size: 15px;
+  padding-left: 10px; }
+
+.payment {
+  font-family: 'Lato', sans-serif; }
+  .payment h1 {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 20px; }
+  .payment-header-select {
+    width: 350px;
+    margin-bottom: 20px; }
+  .payment-header-container {
+    display: flex;
+    flex-flow: row;
+    justify-content: space-between; }
+    .payment-header-container-totals {
+      width: 55%; }
+      .payment-header-container-totals th {
+        background-color: #354052;
+        color: white; }
+      .payment-header-container-totals td {
+        font-weight: bold; }
+    .payment-header-container-btn {
+      width: 30%;
+      display: flex;
+      flex-flow: column;
+      justify-content: flex-end;
+      padding-bottom: 20px; }
+      .payment-header-container-btn button {
+        background-color: #354052;
+        color: white; }
+        .payment-header-container-btn button[disabled] {
+          background-color: #6f7e95;
+          color: white; }
+  .payment-table th {
+    background-color: #354052;
+    color: white;
+    font-size: 16px; }
+  .payment-table tbody {
+    font-size: 15px; }
+  .payment .select2 {
+    font-family: 'Lato', sans-serif !important; }
+  .payment .select2-selection__clear {
+    padding-right: 10px;
+    font-size: 22px !important; }
+
 /*# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IiIsImZpbGUiOiIuL2Nzcy9jcmVkaXRzLmNzcyIsInNvdXJjZVJvb3QiOiIifQ==*/
