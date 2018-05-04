@@ -10,9 +10,9 @@ from .models import Product, ProductDepartment, ProductSubDepartment
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
 
-    list_display = ('base_code', 'code', 'description', 'unit', 'model', 'part_number')
+    list_display = ('code', 'description', 'unit', 'model', 'part_number')
 
-    search_fields = ('base_code', 'code', 'description', 'unit', 'model', 'part_number')
+    search_fields = ('code', 'description', 'unit', 'model', 'part_number')
 
 
 @admin.register(ProductDepartment)

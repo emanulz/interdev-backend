@@ -24,17 +24,12 @@ def url(instance, filename):
 
 class Product(models.Model):
 
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     code = models.CharField(max_length=10, null=True, verbose_name='Código', unique=True)
     description = models.CharField(max_length=255, verbose_name='Descripción del producto', null=True)
     unit = models.CharField(max_length=255, blank=True, null=True, verbose_name='Unidad')
     fractioned = models.BooleanField(default=False, verbose_name='Se vende Fracionado?', blank=True)
-    department = models.ForeignKey('ProductDepartment', on_delete=models.SET_NULL, null=True,
-                                   verbose_name='Familia', default='')
-    subdepartment = models.ForeignKey('ProductSubDepartment', on_delete=models.SET_NULL, null=True,
-                                      verbose_name='Sub-Familia', default='')
-
-    base_code = models.CharField(max_length=6, verbose_name='Código Base', default='000000', blank=True, null=True)
+    department = models.CharField(max_length=255, null=True, verbose_name='Familia', default='', blank=True)
+    subdepartment = models.CharField(max_length=255, null=True, verbose_name='Sub-Familia', default='', blank=True)
     barcode = models.CharField(max_length=255, verbose_name='Código de Barras', blank=True, null=True)
     internal_barcode = models.CharField(max_length=255, verbose_name='Código de Barras Interno', blank=True, null=True)
     supplier_code = models.CharField(max_length=255, verbose_name='Código del proveedor', null=True, blank=True)
@@ -47,46 +42,32 @@ class Product(models.Model):
     inventory_maximum = models.FloatField(default=0, blank=True, verbose_name='Máximo en inventario', null=True)
     inventory_negative = models.BooleanField(default=False, verbose_name='Puede sobrefacturarse?', blank=True)
 
-    cost = models.DecimalField(default=0, max_digits=10, decimal_places=2, verbose_name='Costo ₡', blank=True,
-                               null=True)
+    cost = models.FloatField(default=0, verbose_name='Costo ₡', blank=True, null=True)
     cost_based = models.BooleanField(default=True, verbose_name='Precio basado en Costo?', blank=True)
-    utility = models.DecimalField(default=0, max_digits=5, decimal_places=2, verbose_name='Utilidad %', blank=True,
-                                  null=True)
-    utility2 = models.DecimalField(default=0, max_digits=5, decimal_places=2, verbose_name='Utilidad %', blank=True,
-                                   null=True)
-    utility3 = models.DecimalField(default=0, max_digits=5, decimal_places=2, verbose_name='Utilidad %', blank=True,
-                                   null=True)
-    price = models.DecimalField(default=0, max_digits=10, decimal_places=2, verbose_name='Precio sin Impuestos ₡',
-                                blank=True, null=True)
-    price2 = models.DecimalField(default=0, max_digits=10, decimal_places=2, verbose_name='Precio sin Impuestos ₡',
-                                 blank=True, null=True)
-    price3 = models.DecimalField(default=0, max_digits=10, decimal_places=2, verbose_name='Precio sin Impuestos ₡',
-                                 blank=True, null=True)
+    utility = models.FloatField(default=0, verbose_name='Utilidad %', blank=True, null=True)
+    utility2 = models.FloatField(default=0, verbose_name='Utilidad %', blank=True, null=True)
+    utility3 = models.FloatField(default=0, verbose_name='Utilidad %', blank=True, null=True)
+    price = models.FloatField(default=0, verbose_name='Precio sin Impuestos ₡', blank=True, null=True)
+    price2 = models.FloatField(default=0, verbose_name='Precio sin Impuestos ₡', blank=True, null=True)
+    price3 = models.FloatField(default=0, verbose_name='Precio sin Impuestos ₡', blank=True, null=True)
 
-    sell_price = models.DecimalField(default=0, max_digits=10, decimal_places=2, verbose_name='Precio IVI ₡',
-                                     blank=True, null=True)
-    sell_price2 = models.DecimalField(default=0, max_digits=10, decimal_places=2, verbose_name='Precio IVI ₡',
-                                      blank=True, null=True)
-    sell_price3 = models.DecimalField(default=0, max_digits=10, decimal_places=2, verbose_name='Precio IVI ₡',
-                                      blank=True, null=True)
+    sell_price = models.FloatField(default=0, verbose_name='Precio IVI ₡', blank=True, null=True)
+    sell_price2 = models.FloatField(default=0, verbose_name='Precio IVI ₡', blank=True, null=True)
+    sell_price3 = models.FloatField(default=0, verbose_name='Precio IVI ₡', blank=True, null=True)
     ask_price = models.BooleanField(default=False, verbose_name='Pide Precio al facturar?', blank=True)
 
     use_taxes = models.BooleanField(default=False, verbose_name='Usa impuesto 1?', blank=True)
-    taxes = models.DecimalField(default=0, max_digits=4, decimal_places=2, verbose_name='Impuesto1 %', blank=True,
-                                null=True)
+    taxes = models.FloatField(default=0, verbose_name='Impuesto1 %', blank=True, null=True)
     tax_code = models.CharField(max_length=2, default='00', verbose_name='Código impuesto 1', blank=True)
     use_taxes2 = models.BooleanField(default=False, verbose_name='Usa impuesto 2?', blank=True)
-    taxes2 = models.DecimalField(default=0, max_digits=4, decimal_places=2, verbose_name='Impuesto2 %', blank=True,
-                                 null=True)
+    taxes2 = models.FloatField(default=0, verbose_name='Impuesto2 %', blank=True, null=True)
     tax_code2 = models.CharField(max_length=2, default='00', verbose_name='Código impuesto 2', blank=True)
     use_taxes3 = models.BooleanField(default=False, verbose_name='Usa impuesto 3?', blank=True)
-    taxes3 = models.DecimalField(default=0, max_digits=4, decimal_places=2, verbose_name='Impuesto3 %', blank=True,
-                                 null=True)
-    tax_code3 = models.CharField(max_length=2, default='00', verbose_name='Código impuesto 3', blank=True)
-    pred_discount = models.DecimalField(default=0, max_digits=4, decimal_places=2,
-                                        verbose_name='Descuento Predeterminado %', blank=True, null=True)
-    max_sale_discount = models.DecimalField(default=0, max_digits=4, decimal_places=2,
-                                            verbose_name='Descuento Máximo en liquidación %', blank=True, null=True)
+    taxes3 = models.FloatField(default=0, verbose_name='Impuesto3 %', blank=True, null=True)
+    tax_code3 = models.CharField(max_length=2, default='00', verbose_name='Código impuesto 3', blank=True, null=True)
+    pred_discount = models.FloatField(default=0, verbose_name='Descuento Predeterminado %', blank=True, null=True)
+    max_sale_discount = models.FloatField(default=0, verbose_name='Descuento Máximo en liquidación %', blank=True,
+                                          null=True)
     on_sale = models.BooleanField(default=False, verbose_name='En liquidación?', blank=True)
     is_active = models.BooleanField(default=True, verbose_name='Activo?', blank=True)
     consignment = models.BooleanField(default=False, verbose_name='Es en consignación?', blank=True)
@@ -99,7 +80,7 @@ class Product(models.Model):
                                    verbose_name='Fecha de modificación')
 
     def __str__(self):
-        return '%s-%s - %s ' % (self.base_code, self.code, self.description)
+        return '%s - %s ' % (self.code, self.description)
 
     class Meta:
         verbose_name = 'Producto'

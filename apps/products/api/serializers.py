@@ -9,7 +9,7 @@ class ProductSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Product
-        fields = ('id', 'code', 'description', 'unit', 'fractioned', 'department', 'subdepartment', 'base_code',
+        fields = ('id', 'code', 'description', 'unit', 'fractioned', 'department', 'subdepartment',
                   'barcode', 'internal_barcode', 'supplier_code', 'model', 'part_number', 'brand_code',
                   'inventory_enabled', 'inventory_minimum', 'inventory_maximum', 'inventory_negative', 'cost',
                   'utility', 'utility2', 'utility3', 'price', 'price2', 'price3', 'ask_price', 'use_taxes', 'taxes',
