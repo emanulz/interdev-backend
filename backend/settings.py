@@ -57,7 +57,8 @@ INSTALLED_APPS = [
     'apps.credits.apps.CreditsConfig',
     'apps.taxes.apps.TaxesConfig',
     'apps.senders.apps.SendersConfig',
-    'apps.addresses.apps.AddressesConfig'
+    'apps.addresses.apps.AddressesConfig',
+    'apps.inventories.apps.InventoriesConfig'
 ]
 
 MIDDLEWARE = [
