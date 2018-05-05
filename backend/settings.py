@@ -58,7 +58,8 @@ INSTALLED_APPS = [
     'apps.taxes.apps.TaxesConfig',
     'apps.senders.apps.SendersConfig',
     'apps.addresses.apps.AddressesConfig',
-    'apps.inventories.apps.InventoriesConfig'
+    'apps.inventories.apps.InventoriesConfig',
+    'apps.workshop.apps.WorkshopConfig'
 ]
 
 MIDDLEWARE = [
