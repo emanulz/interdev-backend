@@ -2,10 +2,10 @@
 from __future__ import unicode_literals
 
 from rest_framework import viewsets
-from ..models import Sale
-from .filters import SaleFilter
-from .serializers import SaleSerializer
-from .permissions import HasProperPermission
+from ..models import Sale, Cash_Advance
+from .filters import SaleFilter, Cash_AdvanceFilter
+from .serializers import SaleSerializer, Cash_AdvanceSerializer
+from .permissions import HasProperPermission, HasProperPermissionCash_Advance
 
 
 class SaleViewSet(viewsets.ModelViewSet):
@@ -17,3 +17,14 @@ class SaleViewSet(viewsets.ModelViewSet):
 
     def get_permissions(self):
         return [HasProperPermission(), ]
+
+
+class Cash_AdvanceViewSet(viewsets.ModelViewSet):
+
+    serializer_class = Cash_AdvanceSerializer
+    queryset = Cash_Advance.objects.all()
+    lookup_field = 'id'
+    filter_class = Cash_AdvanceFilter
+
+    def get_permissions(self):
+        return [HasProperPermissionCash_Advance(), ]
