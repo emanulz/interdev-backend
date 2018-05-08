@@ -38,9 +38,9 @@ def getSaleDebt(sale_id):
     movements = Credit_Movement.objects.filter(bill_id=sale_id)
     debt = 0
     for movement in movements:
-        if movement.movement_type == 'CRED':
+        if movement.movement_type == 'CRED' and not movement.is_null:
             debt += movement.amount
-        if movement.movement_type == 'DEBI':
+        if movement.movement_type == 'DEBI' and not movement.is_null:
             debt -= movement.amount
 
     return debt
@@ -51,7 +51,7 @@ def getSaleDebits(sale_id):
     movements = Credit_Movement.objects.filter(bill_id=sale_id)
     debits = 0
     for movement in movements:
-        if movement.movement_type == 'DEBI':
+        if movement.movement_type == 'DEBI' and not movement.is_null:
             debits += movement.amount
 
     return debits
@@ -62,7 +62,7 @@ def getSaleCredits(sale_id):
     movements = Credit_Movement.objects.filter(bill_id=sale_id)
     credits = 0
     for movement in movements:
-        if movement.movement_type == 'CRED':
+        if movement.movement_type == 'CRED' and not movement.is_null:
             credits += movement.amount
 
     return credits

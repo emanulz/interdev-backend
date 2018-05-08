@@ -32,6 +32,7 @@ class Credit_Movement(models.Model):
     amount = models.DecimalField(max_digits=11, decimal_places=2, verbose_name='Monto',
                                  blank=True, default=0)
     description = models.CharField(max_length=255, blank=True, verbose_name='Descripción del movimiento')
+    is_null = models.BooleanField(default=False, blank=True, verbose_name='Anulado?')
     created = models.DateTimeField(auto_now=False, auto_now_add=True, blank=True, null=True,
                                    verbose_name='Fecha de creación')
     updated = models.DateTimeField(auto_now=True, auto_now_add=False, blank=True, null=True,
@@ -48,7 +49,7 @@ class Credit_Movement(models.Model):
 
 @receiver(pre_save, sender=Credit_Movement)
 def save_movement_number(sender, instance, *args, **kwargs):
-    top = Credit_Movement.objects.select_for_update(nowait=True).order_by('-movement_number').first()
+    top = Credit_Movement.objects.select_for_update(nowait=False).order_by('-movement_number').first()
     if top:
         instance.movement_number = top.movement_number + 1
 
@@ -67,9 +68,11 @@ class Credit_Payment(models.Model):
     sales = models.TextField(verbose_name='Objeto Array de Facturas', default='')
     user = models.TextField(verbose_name='Objeto Usuario', default='')
     client = models.TextField(verbose_name='Objeto Cliente', default='')
+    client_id = models.CharField(max_length=255, blank=True, null=True, verbose_name='ID Objeto Cliente', default='')
     amount = models.DecimalField(max_digits=11, decimal_places=2, verbose_name='Monto',
                                  blank=True, default=0)
     description = models.CharField(max_length=255, blank=True, verbose_name='Descripción del movimiento')
+    is_null = models.BooleanField(default=False, blank=True, verbose_name='Anulado?')
     created = models.DateTimeField(auto_now=False, auto_now_add=True, blank=True, null=True,
                                    verbose_name='Fecha de creación')
     updated = models.DateTimeField(auto_now=True, auto_now_add=False, blank=True, null=True,
@@ -86,7 +89,7 @@ class Credit_Payment(models.Model):
 
 @receiver(pre_save, sender=Credit_Payment)
 def save_payment_number(sender, instance, *args, **kwargs):
-    top = Credit_Payment.objects.select_for_update(nowait=True).order_by('-payment_number').first()
+    top = Credit_Payment.objects.select_for_update().order_by('-payment_number').first()
     if top:
         instance.payment_number = top.payment_number + 1
 
