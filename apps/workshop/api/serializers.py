@@ -6,7 +6,7 @@ class Work_OrderSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Work_Order
-        fields = ('id', 'order_number', 'is_closed', 'receiving_employee',
+        fields = ('id', 'consecutive', 'is_closed', 'receiving_employee',
                     'technician', 'client', 'client_id', 'article_type',
                     'article_brand', 'article_model', 'article_serial',
                     'article_color', 'article_data', 'malfunction_details', 

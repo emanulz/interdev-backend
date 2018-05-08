@@ -10,8 +10,8 @@ from django.contrib.contenttypes.models import ContentType
 
 class Work_Order(models.Model):
 
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    order_number = models.PositiveIntegerField(default=1, verbose_name="Número de orden", editable=False)
+    id = models.UUIDField(default=uuid.uuid4, editable=False)
+    consecutive = models.AutoField(primary_key=True, default=1, verbose_name="Número de orden", editable=False)
     is_closed = models.BooleanField(default=False, verbose_name="Orden Cerrada")
     receiving_employee = models.TextField(verbose_name="Objeto Empleado", default='')
     technician = models.TextField(verbose_name="Tecnico a Cargo", default='')
@@ -36,16 +36,9 @@ class Work_Order(models.Model):
     class Meta:
         verbose_name = "Orden de Trabajo"
         verbose_name_plural = "Órdenes de Trabajo"
-        ordering = ['order_number']
+        ordering = ['consecutive']
         permissions = (("list_work_order", "Can list Work_Order"),)
 
-@receiver(pre_save, sender=Work_Order)
-def my_callback(sender, instance, *args, **kwargs):
-    top  = Work_Order.objects.select_for_update(nowait=True).order_by('-order_number').first()
-    if top:
-        instance.bill_number = top._bill_number + 1
-    def __str__(self):
-        return 'Orden de Trabajo Taller: %s' % self.order_number
 
 
 class Parts_Request(models.Model):
