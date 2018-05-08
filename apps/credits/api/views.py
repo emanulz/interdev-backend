@@ -5,7 +5,7 @@ from rest_framework import viewsets
 from ..models import Credit_Movement, Credit_Payment
 from .filters import Credit_MovementFilter, Credit_PaymentFilter
 from .serializers import Credit_MovementSerializer, Credit_PaymentSerializer
-from .permissions import HasProperPermission
+from .permissions import HasProperPermission, HasProperPermissionCreditPayment
 
 
 class Credit_MovementViewSet(viewsets.ModelViewSet):
@@ -29,4 +29,4 @@ class Credit_PaymentViewSet(viewsets.ModelViewSet):
 
     def get_permissions(self):
         # allow non-authenticated user to create via POST
-        return [HasProperPermission(), ]
+        return [HasProperPermissionCreditPayment(), ]

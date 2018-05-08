@@ -2,8 +2,6 @@
 from __future__ import unicode_literals
 from django.db import models
 import uuid
-from django.db.models.signals import pre_save
-from django.dispatch import receiver
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
 from django.db import IntegrityError
@@ -18,8 +16,8 @@ class Credit_Movement(models.Model):
                         (debit, 'Débito')
                         )
 
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    movement_number = models.PositiveIntegerField(default=1, verbose_name='Número de movimiento', editable=False)
+    id = models.UUIDField(default=uuid.uuid4, editable=False)
+    consecutive = models.AutoField(primary_key=True, verbose_name='Número de movimiento', editable=False)
     client_id = models.CharField(max_length=255, blank=True, null=True, verbose_name='ID Objeto Cliente', default='')
     bill_id = models.CharField(max_length=255, blank=True, null=True, verbose_name='ID Objeto Factura', default='')
     credit_note_id = models.CharField(max_length=255, blank=True, null=True,
@@ -32,25 +30,19 @@ class Credit_Movement(models.Model):
     amount = models.DecimalField(max_digits=11, decimal_places=2, verbose_name='Monto',
                                  blank=True, default=0)
     description = models.CharField(max_length=255, blank=True, verbose_name='Descripción del movimiento')
+    is_null = models.BooleanField(default=False, blank=True, verbose_name='Anulado?')
     created = models.DateTimeField(auto_now=False, auto_now_add=True, blank=True, null=True,
                                    verbose_name='Fecha de creación')
     updated = models.DateTimeField(auto_now=True, auto_now_add=False, blank=True, null=True,
                                    verbose_name='Fecha de modificación')
 
     def __str__(self):
-        return self.movement_number
+        return self.consecutive
 
     class Meta:
         verbose_name = 'Movimiento de Crédito'
         verbose_name_plural = 'Movimientos de Crédito'
-        ordering = ['movement_number']
-
-
-@receiver(pre_save, sender=Credit_Movement)
-def save_movement_number(sender, instance, *args, **kwargs):
-    top = Credit_Movement.objects.select_for_update(nowait=True).order_by('-movement_number').first()
-    if top:
-        instance.movement_number = top.movement_number + 1
+        ordering = ['consecutive']
 
 
 class Credit_Payment(models.Model):
@@ -62,33 +54,28 @@ class Credit_Payment(models.Model):
                         (debit, 'Débito')
                         )
 
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    payment_number = models.PositiveIntegerField(default=1, verbose_name='Número de movimiento', editable=False)
+    id = models.UUIDField(default=uuid.uuid4, editable=False)
+    consecutive = models.AutoField(primary_key=True, verbose_name='Número de movimiento', editable=False)
     sales = models.TextField(verbose_name='Objeto Array de Facturas', default='')
     user = models.TextField(verbose_name='Objeto Usuario', default='')
     client = models.TextField(verbose_name='Objeto Cliente', default='')
+    client_id = models.CharField(max_length=255, blank=True, null=True, verbose_name='ID Objeto Cliente', default='')
     amount = models.DecimalField(max_digits=11, decimal_places=2, verbose_name='Monto',
                                  blank=True, default=0)
     description = models.CharField(max_length=255, blank=True, verbose_name='Descripción del movimiento')
+    is_null = models.BooleanField(default=False, blank=True, verbose_name='Anulado?')
     created = models.DateTimeField(auto_now=False, auto_now_add=True, blank=True, null=True,
                                    verbose_name='Fecha de creación')
     updated = models.DateTimeField(auto_now=True, auto_now_add=False, blank=True, null=True,
                                    verbose_name='Fecha de modificación')
 
     def __str__(self):
-        return self.payment_number
+        return self.consecutive
 
     class Meta:
         verbose_name = 'Pago de Crédito'
         verbose_name_plural = 'Pagos de Crédito'
-        ordering = ['payment_number']
-
-
-@receiver(pre_save, sender=Credit_Payment)
-def save_payment_number(sender, instance, *args, **kwargs):
-    top = Credit_Payment.objects.select_for_update(nowait=True).order_by('-payment_number').first()
-    if top:
-        instance.payment_number = top.payment_number + 1
+        ordering = ['consecutive']
 
 
 content_type = ContentType.objects.get_for_model(Credit_Movement)

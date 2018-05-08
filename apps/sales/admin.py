@@ -3,12 +3,20 @@
 from __future__ import unicode_literals
 
 from django.contrib import admin
-from .models import Sale
+from .models import Sale, Cash_Advance
 
 
 @admin.register(Sale)
 class SaleAdmin(admin.ModelAdmin):
 
-    list_display = ('bill_number', 'created', 'updated')
+    list_display = ('consecutive', 'created', 'updated')
 
-    search_fields = ('bill_number', )
+    search_fields = ('consecutive', )
+
+
+@admin.register(Cash_Advance)
+class Cash_AdvanceAdmin(admin.ModelAdmin):
+
+    list_display = ('consecutive', 'created', 'updated')
+
+    search_fields = ('consecutive', )

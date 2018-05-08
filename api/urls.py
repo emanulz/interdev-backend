@@ -16,7 +16,7 @@ from apps.products.api.views import ProductViewSet, ProductDepartmentViewSet, Pr
 from apps.suppliers.api.views import SupplierViewSet
 from apps.profiles.api.views import ProfileViewSet
 from apps.profiles.api.views import UserViewSet, PermissionsViewSet
-from apps.sales.api.views import SaleViewSet
+from apps.sales.api.views import SaleViewSet, Cash_AdvanceViewSet
 from apps.logs.api.views import LogViewSet
 from apps.credits.api.views import Credit_MovementViewSet, Credit_PaymentViewSet
 from apps.taxes.api.views import TaxViewSet
@@ -36,6 +36,7 @@ router.register(r'clients', ClientViewSet)
 router.register(r'logs', LogViewSet)
 router.register(r'products', ProductViewSet)
 router.register(r'sales', SaleViewSet)
+router.register(r'cashadvances', Cash_AdvanceViewSet)
 router.register(r'productdepartments', ProductDepartmentViewSet)
 router.register(r'productsubdepartments', ProductSubDepartmentViewSet)
 router.register(r'suppliers', SupplierViewSet)
