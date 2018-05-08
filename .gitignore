@@ -36,4 +36,7 @@ venv/*
 *.old
 *.env
 yarn.lock
+/static/bundles/*
+webpack-stats-local.json
+
 
