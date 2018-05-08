@@ -23,6 +23,7 @@ urlpatterns = [
     url(r'^reports/', login_required(TemplateView.as_view(template_name='reports.html'))),
     url(r'^sales/', login_required(TemplateView.as_view(template_name='sales.html'))),
     url(r'^credits/', login_required(TemplateView.as_view(template_name='credits.html'))),
+    url(r'^workshop/', login_required(TemplateView.as_view(template_name='workshop.html'))),
 
     # LOGIN
     url(r'^login/$', auth_views.LoginView.as_view()),
