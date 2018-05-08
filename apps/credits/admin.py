@@ -10,14 +10,14 @@ from .models import Credit_Movement, Credit_Payment
 @admin.register(Credit_Movement)
 class Credit_MovementAdmin(admin.ModelAdmin):
 
-    list_display = ('movement_number', 'movement_type', 'amount', 'created')
+    list_display = ('consecutive', 'movement_type', 'amount', 'created')
 
-    search_fields = ('movement_number', 'movement_type', 'amount', 'created')
+    search_fields = ('consecutive', 'movement_type', 'amount', 'created')
 
 
 @admin.register(Credit_Payment)
 class Credit_PaymentAdmin(admin.ModelAdmin):
 
-    list_display = ('payment_number', 'description', 'amount', 'created')
+    list_display = ('consecutive', 'description', 'amount', 'created')
 
-    search_fields = ('payment_number', 'amount', 'created')
+    search_fields = ('consecutive', 'amount', 'created')

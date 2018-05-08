@@ -10,7 +10,7 @@ class Cash_AdvanceSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Cash_Advance
-        fields = ('id', 'advance_number', 'client', 'client_id', 'user', 'created', 'amount', 'description', 'updated')
+        fields = ('id', 'consecutive', 'client', 'client_id', 'user', 'created', 'amount', 'description', 'updated')
 
 
 class SaleSerializer(serializers.ModelSerializer):
@@ -20,7 +20,7 @@ class SaleSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Sale
-        fields = ('id', 'bill_number', 'cart', 'client', 'client_id', 'user', 'pay', 'pay_type', 'payed', 'created',
+        fields = ('id', 'consecutive', 'cart', 'client', 'client_id', 'user', 'pay', 'pay_type', 'payed', 'created',
                   'updated', 'debt', 'debits', 'credits')
 
     def get_debt(self, obj):

@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 import uuid
-from django.db.models.signals import pre_save
-from django.dispatch import receiver
 from django.db import models
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
@@ -23,8 +21,8 @@ class Sale(models.Model):
                    (transfer, 'Transferencia'),
                    (other, 'Otro')
                    )
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    bill_number = models.IntegerField(default=1, verbose_name='Número de factura', editable=False, unique=True)
+    id = models.UUIDField(default=uuid.uuid4, editable=False)
+    consecutive = models.AutoField(primary_key=True, verbose_name='Número de factura', editable=False, unique=True)
     cart = models.TextField(verbose_name='Objeto Carrito', default='')
     client = models.TextField(verbose_name='Objeto Cliente', default='')
     client_id = models.CharField(max_length=255, verbose_name='Id de Cliente', default='1')
@@ -43,20 +41,13 @@ class Sale(models.Model):
     class Meta:
         verbose_name = 'Venta'
         verbose_name_plural = 'Ventas'
-        ordering = ['bill_number']
-
-
-@receiver(pre_save, sender=Sale)
-def next_bill_number(sender, instance, *args, **kwargs):
-    top = Sale.objects.select_for_update(nowait=True).order_by('-bill_number').first()
-    if top:
-        instance.bill_number = top.bill_number + 1
+        ordering = ['consecutive']
 
 
 class Cash_Advance(models.Model):
 
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    advance_number = models.IntegerField(default=1, verbose_name='Número de factura', editable=False, unique=True)
+    id = models.UUIDField(default=uuid.uuid4, editable=False)
+    consecutive = models.AutoField(primary_key=True, verbose_name='Número de factura', editable=False, unique=True)
     client = models.TextField(verbose_name='Objeto Cliente', default='')
     client_id = models.CharField(max_length=255, verbose_name='Id de Cliente', default='1')
     user = models.TextField(verbose_name='Objeto Usuario', default='')
@@ -73,14 +64,7 @@ class Cash_Advance(models.Model):
     class Meta:
         verbose_name = 'Adelanto de efectivo'
         verbose_name_plural = 'Adelantos de efectivo'
-        ordering = ['advance_number']
-
-
-@receiver(pre_save, sender=Cash_Advance)
-def next_advance_number(sender, instance, *args, **kwargs):
-    top = Cash_Advance.objects.select_for_update(nowait=True).order_by('-advance_number').first()
-    if top:
-        instance.advance_number = top.advance_number + 1
+        ordering = ['consecutive']
 
 
 content_type = ContentType.objects.get_for_model(Sale)
