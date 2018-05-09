@@ -36,6 +36,6 @@ venv/*
 *.old
 *.env
 yarn.lock
-static/bundles/*
-static/vendor/*
+static/bundles/local/*
+static/bundles/css/*
 
