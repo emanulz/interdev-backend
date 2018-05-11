@@ -59,8 +59,6 @@ router.register(r'workorders', Work_OrderViewSet)
 router.register(r'labor', LaborViewSet)
 router.register(r'partsrequest', Parts_RequestViewSet)
 
-
-
 urlpatterns = [
 
     url(r'^', include(router.urls)),

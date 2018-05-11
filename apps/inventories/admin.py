@@ -10,9 +10,9 @@ from .models import Inventory_Movement, Warehouse
 @admin.register(Inventory_Movement)
 class Inventory_MovementAdmin(admin.ModelAdmin):
 
-    list_display = ('movement_number', 'movement_type', 'amount', 'created')
+    list_display = ('consecutive', 'movement_type', 'amount', 'created')
 
-    search_fields = ('movement_number', 'movement_type', 'amount', 'created')
+    search_fields = ('consecutive', 'movement_type', 'amount', 'created')
 
 
 @admin.register(Warehouse)

@@ -9,7 +9,7 @@ class Inventory_MovementSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Inventory_Movement
-        fields = ('id', 'movement_number', 'movement_type', 'user', 'amount', 'product', 'product_id', 'description',
+        fields = ('id', 'consecutive', 'movement_type', 'user', 'amount', 'product', 'product_id', 'description',
                   'created', 'updated')
 
 
