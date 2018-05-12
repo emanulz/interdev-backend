@@ -10,7 +10,10 @@ class Work_OrderSerializer(serializers.ModelSerializer):
                     'technician', 'client', 'client_id', 'article_type',
                     'article_brand', 'article_model', 'article_serial',
                     'article_color', 'article_data', 'malfunction_details', 
-                    'observations', 'created', 'updated')
+                    'observations', 'is_warranty', 'warranty_number_bd',
+                    'warranty_invoice_date', 'warranty_supplier_name',
+                    'warranty_invoice_number', 'warranty_repaired_by',
+                    'created', 'updated')
 
 
 class LaborSerializer(serializers.ModelSerializer):
