@@ -11,7 +11,7 @@ from django.contrib.contenttypes.models import ContentType
 class Work_Order(models.Model):
 
     id = models.UUIDField(default=uuid.uuid4, editable=False)
-    consecutive = models.AutoField(primary_key=True, default=1, verbose_name="Número de orden", editable=False)
+    consecutive = models.AutoField(primary_key=True, verbose_name="Número de orden", editable=False)
     is_closed = models.BooleanField(default=False, verbose_name="Orden Cerrada")
     receiving_employee = models.TextField(verbose_name="Objeto Empleado", default='')
     technician = models.TextField(verbose_name="Tecnico a Cargo", default='')
