@@ -22,12 +22,14 @@ class Inventory_Movement(models.Model):
     consecutive = models.AutoField(primary_key=True, verbose_name='Consecutivo', editable=False)
     movement_type = models.CharField(max_length=4, choices=MOVEMENT_CHOICES, default=input,
                                      verbose_name='Tipo de Movimiento')
-    user = models.TextField(verbose_name='Objeto Usuario', default='')
+    user = models.TextField(verbose_name='Objeto Usuario', default='', blank=True, null=True)
     amount = models.DecimalField(max_digits=11, decimal_places=2, verbose_name='Monto',
                                  blank=True, default=0)
     product_id = models.CharField(max_length=255, verbose_name='ID del Producto')
-    product = models.TextField(verbose_name='Objeto Producto', default='')
-    warehouse_id = models.CharField(max_length=255, verbose_name='ID de la Bodega')
+    product = models.TextField(verbose_name='Objeto Producto', default='', blank=True, null=True)
+    warehouse_id = models.CharField(max_length=255, verbose_name='ID de la Bodega', blank=True, null=True)
+    warehouse = models.TextField(verbose_name='Objeto Bodega', default='', blank=True, null=True)
+    is_null = models.BooleanField(default=False, blank=True, verbose_name='Anulado?')
     description = models.CharField(max_length=255, blank=True, verbose_name='Descripción del movimiento')
     created = models.DateTimeField(auto_now=False, auto_now_add=True, blank=True, null=True,
                                    verbose_name='Fecha de creación')

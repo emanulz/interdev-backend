@@ -24,6 +24,7 @@ def url(instance, filename):
 
 class Product(models.Model):
 
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     code = models.CharField(max_length=10, null=True, verbose_name='Código', unique=True)
     description = models.CharField(max_length=255, verbose_name='Descripción del producto', null=True)
     unit = models.CharField(max_length=255, blank=True, null=True, verbose_name='Unidad')
