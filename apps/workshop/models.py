@@ -11,7 +11,7 @@ from django.contrib.contenttypes.models import ContentType
 class Work_Order(models.Model):
 
     id = models.UUIDField(default=uuid.uuid4, editable=False)
-    consecutive = models.AutoField(primary_key=True, default=1, verbose_name="Número de orden", editable=False)
+    consecutive = models.AutoField(primary_key=True, verbose_name="Número de orden", editable=False)
     is_closed = models.BooleanField(default=False, verbose_name="Orden Cerrada")
     receiving_employee = models.TextField(verbose_name="Objeto Empleado", default='')
     technician = models.TextField(verbose_name="Tecnico a Cargo", default='')
@@ -27,7 +27,15 @@ class Work_Order(models.Model):
 
     malfunction_details = models.CharField(max_length=255, verbose_name="Detalles falla", default='')
     observations = models.TextField(verbose_name="Observaciones", default='') #store several observations as a JSON
-    
+
+    #warranty related properties
+    is_warranty = models.BooleanField(default=False, verbose_name="Es una orden de Garantía?")
+    warranty_number_bd = models.CharField(verbose_name="Número de garantía Black&Decker", max_length=60, blank=True, null=True)
+    warranty_invoice_date = models.DateField(verbose_name="Fecha venta en factura del producto", blank=True, null=True)
+    warranty_supplier_name = models.CharField(verbose_name="Nombre de Comercio en factura", max_length=60, blank=True, null=True)
+    warranty_invoice_number = models.CharField(verbose_name="Número de Factura de venta", max_length=60, blank=True, null=True)
+    warranty_repaired_by = models.DateField(verbose_name="Fecha estimada para entrega", blank=True, null=True)
+
     created = models.DateTimeField(auto_now=False, auto_now_add=True, blank=True, null=True,
                                    verbose_name='Fecha de creación')
     updated = models.DateTimeField(auto_now=True, auto_now_add=False, blank=True, null=True,
