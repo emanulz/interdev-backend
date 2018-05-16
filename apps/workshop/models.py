@@ -26,7 +26,7 @@ class Work_Order(models.Model):
     article_data = models.CharField(max_length=255, blank=True, null=True, verbose_name="Datos del artículo", default='')
 
     malfunction_details = models.CharField(max_length=255, verbose_name="Detalles falla", default='')
-    observations = models.TextField(verbose_name="Observaciones", default='') #store several observations as a JSON
+    observations_list = models.TextField(verbose_name="Observaciones", default='') #store several observations as a JSON
 
     #warranty related properties
     is_warranty = models.BooleanField(default=False, verbose_name="Es una orden de Garantía?")
