@@ -53,6 +53,8 @@ class Cash_Advance(models.Model):
     user = models.TextField(verbose_name='Objeto Usuario', default='')
     amount = models.FloatField(default=0, verbose_name='Monto del avance')
     description = models.CharField(max_length=255, default='', verbose_name='Descripción')
+    work_order_id =  models.UUIDField(null=True, blank=True)
+    sale_id =  models.UUIDField(null=True, blank=True)
     created = models.DateTimeField(auto_now=False, auto_now_add=True, blank=True, null=True,
                                    verbose_name='Fecha de creación')
     updated = models.DateTimeField(auto_now=True, auto_now_add=False, blank=True, null=True,
