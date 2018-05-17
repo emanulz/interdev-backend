@@ -31,16 +31,12 @@ class ProductSerializer(serializers.ModelSerializer):
 
 def getProductInventory(product_id):
 
-    movements = Inventory_Movement.objects.filter(product_id=product_id).order_by('-created')
+    warehouses = Warehouse.objects.all()
     amount = 0
-    for movement in movements:
-        if movement.movement_type == 'INPUT' and not movement.is_null:
-            amount += movement.amount
-        if movement.movement_type == 'OUTPUT' and not movement.is_null:
-            amount -= movement.amount
-        if movement.movement_type == 'ADJUST' and not movement.is_null:
-            amount += movement.amount
-            break
+    for warehouse in warehouses:
+        inventory = inventoryByWarehouse(product_id, warehouse.id)
+        amount = amount + inventory
+
     return amount
 
 
