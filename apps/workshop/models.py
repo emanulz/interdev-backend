@@ -12,7 +12,8 @@ class Work_Order(models.Model):
 
     id = models.UUIDField(default=uuid.uuid4, editable=False)
     consecutive = models.AutoField(primary_key=True, verbose_name="Número de orden", editable=False)
-    is_closed = models.BooleanField(default=False, verbose_name="Orden Cerrada")
+    is_closed = models.BooleanField(default=False, verbose_name="Orden Cerrada?")
+    paid = models.BooleanField(default=False, verbose_name="Orden Pagada?")
     receiving_employee = models.TextField(verbose_name="Objeto Empleado", default='')
     technician = models.TextField(verbose_name="Tecnico a Cargo", default='')
     client = models.TextField(verbose_name='Objeto Cliente', default='')
@@ -83,7 +84,7 @@ class Labor(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     work_order_id = models.CharField(verbose_name="ID Orden de Trabajo", max_length=40, default='')
     employee = models.TextField(verbose_name="Empleado", default='')
-    cost = models.FloatField(default=0, verbose_name="Costo Mano de Obra ₡")
+    amount = models.FloatField(default=0, verbose_name="Costo Mano de Obra ₡")
     description = models.CharField(max_length=255, verbose_name= "Descripción Reparación", default='')
     created = models.DateTimeField(auto_now=False, auto_now_add=True, blank=True, null=True,
                                    verbose_name='Fecha de creación')
