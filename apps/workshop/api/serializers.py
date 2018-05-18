@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from ..models import Work_Order, Labor, Parts_Request
+from ..models import Work_Order, Labor, UsedPart
 
 
 class Work_OrderSerializer(serializers.ModelSerializer):
@@ -23,10 +23,9 @@ class LaborSerializer(serializers.ModelSerializer):
         fields = ('id', 'work_order_id', 'employee', 'amount',
         'description', 'created', 'updated')
 
-class Parts_RequestSerializer(serializers.ModelSerializer):
+class UsedPartSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = Parts_Request
-        fields = ('id', 'work_order_id', 'employee', 'part',
-                    'quantity', 'movement_type', 'origin_warehouse', 
-                    'destination_warehouse', 'created', 'updated')
+        model = UsedPart
+        fields = ('id', 'work_order_id', 'employee', 'amount',
+        'description', 'created', 'updated')

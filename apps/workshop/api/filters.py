@@ -1,6 +1,6 @@
 import django_filters
 
-from ..models import Work_Order, Labor, Parts_Request
+from ..models import Work_Order, Labor, UsedPart
 
 class Work_OrderFilter(django_filters.FilterSet):
     class Meta:
@@ -20,9 +20,8 @@ class LaborFilter(django_filters.FilterSet):
         fields = ('id', 'work_order_id', 'employee', 'amount',
             'description', 'created', 'updated')
 
-class Parts_RequestFilter(django_filters.FilterSet):
+class UsedPartFilter(django_filters.FilterSet):
     class Meta:
-        model = Parts_Request
-        fields = ('id', 'work_order_id', 'employee', 'part',
-                    'quantity', 'movement_type', 'origin_warehouse', 
-                    'destination_warehouse', 'created', 'updated')        
+        model = UsedPart
+        fields = ('id', 'work_order_id', 'employee', 'amount',
+            'description', 'created', 'updated')
