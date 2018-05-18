@@ -1,8 +1,8 @@
 from rest_framework import viewsets
 
-from ..models import Work_Order, Labor, Parts_Request
-from .filters import Work_OrderFilter, LaborFilter, Parts_RequestFilter
-from .serializers import Work_OrderSerializer, LaborSerializer, Parts_RequestSerializer
+from ..models import Work_Order, Labor, UsedPart
+from .filters import Work_OrderFilter, LaborFilter, UsedPartFilter
+from .serializers import Work_OrderSerializer, LaborSerializer, UsedPartSerializer
 from .permissions import HasProperPermission
 
 class Work_OrderViewSet(viewsets.ModelViewSet):
@@ -23,8 +23,11 @@ class LaborViewSet(viewsets.ModelViewSet):
     def get_permissions(self):
         return [HasProperPermission()]
 
-class Parts_RequestViewSet(viewsets.ModelViewSet):
-    serializer_class = Parts_RequestSerializer
-    queryset = Parts_Request.objects.all()
+class UsedPartViewSet(viewsets.ModelViewSet):
+    serializer_class = UsedPartSerializer
+    queryset = UsedPart.objects.all()
     lookup_field = 'id'
-    filter_class =  Parts_RequestFilter
+    filter_class = UsedPartFilter
+
+    def get_permissions(self):
+        return [HasProperPermission()]

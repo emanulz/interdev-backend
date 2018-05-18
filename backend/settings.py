@@ -59,7 +59,8 @@ INSTALLED_APPS = [
     'apps.senders.apps.SendersConfig',
     'apps.addresses.apps.AddressesConfig',
     'apps.inventories.apps.InventoriesConfig',
-    'apps.workshop.apps.WorkshopConfig'
+    'apps.workshop.apps.WorkshopConfig',
+    'apps.reporting.apps.ReportingConfig'
 ]
 
 MIDDLEWARE = [

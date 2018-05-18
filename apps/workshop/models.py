@@ -12,7 +12,8 @@ class Work_Order(models.Model):
 
     id = models.UUIDField(default=uuid.uuid4, editable=False)
     consecutive = models.AutoField(primary_key=True, verbose_name="Número de orden", editable=False)
-    is_closed = models.BooleanField(default=False, verbose_name="Orden Cerrada")
+    is_closed = models.BooleanField(default=False, verbose_name="Orden Cerrada?")
+    paid = models.BooleanField(default=False, verbose_name="Orden Pagada?")
     receiving_employee = models.TextField(verbose_name="Objeto Empleado", default='')
     technician = models.TextField(verbose_name="Tecnico a Cargo", default='')
     client = models.TextField(verbose_name='Objeto Cliente', default='')
@@ -26,7 +27,7 @@ class Work_Order(models.Model):
     article_data = models.CharField(max_length=255, blank=True, null=True, verbose_name="Datos del artículo", default='')
 
     malfunction_details = models.CharField(max_length=255, verbose_name="Detalles falla", default='')
-    observations = models.TextField(verbose_name="Observaciones", default='') #store several observations as a JSON
+    observations_list = models.TextField(verbose_name="Observaciones", default='') #store several observations as a JSON
 
     #warranty related properties
     is_warranty = models.BooleanField(default=False, verbose_name="Es una orden de Garantía?")
@@ -47,43 +48,12 @@ class Work_Order(models.Model):
         ordering = ['consecutive']
         permissions = (("list_work_order", "Can list Work_Order"),)
 
-
-
-class Parts_Request(models.Model):
-
-    inbound = "IN"
-    outbound = "OUT"
-    movement_choices=((inbound, 'ENTRADA'),(outbound,'SALIDA'))
-
-
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    work_order_id = models.CharField(verbose_name="ID Orden de Trabajo", max_length=40, default='')
-    employee = models.TextField(verbose_name="Empleado", default='')
-    part = models.TextField(verbose_name="Objeto Parte", default='')
-    quantity = models.IntegerField(default=1, verbose_name="Cantidad")
-    movement_type = models.CharField(verbose_name="Tipo Movimiento", max_length=40, choices=movement_choices, default='')
-    origin_warehouse = models.CharField(verbose_name="Bodega de Origen", max_length=40, default='')
-    destination_warehouse = models.CharField(verbose_name="Bodega de Destino", max_length=40, default='')
-    created = models.DateTimeField(auto_now=False, auto_now_add=True, blank=True, null=True,
-                                   verbose_name='Fecha de creación')
-    updated = models.DateTimeField(auto_now=True, auto_now_add=False, blank=True, null=True,
-                                   verbose_name='Fecha de modificación')
-    
-    def __str__(self):
-        return "Solicitud Repuesto -> Orden Trabajo %s, Cantidad %s, Parte %s" % (
-            self.work_order_id, self.quantity, self.part)
-    class Meta:
-        verbose_name = "Solicitud de Parte"
-        verbose_name_plural = "Solicitudes de Parte"
-        ordering = ['work_order_id']
-        permissions = (("list_part_request", "Can list Part_Request"),)
-
 class Labor(models.Model):
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     work_order_id = models.CharField(verbose_name="ID Orden de Trabajo", max_length=40, default='')
     employee = models.TextField(verbose_name="Empleado", default='')
-    cost = models.FloatField(default=0, verbose_name="Costo Mano de Obra ₡")
+    amount = models.FloatField(default=0, verbose_name="Costo Mano de Obra ₡")
     description = models.CharField(max_length=255, verbose_name= "Descripción Reparación", default='')
     created = models.DateTimeField(auto_now=False, auto_now_add=True, blank=True, null=True,
                                    verbose_name='Fecha de creación')
@@ -96,6 +66,21 @@ class Labor(models.Model):
         ordering = ['work_order_id']
         permissions = (("list_labor", "Can list Labor"),)
 
-    def __str__(self):
-        return "Mano de Obra ->Orden Trabajo %s, Costo %s, Descripción %s" % (
-            self.work_order_id, self.cost, self.description)
+
+class UsedPart(models.Model):
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    work_order_id = models.CharField(verbose_name="ID Orden de Trabajo", max_length=40, default='')
+    employee = models.TextField(verbose_name="Empleado", default='')
+    amount = models.FloatField(default=0, verbose_name="Costo Respuesto ₡")
+    description = models.CharField(max_length=255, verbose_name= "Descripción parte", default='')
+    created = models.DateTimeField(auto_now=False, auto_now_add=True, blank=True, null=True,
+                                   verbose_name='Fecha de creación')
+    updated = models.DateTimeField(auto_now=True, auto_now_add=False, blank=True, null=True,
+                                   verbose_name='Fecha de modificación')
+
+    class Meta:
+        verbose_name = "Repuesto Usado"
+        verbose_name_plural = "Repuestos Usados"
+        ordering = ['work_order_id']
+        permissions = (("list_used_part", "Can list Used Parts"),)
