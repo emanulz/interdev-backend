@@ -20,7 +20,7 @@ class CompanyName(StringPreference):
 class CompanyComercialName(StringPreference):
     section = company
     name = 'comercial_name'
-    default = 'iFact CR'
+    default = 'InterDev'
 
 
 @global_preferences_registry.register
@@ -41,7 +41,7 @@ class CompanyId(StringPreference):
 class CompanyLogo(StringPreference):
     section = company
     name = 'logo'
-    default = 'compupz.png'
+    default = 'logoInterdev.png'
 
 
 @global_preferences_registry.register

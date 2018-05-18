@@ -39,5 +39,6 @@ yarn.lock
 static/bundles/*
 static/vendor/*
 db.sqlite3
+./webpack-stats-local.json
 webpack-stats-local.json
 
