@@ -1,6 +1,8 @@
 from django.shortcuts import render
 from django.http import HttpResponse
+from .reports.bdreport import build
 
 
 def generateBDReport(request):
-    return HttpResponse("Warranty report route")
+    response = build()
+    return response
