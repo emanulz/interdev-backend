@@ -84,3 +84,25 @@ class UsedPart(models.Model):
         verbose_name_plural = "Repuestos Usados"
         ordering = ['work_order_id']
         permissions = (("list_used_part", "Can list Used Parts"),)
+
+class PartRequest(models.Model):
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    work_order_id = models.CharField(verbose_name="ID Orden de Trabajo", max_length=40, default='')
+    employee = models.TextField(verbose_name="Empleado", default='')
+    amount = models.FloatField(default=0, verbose_name="Cantidad")
+    product = models.TextField(verbose_name= "Producto", default='')
+
+    id_movement_workshop = models.UUIDField(verbose_name="ID movimiento Bodega de Taller")
+    id_movement_origin = models.UUIDField(verbose_name="ID movimeinto Bodega Origen")
+
+    created = models.DateTimeField(auto_now=False, auto_now_add=True, blank=True, null=True,
+                                   verbose_name='Fecha de creación')
+    updated = models.DateTimeField(auto_now=True, auto_now_add=False, blank=True, null=True,
+                                   verbose_name='Fecha de modificación')
+
+    class Meta:
+        verbose_name = "Traslado de Repuesto"
+        verbose_name_plural = "Traslados de Repuesto"
+        ordering = ['work_order_id']
+        permissions = (("list_part_request", "Can list Parts request"),)

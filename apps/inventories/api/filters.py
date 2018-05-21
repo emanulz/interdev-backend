@@ -10,7 +10,7 @@ class Inventory_MovementFilter(django_filters.FilterSet):
     class Meta:
         model = Inventory_Movement
         fields = ('id', 'consecutive', 'movement_type', 'product_id', 'amount', 'description', 'created', 'updated',
-                  'warehouse', 'warehouse_id')
+                  'warehouse', 'warehouse_id', 'id_generator')
 
 
 class WarehouseFilter(django_filters.FilterSet):
@@ -18,3 +18,4 @@ class WarehouseFilter(django_filters.FilterSet):
     class Meta:
         model = Warehouse
         fields = ('id', 'code', 'name', 'location', 'description', 'created', 'updated')
+

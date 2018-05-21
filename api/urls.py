@@ -23,7 +23,7 @@ from apps.taxes.api.views import TaxViewSet
 from apps.senders.api.views import SenderViewSet
 from apps.addresses.api.views import ProvinceViewSet, CantonViewSet, DistrictViewSet, TownViewSet
 from apps.inventories.api.views import Inventory_MovementViewSet, WarehouseViewSet
-from apps.workshop.api.views import Work_OrderViewSet, LaborViewSet, UsedPartViewSet
+from apps.workshop.api.views import Work_OrderViewSet, LaborViewSet, UsedPartViewSet, PartRequestViewSet
 
 from dynamic_preferences.users.viewsets import UserPreferencesViewSet
 
@@ -58,6 +58,7 @@ router.register(r'warehouses', WarehouseViewSet)
 router.register(r'workorders', Work_OrderViewSet)
 router.register(r'labor', LaborViewSet)
 router.register(r'usedparts', UsedPartViewSet)
+router.register(r'partrequest', PartRequestViewSet)
 
 urlpatterns = [
 
