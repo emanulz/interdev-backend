@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Work_Order, Labor, UsedPart
+from .models import Work_Order, Labor, UsedPart, PartRequest
 
 @admin.register(Work_Order)
 class Work_OrderAdmin(admin.ModelAdmin):
@@ -10,7 +10,12 @@ class LaborAdmin(admin.ModelAdmin):
     search_fields = ('work_order_id', 'created', 'updated')
     list_display = ('work_order_id', 'created', 'updated')
 @admin.register(UsedPart)
-class UsedPart(admin.ModelAdmin):
+class UsedPartAdmin(admin.ModelAdmin):
     search_fields = ('work_order_id', 'created', 'updated')
     list_display = ('work_order_id', 'created', 'updated') 
+@admin.register(PartRequest)
+class PartRequestAdmin(admin.ModelAdmin):
+    search_fields = ('work_order_id', 'created', 'updated')
+    list_display = ('work_order_id', 'created', 'updated')
+
  

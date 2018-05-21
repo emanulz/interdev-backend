@@ -31,6 +31,7 @@ class Inventory_Movement(models.Model):
     warehouse = models.TextField(verbose_name='Objeto Bodega', default='', blank=True, null=True)
     is_null = models.BooleanField(default=False, blank=True, verbose_name='Anulado?')
     description = models.CharField(max_length=255, blank=True, verbose_name='Descripción del movimiento')
+    id_generator = models.CharField(max_length=255, blank=True, null=True, verbose_name='ID del Generador')
     created = models.DateTimeField(auto_now=False, auto_now_add=True, blank=True, null=True,
                                    verbose_name='Fecha de creación')
     updated = models.DateTimeField(auto_now=True, auto_now_add=False, blank=True, null=True,
