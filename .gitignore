@@ -41,4 +41,5 @@ static/vendor/*
 db.sqlite3
 ./webpack-stats-local.json
 webpack-stats-local.json
+webpack-stats-production.json
 

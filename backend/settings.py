@@ -23,9 +23,9 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'pq0v9v3y@4dnny%jgrod5*_%snma=t(q6-h&@sf)+uptk54z82'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '192.168.9.108']
 
 
 # Application definition
@@ -106,6 +106,16 @@ DATABASES = {
     }
 }
 
+if not DEBUG:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'OPTIONS': {
+                'read_default_file': '/etc/mysql/my.cnf',
+            },
+        }
+    }
+
 
 # Password validation
 # https://docs.djangoproject.com/en/2.0/ref/settings/#auth-password-validators
@@ -155,12 +165,19 @@ REST_FRAMEWORK = {
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
 
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static'),
-    ]
+
+if DEBUG:
+    STATICFILES_DIRS = [
+        os.path.join(BASE_DIR, 'static'),
+        ]
+
+if not DEBUG:
+    STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = (os.path.join(BASE_DIR, 'media'))
+
+# WEBPACK LOADER
 
 WEBPACK_LOADER = {
     'DEFAULT': {
@@ -168,3 +185,10 @@ WEBPACK_LOADER = {
         'STATS_FILE': os.path.join(BASE_DIR, 'webpack-stats-local.json'),
         }
     }
+if not DEBUG:
+    WEBPACK_LOADER = {
+        'DEFAULT': {
+            'BUNDLE_DIR_NAME': 'bundles/production/',  # end with slash
+            'STATS_FILE': os.path.join(BASE_DIR, 'webpack-stats-production.json'),
+            }
+        }
