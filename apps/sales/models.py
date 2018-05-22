@@ -4,7 +4,6 @@ import uuid
 from django.db import models
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
-from django.db import IntegrityError
 
 
 class Sale(models.Model):
@@ -53,8 +52,8 @@ class Cash_Advance(models.Model):
     user = models.TextField(verbose_name='Objeto Usuario', default='')
     amount = models.FloatField(default=0, verbose_name='Monto del avance')
     description = models.CharField(max_length=255, default='', verbose_name='Descripción')
-    work_order_id =  models.UUIDField(null=True, blank=True)
-    sale_id =  models.UUIDField(null=True, blank=True)
+    work_order_id = models.UUIDField(null=True, blank=True)
+    sale_id = models.CharField(max_length=255, verbose_name='ID de la venta', blank=True, null=True)
     created = models.DateTimeField(auto_now=False, auto_now_add=True, blank=True, null=True,
                                    verbose_name='Fecha de creación')
     updated = models.DateTimeField(auto_now=True, auto_now_add=False, blank=True, null=True,
@@ -69,23 +68,25 @@ class Cash_Advance(models.Model):
         ordering = ['consecutive']
 
 
-content_type = ContentType.objects.get_for_model(Sale)
 try:
+    content_type = ContentType.objects.get_for_model(Sale)
     permission = Permission.objects.create(
         codename='list_sale',
         name='Can list Sale',
         content_type=content_type,
         )
-except IntegrityError:
+except Exception as e:
+    print (type(e))
     pass
 
 
-content_type = ContentType.objects.get_for_model(Cash_Advance)
 try:
+    content_type = ContentType.objects.get_for_model(Cash_Advance)
     permission = Permission.objects.create(
         codename='list_cash_advance',
         name='Can list Adelanto de efectivo',
         content_type=content_type,
         )
-except IntegrityError:
+except Exception as e:
+    print (type(e))
     pass

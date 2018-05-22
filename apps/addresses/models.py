@@ -3,7 +3,6 @@ from __future__ import unicode_literals
 from django.db import models
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
-from django.db import IntegrityError
 
 
 class Province(models.Model):
@@ -20,14 +19,15 @@ class Province(models.Model):
         ordering = ['id']
 
 
-content_type = ContentType.objects.get_for_model(Province)
 try:
+    content_type = ContentType.objects.get_for_model(Province)
     permission = Permission.objects.create(
         codename='list_province',
         name='Can list Provincia',
         content_type=content_type,
         )
-except IntegrityError:
+except Exception as e:
+    print (type(e))
     pass
 
 
@@ -46,14 +46,15 @@ class Canton(models.Model):
         ordering = ['id']
 
 
-content_type = ContentType.objects.get_for_model(Canton)
 try:
+    content_type = ContentType.objects.get_for_model(Canton)
     permission = Permission.objects.create(
         codename='list_canton',
         name='Can list Canton',
         content_type=content_type,
         )
-except IntegrityError:
+except Exception as e:
+    print (type(e))
     pass
 
 
@@ -73,14 +74,15 @@ class District(models.Model):
         ordering = ['id']
 
 
-content_type = ContentType.objects.get_for_model(District)
 try:
+    content_type = ContentType.objects.get_for_model(District)
     permission = Permission.objects.create(
         codename='list_district',
         name='Can list District',
         content_type=content_type,
         )
-except IntegrityError:
+except Exception as e:
+    print (type(e))
     pass
 
 
@@ -101,12 +103,13 @@ class Town(models.Model):
         ordering = ['id']
 
 
-content_type = ContentType.objects.get_for_model(Town)
 try:
+    content_type = ContentType.objects.get_for_model(Town)
     permission = Permission.objects.create(
         codename='list_town',
         name='Can list Barrio',
         content_type=content_type,
         )
-except IntegrityError:
+except Exception as e:
+    print (type(e))
     pass

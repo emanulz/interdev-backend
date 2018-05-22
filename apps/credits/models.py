@@ -4,7 +4,6 @@ from django.db import models
 import uuid
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
-from django.db import IntegrityError
 
 
 class Credit_Movement(models.Model):
@@ -77,23 +76,25 @@ class Credit_Payment(models.Model):
         ordering = ['consecutive']
 
 
-content_type = ContentType.objects.get_for_model(Credit_Movement)
 try:
+    content_type = ContentType.objects.get_for_model(Credit_Movement)
     permission = Permission.objects.create(
         codename='list_credit_movement',
         name='Can list Credit Movement',
         content_type=content_type,
         )
-except IntegrityError:
+except Exception as e:
+    print (type(e))
     pass
 
 
-content_type = ContentType.objects.get_for_model(Credit_Payment)
 try:
+    content_type = ContentType.objects.get_for_model(Credit_Payment)
     permission = Permission.objects.create(
         codename='list_credit_payment',
         name='Can list Credit Payment',
         content_type=content_type,
         )
-except IntegrityError:
+except Exception as e:
+    print (type(e))
     pass

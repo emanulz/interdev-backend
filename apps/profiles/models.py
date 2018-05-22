@@ -8,7 +8,6 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
-from django.db import IntegrityError
 
 
 def url(instance, filename):
@@ -45,23 +44,25 @@ def save_user_profile(sender, instance, **kwargs):
     instance.profile.save()
 
 
-content_type = ContentType.objects.get_for_model(Profile)
 try:
+    content_type = ContentType.objects.get_for_model(Profile)
     permission = Permission.objects.create(
         codename='list_profile',
         name='Can list Profile',
         content_type=content_type,
         )
-except IntegrityError:
+except Exception as e:
+    print (type(e))
     pass
 
 
-content_type = ContentType.objects.get_for_model(User)
 try:
+    content_type = ContentType.objects.get_for_model(User)
     permission = Permission.objects.create(
         codename='list_user',
         name='Can list User',
         content_type=content_type,
         )
-except IntegrityError:
+except Exception as e:
+    print (type(e))
     pass

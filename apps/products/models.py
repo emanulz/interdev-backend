@@ -7,7 +7,6 @@ import os
 from uuid import uuid4
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
-from django.db import IntegrityError
 
 
 def url(instance, filename):
@@ -90,14 +89,15 @@ class Product(models.Model):
 
 
 # CUSTOM PERMISSION
-content_type = ContentType.objects.get_for_model(Product)
 try:
+    content_type = ContentType.objects.get_for_model(Product)
     permission = Permission.objects.create(
         codename='list_product',
         name='Can list Producto',
         content_type=content_type,
         )
-except IntegrityError:
+except Exception as e:
+    print (type(e))
     pass
 
 
@@ -122,14 +122,15 @@ class ProductDepartment(models.Model):
 
 
 # CUSTOM PERMISSION
-content_type = ContentType.objects.get_for_model(ProductDepartment)
 try:
+    content_type = ContentType.objects.get_for_model(ProductDepartment)
     permission = Permission.objects.create(
         codename='list_productdepartment',
         name='Can list Familia',
         content_type=content_type,
         )
-except IntegrityError:
+except Exception as e:
+    print (type(e))
     pass
 
 
@@ -156,12 +157,13 @@ class ProductSubDepartment(models.Model):
 
 
 # CUSTOM PERMISSION
-content_type = ContentType.objects.get_for_model(ProductSubDepartment)
 try:
+    content_type = ContentType.objects.get_for_model(ProductSubDepartment)
     permission = Permission.objects.create(
         codename='list_productsubdepartment',
         name='Can list Sub-Familia',
         content_type=content_type,
         )
-except IntegrityError:
+except Exception as e:
+    print (type(e))
     pass

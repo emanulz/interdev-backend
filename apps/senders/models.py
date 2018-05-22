@@ -5,7 +5,6 @@ import os
 from django.db import models
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
-from django.db import IntegrityError
 from uuid import uuid4
 
 
@@ -92,12 +91,13 @@ class Sender(models.Model):
         ordering = ['id_number']
 
 
-content_type = ContentType.objects.get_for_model(Sender)
 try:
+    content_type = ContentType.objects.get_for_model(Sender)
     permission = Permission.objects.create(
         codename='list_sender',
         name='Can list Emisor',
         content_type=content_type,
         )
-except IntegrityError:
+except Exception as e:
+    print (type(e))
     pass

@@ -4,7 +4,6 @@ from django.db import models
 import uuid
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
-from django.db import IntegrityError
 
 
 class Inventory_Movement(models.Model):
@@ -46,14 +45,15 @@ class Inventory_Movement(models.Model):
         ordering = ['consecutive']
 
 
-content_type = ContentType.objects.get_for_model(Inventory_Movement)
 try:
+    content_type = ContentType.objects.get_for_model(Inventory_Movement)
     permission = Permission.objects.create(
         codename='list_inventory_movement',
         name='Can list Inventory Movement',
         content_type=content_type,
         )
-except IntegrityError:
+except Exception as e:
+    print (type(e))
     pass
 
 
@@ -78,12 +78,13 @@ class Warehouse(models.Model):
         ordering = ['code']
 
 
-content_type = ContentType.objects.get_for_model(Warehouse)
 try:
+    content_type = ContentType.objects.get_for_model(Warehouse)
     permission = Permission.objects.create(
         codename='list_warehouse',
         name='Can list Warehouse',
         content_type=content_type,
         )
-except IntegrityError:
+except Exception as e:
+    print (type(e))
     pass

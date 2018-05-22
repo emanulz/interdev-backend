@@ -4,7 +4,6 @@ import uuid
 from django.db import models
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
-from django.db import IntegrityError
 
 
 class Log(models.Model):
@@ -28,12 +27,13 @@ class Log(models.Model):
         ordering = ['id']
 
 
-content_type = ContentType.objects.get_for_model(Log)
 try:
+    content_type = ContentType.objects.get_for_model(Log)
     permission = Permission.objects.create(
         codename='list_log',
         name='Can list Log',
         content_type=content_type,
         )
-except IntegrityError:
+except Exception as e:
+    print (type(e))
     pass

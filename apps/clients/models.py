@@ -5,7 +5,6 @@ from django.core.validators import MaxValueValidator
 from django.db import models
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
-from django.db import IntegrityError
 
 
 class Client(models.Model):
@@ -80,12 +79,13 @@ class Client(models.Model):
         ordering = ['code']
 
 
-content_type = ContentType.objects.get_for_model(Client)
 try:
+    content_type = ContentType.objects.get_for_model(Client)
     permission = Permission.objects.create(
         codename='list_client',
         name='Can list Client',
         content_type=content_type,
         )
-except IntegrityError:
+except Exception as e:
+    print (type(e))
     pass

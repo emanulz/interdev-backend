@@ -4,7 +4,6 @@ import uuid
 from django.db import models
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
-from django.db import IntegrityError
 
 
 class Supplier(models.Model):
@@ -55,12 +54,13 @@ class Supplier(models.Model):
 
 
 # CUSTOM PERMISSION
-content_type = ContentType.objects.get_for_model(Supplier)
 try:
+    content_type = ContentType.objects.get_for_model(Supplier)
     permission = Permission.objects.create(
         codename='list_supplier',
         name='Can list Supplier',
         content_type=content_type,
         )
-except IntegrityError:
+except Exception as e:
+    print (type(e))
     pass
