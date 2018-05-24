@@ -11,7 +11,7 @@ class Purchase(models.Model):
     card = 'CARD'
     credit = 'CRED'
     transfer = 'TRAN'
-    other = 'OTHE'
+    other = 'OTHER'
 
     PAY_CHOICES = ((cash, 'Efectivo'),
                    (card, 'Tarjeta'),
@@ -27,6 +27,9 @@ class Purchase(models.Model):
     supplier = models.TextField(verbose_name="Proveedor")
     cart = models.TextField(verbose_name='Objeto Carrito', default='')
     
+    #indicates wether or not this invoice data load is closed
+    is_closed = models.BooleanField(verbose_name="Factura Cerrada", default=False)
+
     pay = models.TextField(verbose_name='Objeto Pago', default='')
     pay_type = models.CharField(max_length=4, choices=PAY_CHOICES, default=cash, verbose_name='Tipo de Pago')
     payed = models.BooleanField(default=True, verbose_name='Pagada')
