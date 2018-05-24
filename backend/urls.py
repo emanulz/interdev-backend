@@ -26,6 +26,7 @@ urlpatterns = [
     url(r'^credits/', login_required(TemplateView.as_view(template_name='credits.html'))),
     url(r'^inventories/', login_required(TemplateView.as_view(template_name='inventories.html'))),
     url(r'^workshop/', login_required(TemplateView.as_view(template_name='workshop.html'))),
+    url(r'^purchases/', login_required(TemplateView.as_view(template_name='purchases.html'))),
     url(r'^reportsExcel/', include('apps.reporting.urls')),
 
     # LOGIN
