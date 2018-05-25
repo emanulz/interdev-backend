@@ -10,7 +10,8 @@ class Cash_AdvanceSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Cash_Advance
-        fields = ('id', 'consecutive', 'client', 'client_id', 'user', 'created', 'amount', 'description', 'work_order_id', 'sale_id', 'updated')
+        fields = ('id', 'consecutive', 'client', 'client_id', 'user', 'created', 'amount', 'description',
+                  'work_order_id', 'sale_id', 'updated')
 
 
 class SaleSerializer(serializers.ModelSerializer):
