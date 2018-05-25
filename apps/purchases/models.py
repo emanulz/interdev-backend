@@ -25,6 +25,7 @@ class Purchase(models.Model):
     user = models.TextField(verbose_name='Objeto Usuario', default='')
 
     supplier = models.TextField(verbose_name="Proveedor")
+    supplier_id = models.CharField(max_length = 40, verbose_name='ID del Proveedor', default ='')
     cart = models.TextField(verbose_name='Objeto Carrito', default='')
     
     #indicates wether or not this invoice data load is closed
@@ -36,7 +37,7 @@ class Purchase(models.Model):
 
     
     invoice_number = models.CharField(max_length=255, verbose_name='Número de Factura')
-    invoice_date = models.DateTimeField(blank=True, null=True)
+    invoice_date = models.DateField(blank=True, null=True)
     credit_days =  models.IntegerField(default=0, verbose_name='Plazo Crédito')
 
     created = models.DateTimeField(auto_now=False, auto_now_add=True, blank=True, null=True,

@@ -1,12 +1,32 @@
 # blog/dynamic_preferences_registry.py
 
-from dynamic_preferences.types import StringPreference
+from dynamic_preferences.types import StringPreference, BooleanPreference
 from dynamic_preferences.preferences import Section
 from dynamic_preferences.registries import global_preferences_registry
 
 # we create some section objects to link related preferences together
 
 company = Section('company')
+
+installed_apps = Section('installed_apps')
+
+@global_preferences_registry.register
+class WorkshopAppInstalled(BooleanPreference):
+    section = installed_apps
+    name = 'WorkshopAppInstalled'
+    default = False
+
+@global_preferences_registry.register
+class PurchaseAppInstalled(BooleanPreference):
+    section = installed_apps
+    name = 'PurchaseAppInstalled'
+    default = False
+
+@global_preferences_registry.register
+class AccountsToPayAppInstalled(BooleanPreference):
+    section = installed_apps
+    name = 'AccountsToPayAppInstalled'
+    default = False
 
 
 @global_preferences_registry.register
