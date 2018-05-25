@@ -45,8 +45,10 @@ INSTALLED_APPS = [
     'django_filters',
     'webpack_loader',
     'django_cleanup',
+    'channels',
     'api',
     'apps.preferences',
+    'apps.broadcaster.apps.BroadcasterConfig',
     'apps.administration.apps.AdministrationConfig',
     'apps.logs.apps.LogsConfig',
     'apps.profiles.apps.ProfilesConfig',
@@ -94,7 +96,16 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'backend.wsgi.application'
+ASGI_APPLICATION = 'backend.routing.application'
 
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [('127.0.0.1', 6379)],
+        },
+    },
+}
 
 # Database
 # https://docs.djangoproject.com/en/2.0/ref/settings/#databases
