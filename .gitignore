@@ -46,3 +46,7 @@ webpack-stats-production.json
 static/*
 !static/login/
 !static/vendor/
+## Ignore migrations as they mess up with server migrations
+**/migrations/**
+!**/migrations
+!**/migrations/__init__.py
