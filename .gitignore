@@ -37,13 +37,13 @@ venv/*
 *.env
 yarn.lock
 db.sqlite3
-./webpack-stats-local.json
 webpack-stats-local.json
 webpack-stats-production.json
 
 ## Ignore everything inside static folder but the login and vendor folders
 ## This is needed to avoid stash all changes once collectstatic has been executed in server
 static/*
+static/bundles/
 !static/login/
 !static/vendor/
 
