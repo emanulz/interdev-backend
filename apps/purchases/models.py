@@ -24,8 +24,11 @@ class Purchase(models.Model):
     consecutive = models.AutoField(primary_key=True, verbose_name="Número de compra", editable=False)
     user = models.TextField(verbose_name='Objeto Usuario', default='')
 
-    supplier = models.TextField(verbose_name="Proveedor")
+    supplier = models.TextField(verbose_name="Proveedor", default="")
     supplier_id = models.CharField(max_length = 40, verbose_name='ID del Proveedor', default ='')
+    warehouse = models.TextField(verbose_name="Bodega de Destino", default="")
+    warehouse_id = models.CharField(max_length=40, verbose_name="ID de la Bodega", default="")
+
     cart = models.TextField(verbose_name='Objeto Carrito', default='')
     
     #indicates wether or not this invoice data load is closed

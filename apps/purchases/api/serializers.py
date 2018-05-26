@@ -5,5 +5,6 @@ class PurchaseSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Purchase
-        fields = ('id', 'consecutive', 'user', 'supplier', 'cart', 'pay', 'pay_type',
-                'payed', 'invoice_number', 'invoice_date', 'credit_days', 'created', 'updated')
+        fields = ('id', 'consecutive', 'user', 'supplier', 'cart', 'pay', 'pay_type','is_closed',
+                'payed', 'invoice_number', 'invoice_date', 'credit_days', 'created', 'updated',
+                'warehouse', 'warehouse_id')
