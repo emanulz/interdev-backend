@@ -52,7 +52,7 @@ class Credit_Payment(models.Model):
 
     id = models.UUIDField(default=uuid.uuid4, editable=False)
     consecutive = models.AutoField(primary_key=True, verbose_name='Número de movimiento', editable=False)
-    purchase = models.TextField(verbose_name='Objeto Array de Facturas', default='')
+    purchase = models.TextField(verbose_name='Objeto Compra', default='')
     user = models.TextField(verbose_name='Objeto Usuario', default='')
     supplier = models.TextField(verbose_name='Objeto Proveedor', default='')
     supplier_id = models.CharField(max_length=255, blank=True, null=True, verbose_name='ID Objeto Proveedor', default='')
