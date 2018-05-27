@@ -55,8 +55,8 @@ class Credit_Payment(models.Model):
     purchase = models.TextField(verbose_name='Objeto Compra', default='')
     user = models.TextField(verbose_name='Objeto Usuario', default='')
     supplier = models.TextField(verbose_name='Objeto Proveedor', default='')
-    supplier_id = models.CharField(max_length=255, blank=True, null=True, verbose_name='ID Objeto Proveedor', default='')
-    amount = models.DecimalField(max_digits=11, decimal_places=2, verbose_name='Monto',
+    supplier_id = models.CharField(max_length=256, blank=True, null=True, verbose_name='ID Objeto Proveedor', default='')
+    amount = models.DecimalField(max_digits=11, decimal_places=2, verbose_name='Monto Pago',
                                  blank=True, default=0)
     description = models.CharField(max_length=255, blank=True, verbose_name='Descripción del movimiento')
     is_null = models.BooleanField(default=False, blank=True, verbose_name='Anulado?')

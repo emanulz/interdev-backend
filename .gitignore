@@ -47,6 +47,7 @@ db.sqlite3
 webpack-stats-production.json
 
 ## Ignore local migrations as they mess up with server migrations
-##**/migrations/**
-##!**/migrations
-##!**/migrations/__init__.py
+**/migrations/**
+!**/migrations
+!**/migrations/__init__.py
+webpack-stats-local.json
