@@ -25,7 +25,7 @@ SECRET_KEY = 'pq0v9v3y@4dnny%jgrod5*_%snma=t(q6-h&@sf)+uptk54z82'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '192.168.9.108']
 
 
 # Application definition
@@ -45,8 +45,10 @@ INSTALLED_APPS = [
     'django_filters',
     'webpack_loader',
     'django_cleanup',
+    'channels',
     'api',
     'apps.preferences',
+    'apps.broadcaster.apps.BroadcasterConfig',
     'apps.administration.apps.AdministrationConfig',
     'apps.logs.apps.LogsConfig',
     'apps.profiles.apps.ProfilesConfig',
@@ -96,7 +98,16 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'backend.wsgi.application'
+ASGI_APPLICATION = 'backend.routing.application'
 
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [('127.0.0.1', 6379)],
+        },
+    },
+}
 
 # Database
 # https://docs.djangoproject.com/en/2.0/ref/settings/#databases
@@ -107,6 +118,16 @@ DATABASES = {
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
+
+if not DEBUG:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'OPTIONS': {
+                'read_default_file': '/etc/mysql/my.cnf',
+            },
+        }
+    }
 
 
 # Password validation
@@ -157,12 +178,19 @@ REST_FRAMEWORK = {
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
 
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static'),
-    ]
+
+if DEBUG:
+    STATICFILES_DIRS = [
+        os.path.join(BASE_DIR, 'static'),
+        ]
+
+if not DEBUG:
+    STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = (os.path.join(BASE_DIR, 'media'))
+
+# WEBPACK LOADER
 
 WEBPACK_LOADER = {
     'DEFAULT': {
@@ -170,3 +198,10 @@ WEBPACK_LOADER = {
         'STATS_FILE': os.path.join(BASE_DIR, 'webpack-stats-local.json'),
         }
     }
+if not DEBUG:
+    WEBPACK_LOADER = {
+        'DEFAULT': {
+            'BUNDLE_DIR_NAME': 'bundles/production/',  # end with slash
+            'STATS_FILE': os.path.join(BASE_DIR, 'webpack-stats-production.json'),
+            }
+        }

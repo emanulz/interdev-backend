@@ -5,6 +5,10 @@ from django.core.validators import MaxValueValidator
 from django.db import models
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
+import channels
+from asgiref.sync import async_to_sync
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 
 class Client(models.Model):
@@ -77,6 +81,17 @@ class Client(models.Model):
         verbose_name = 'Cliente'
         verbose_name_plural = 'Clientes'
         ordering = ['code']
+
+
+@receiver(post_save, sender=Client)
+def send_message(sender, instance, **kwargs):
+    async_to_sync(channels.layers.get_channel_layer().group_send)(
+        'global_broadcaster',
+        {
+            'type': 'broadcast_message',
+            'message': 'CLIENT_UPDATED'
+        }
+    )
 
 
 try:

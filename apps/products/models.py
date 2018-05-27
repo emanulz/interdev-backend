@@ -7,6 +7,10 @@ import os
 from uuid import uuid4
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
+import channels
+from asgiref.sync import async_to_sync
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 
 def url(instance, filename):
@@ -86,6 +90,17 @@ class Product(models.Model):
         verbose_name = 'Producto'
         verbose_name_plural = 'Productos'
         ordering = ['code']
+
+
+@receiver(post_save, sender=Product)
+def send_message(sender, instance, **kwargs):
+    async_to_sync(channels.layers.get_channel_layer().group_send)(
+        'global_broadcaster',
+        {
+            'type': 'broadcast_message',
+            'message': 'PRODUCT_UPDATED'
+        }
+    )
 
 
 # CUSTOM PERMISSION
