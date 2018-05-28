@@ -33,9 +33,9 @@ except Exception as e:
 
 class Canton(models.Model):
 
-    code = models.CharField(max_length=1, default='1', verbose_name='Código de cantón')
+    code = models.CharField(max_length=255, default='1', verbose_name='Código de cantón')
     name = models.CharField(max_length=80, default='San José', verbose_name='Cantón')
-    province_code = models.CharField(max_length=1, default='1', verbose_name='Código de provincia')
+    province_code = models.CharField(max_length=255, default='1', verbose_name='Código de provincia')
 
     def __str__(self):
         return '%s - %s' % (self.code, self.name)
@@ -60,10 +60,10 @@ except Exception as e:
 
 class District(models.Model):
 
-    code = models.CharField(max_length=1, default='1', verbose_name='Código de cantón')
+    code = models.CharField(max_length=255, default='1', verbose_name='Código de cantón')
     name = models.CharField(max_length=80, default='CARMEN', verbose_name='Distrito')
-    province_code = models.CharField(max_length=1, default='1', verbose_name='Código de Provincia')
-    canton_code = models.CharField(max_length=1, default='1', verbose_name='Código de cantón')
+    province_code = models.CharField(max_length=255, default='1', verbose_name='Código de Provincia')
+    canton_code = models.CharField(max_length=255, default='1', verbose_name='Código de cantón')
 
     def __str__(self):
         return '%s - %s' % (self.code, self.name)
@@ -88,11 +88,11 @@ except Exception as e:
 
 class Town(models.Model):
 
-    code = models.CharField(max_length=1, default='1', verbose_name='Código de cantón')
+    code = models.CharField(max_length=255, default='1', verbose_name='Código de cantón')
     name = models.CharField(max_length=80, default='Amón', verbose_name='Barrio')
-    province_code = models.CharField(max_length=1, default='1', verbose_name='Código de Provincia')
-    canton_code = models.CharField(max_length=2, default='1', verbose_name='Código de cantón')
-    district_code = models.CharField(max_length=2, default='1', verbose_name='Código de Distrito')
+    province_code = models.CharField(max_length=255, default='1', verbose_name='Código de Provincia')
+    canton_code = models.CharField(max_length=255, default='1', verbose_name='Código de cantón')
+    district_code = models.CharField(max_length=255, default='1', verbose_name='Código de Distrito')
 
     def __str__(self):
         return '%s - %s' % (self.code, self.name)
