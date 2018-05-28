@@ -51,3 +51,7 @@ static/bundles/
 **/migrations/**
 !**/migrations
 !**/migrations/__init__.py
+
+##Daphnee
+daphne.sock
+daphne.sock.lock
