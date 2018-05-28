@@ -2,8 +2,7 @@
 from django.db import models
 import uuid
 
-from django.db.models.signals import pre_save
-from django.dispatch import receiver
+
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
 

@@ -62,7 +62,8 @@ INSTALLED_APPS = [
     'apps.addresses.apps.AddressesConfig',
     'apps.inventories.apps.InventoriesConfig',
     'apps.workshop.apps.WorkshopConfig',
-    'apps.reporting.apps.ReportingConfig'
+    'apps.reporting.apps.ReportingConfig',
+    'apps.purchases.apps.PurchasesConfig'
 ]
 
 MIDDLEWARE = [

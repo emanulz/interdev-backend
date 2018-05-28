@@ -24,7 +24,7 @@ from apps.senders.api.views import SenderViewSet
 from apps.addresses.api.views import ProvinceViewSet, CantonViewSet, DistrictViewSet, TownViewSet
 from apps.inventories.api.views import Inventory_MovementViewSet, WarehouseViewSet
 from apps.workshop.api.views import Work_OrderViewSet, LaborViewSet, UsedPartViewSet, PartRequestViewSet
-
+from apps.purchases.api.views import PurchaseViewSet
 from dynamic_preferences.users.viewsets import UserPreferencesViewSet
 
 # API COPIED FROM  dynamic_preferences into apps.preferences.api package and modified permissions class
@@ -59,6 +59,7 @@ router.register(r'workorders', Work_OrderViewSet)
 router.register(r'labor', LaborViewSet)
 router.register(r'usedparts', UsedPartViewSet)
 router.register(r'partrequest', PartRequestViewSet)
+router.register(r'purchase', PurchaseViewSet)
 
 urlpatterns = [
 
