@@ -17,6 +17,8 @@ class Work_Order(models.Model):
     technician = models.TextField(verbose_name="Tecnico a Cargo", default='')
     client = models.TextField(verbose_name='Objeto Cliente', default='')
     client_id = models.CharField(verbose_name="ID Cliente", default='', max_length=40)
+    related_work_order = models.CharField(verbose_name="ID Orden de Trabajo Asociada", default='', max_length=40)
+    
     #article properties
     article_type = models.CharField(verbose_name="Tipo Electrodoméstico", default='', max_length=50)
     article_brand = models.CharField(verbose_name="Marca", default='', max_length=100, blank=True, null=True)

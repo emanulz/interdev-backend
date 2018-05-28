@@ -11,7 +11,7 @@ class Purchase(models.Model):
     card = 'CARD'
     credit = 'CRED'
     transfer = 'TRAN'
-    other = 'OTHE'
+    other = 'OTHER'
 
     PAY_CHOICES = ((cash, 'Efectivo'),
                    (card, 'Tarjeta'),
@@ -24,16 +24,23 @@ class Purchase(models.Model):
     consecutive = models.AutoField(primary_key=True, verbose_name="Número de compra", editable=False)
     user = models.TextField(verbose_name='Objeto Usuario', default='')
 
-    supplier = models.TextField(verbose_name="Proveedor")
+    supplier = models.TextField(verbose_name="Proveedor", default="")
+    supplier_id = models.CharField(max_length = 40, verbose_name='ID del Proveedor', default ='')
+    warehouse = models.TextField(verbose_name="Bodega de Destino", default="")
+    warehouse_id = models.CharField(max_length=40, verbose_name="ID de la Bodega", default="")
+
     cart = models.TextField(verbose_name='Objeto Carrito', default='')
     
+    #indicates wether or not this invoice data load is closed
+    is_closed = models.BooleanField(verbose_name="Factura Cerrada", default=False)
+
     pay = models.TextField(verbose_name='Objeto Pago', default='')
     pay_type = models.CharField(max_length=4, choices=PAY_CHOICES, default=cash, verbose_name='Tipo de Pago')
     payed = models.BooleanField(default=True, verbose_name='Pagada')
 
     
     invoice_number = models.CharField(max_length=255, verbose_name='Número de Factura')
-    invoice_date = models.DateTimeField(blank=True, null=True)
+    invoice_date = models.DateField(blank=True, null=True)
     credit_days =  models.IntegerField(default=0, verbose_name='Plazo Crédito')
 
     created = models.DateTimeField(auto_now=False, auto_now_add=True, blank=True, null=True,

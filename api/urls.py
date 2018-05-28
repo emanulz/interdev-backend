@@ -26,6 +26,7 @@ from apps.inventories.api.views import Inventory_MovementViewSet, WarehouseViewS
 from apps.workshop.api.views import Work_OrderViewSet, LaborViewSet, UsedPartViewSet, PartRequestViewSet
 from apps.purchases.api.views import PurchaseViewSet
 from dynamic_preferences.users.viewsets import UserPreferencesViewSet
+from apps.payables.api.views import Credit_MovementPayableViewSet, Credit_PaymentPayableViewSet
 
 # API COPIED FROM  dynamic_preferences into apps.preferences.api package and modified permissions class
 from apps.preferences.api.viewsets import GlobalPreferencesViewSet
@@ -60,6 +61,8 @@ router.register(r'labor', LaborViewSet)
 router.register(r'usedparts', UsedPartViewSet)
 router.register(r'partrequest', PartRequestViewSet)
 router.register(r'purchase', PurchaseViewSet)
+router.register(r'payablescreditmovement', Credit_MovementPayableViewSet)
+router.register(r'payablescreditpayment', Credit_PaymentPayableViewSet)
 
 urlpatterns = [
 
