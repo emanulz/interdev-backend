@@ -9,6 +9,7 @@ import channels
 from asgiref.sync import async_to_sync
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.db import IntegrityError
 
 
 class Client(models.Model):
@@ -102,5 +103,6 @@ try:
         content_type=content_type,
         )
 except Exception as e:
-    print (type(e))
+    if type(e) != IntegrityError:
+        print (type(e))
     pass

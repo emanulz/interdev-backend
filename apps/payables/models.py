@@ -1,8 +1,9 @@
 from django.db import models
-
 import uuid
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
+from django.db import IntegrityError
+
 
 class Credit_Movement(models.Model):
 
@@ -15,7 +16,8 @@ class Credit_Movement(models.Model):
 
     id = models.UUIDField(default=uuid.uuid4, editable=False)
     consecutive = models.AutoField(primary_key=True, verbose_name='Número de movimiento', editable=False)
-    supplier_id = models.CharField(max_length=255, blank=True, null=True, verbose_name='ID Objeto Proveedor', default='')
+    supplier_id = models.CharField(max_length=255, blank=True, null=True, verbose_name='ID Objeto Proveedor',
+                                   default='')
     purchase_id = models.CharField(max_length=255, blank=True, null=True, verbose_name='ID Objeto Factura', default='')
     credit_note_id = models.CharField(max_length=255, blank=True, null=True,
                                       verbose_name='ID Objeto nota de crédito', default='')
@@ -55,7 +57,8 @@ class Credit_Payment(models.Model):
     purchase = models.TextField(verbose_name='Objeto Compra', default='')
     user = models.TextField(verbose_name='Objeto Usuario', default='')
     supplier = models.TextField(verbose_name='Objeto Proveedor', default='')
-    supplier_id = models.CharField(max_length=256, blank=True, null=True, verbose_name='ID Objeto Proveedor', default='')
+    supplier_id = models.CharField(max_length=256, blank=True, null=True, verbose_name='ID Objeto Proveedor',
+                                   default='')
     amount = models.DecimalField(max_digits=11, decimal_places=2, verbose_name='Monto Pago',
                                  blank=True, default=0)
     description = models.CharField(max_length=255, blank=True, verbose_name='Descripción del movimiento')
@@ -82,7 +85,8 @@ try:
         content_type=content_type,
         )
 except Exception as e:
-    print (type(e))
+    if type(e) != IntegrityError:
+        print (type(e))
     pass
 
 
@@ -94,5 +98,6 @@ try:
         content_type=content_type,
         )
 except Exception as e:
-    print (type(e))
+    if type(e) != IntegrityError:
+        print (type(e))
     pass

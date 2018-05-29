@@ -10,7 +10,7 @@ class ProfileFilter(django_filters.FilterSet):
 
     class Meta:
         model = Profile
-        fields = ('id', 'user', 'birth_date', 'id_num', 'pin')
+        fields = ('id', 'user', 'birth_date', 'id_num', 'pin', 'code')
 
 
 class UserFilter(django_filters.FilterSet):

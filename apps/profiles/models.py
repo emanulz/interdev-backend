@@ -8,6 +8,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
+from django.db import IntegrityError
 
 
 def url(instance, filename):
@@ -24,7 +25,8 @@ def url(instance, filename):
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    pin = models.CharField(blank=True, null=True, verbose_name='PIN', default='0000', max_length=4)
+    code = models.CharField(blank=True, null=True, verbose_name='Código', max_length=2, unique=True)
+    pin = models.CharField(blank=True, null=True, verbose_name='PIN', default='000000', max_length=6)
     avatar = models.ImageField(upload_to=url, blank=True)
     id_num = models.CharField(max_length=255, null=True, blank=True, verbose_name='Num Identificación')
     birth_date = models.DateField(null=True, blank=True)
@@ -52,7 +54,8 @@ try:
         content_type=content_type,
         )
 except Exception as e:
-    print (type(e))
+    if type(e) != IntegrityError:
+        print (type(e))
     pass
 
 
@@ -64,5 +67,6 @@ try:
         content_type=content_type,
         )
 except Exception as e:
-    print (type(e))
+    if type(e) != IntegrityError:
+        print (type(e))
     pass
