@@ -55,3 +55,7 @@ static/bundles/
 ##Daphnee
 daphne.sock
 daphne.sock.lock
+
+##Media
+media/avatars/**
+media/keys/**

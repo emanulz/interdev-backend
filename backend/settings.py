@@ -65,6 +65,7 @@ INSTALLED_APPS = [
     'apps.reporting.apps.ReportingConfig',
     'apps.purchases.apps.PurchasesConfig',
     'apps.payables.apps.PayablesConfig',
+    'apps.presales.apps.PresalesConfig',
 ]
 
 MIDDLEWARE = [

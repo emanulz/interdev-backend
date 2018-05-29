@@ -26,7 +26,13 @@ class BroadcasterConsumer(WebsocketConsumer):
     # Receive message from room group
     def broadcast_message(self, event):
         message = event['message']
+        try:
+            item = event['item']
+        except Exception as e:
+            print(e)
+            item = ''
         # Send message to WebSocket
         self.send(text_data=json.dumps({
-            'message': message
+            'message': message,
+            'item': item
         }))

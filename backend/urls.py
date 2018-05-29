@@ -5,7 +5,7 @@ from django.contrib import admin
 from django.urls import path
 from django.conf.urls import include
 from django.conf.urls.static import static
-from apps.profiles.views import profile_get
+from apps.profiles.views import profile_get, getUserByCode
 from django.contrib.auth.decorators import login_required
 from django.views.generic import TemplateView
 from apps.reporting import urls
@@ -17,12 +17,14 @@ urlpatterns = [
     url(r'^jet/', include('jet.urls', 'jet')),  # Django JET URLS
     path('globaladmin/', admin.site.urls),
     url(r'^profile/', profile_get),
+    url(r'^getuserbycode/', getUserByCode),
 
     # APPS
     url(r'^admin/', adminPage, name='admin'),
     url(r'^$', login_required(TemplateView.as_view(template_name='home.html'))),
     url(r'^reports/', login_required(TemplateView.as_view(template_name='reports.html'))),
     url(r'^sales/', login_required(TemplateView.as_view(template_name='sales.html'))),
+    url(r'^seller/', login_required(TemplateView.as_view(template_name='seller.html'))),
     url(r'^credits/', login_required(TemplateView.as_view(template_name='credits.html'))),
     url(r'^inventories/', login_required(TemplateView.as_view(template_name='inventories.html'))),
     url(r'^workshop/', login_required(TemplateView.as_view(template_name='workshop.html'))),
