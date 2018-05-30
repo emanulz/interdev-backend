@@ -29,7 +29,7 @@ def url(instance, filename):
 class Product(models.Model):
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    code = models.CharField(max_length=10, null=True, verbose_name='Código', unique=True)
+    code = models.CharField(max_length=12, null=True, verbose_name='Código', unique=True)
     description = models.CharField(max_length=255, verbose_name='Descripción del producto', null=True)
     unit = models.CharField(max_length=255, blank=True, null=True, verbose_name='Unidad')
     fractioned = models.BooleanField(default=False, verbose_name='Se vende Fracionado?', blank=True)
@@ -122,7 +122,7 @@ class ProductDepartment(models.Model):
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=255, verbose_name='Nombre de la Familia')
-    code = models.CharField(max_length=2, verbose_name='Identificador de Familia')
+    code = models.CharField(max_length=255, verbose_name='Identificador de Familia')
     observations = models.TextField(null=True, blank=True, verbose_name='Observaciones')
     created = models.DateTimeField(auto_now=False, auto_now_add=True, blank=True, null=True,
                                    verbose_name='Fecha de creación')
@@ -157,7 +157,7 @@ class ProductSubDepartment(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     department = models.ForeignKey('ProductDepartment', on_delete=models.SET_NULL, null=True, verbose_name='Familia')
     name = models.CharField(max_length=255, verbose_name='Nombre de la Sub-Familia')
-    code = models.CharField(max_length=2, verbose_name='Identificador de Sub-Familia')
+    code = models.CharField(max_length=255, verbose_name='Identificador de Sub-Familia')
     observations = models.TextField(null=True, blank=True, verbose_name='Observaciones')
     created = models.DateTimeField(auto_now=False, auto_now_add=True, blank=True, null=True,
                                    verbose_name='Fecha de creación')
