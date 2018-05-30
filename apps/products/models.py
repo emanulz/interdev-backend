@@ -31,6 +31,7 @@ class Product(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     code = models.CharField(max_length=12, null=True, verbose_name='Código', unique=True)
     description = models.CharField(max_length=255, verbose_name='Descripción del producto', null=True)
+    short_description = models.CharField(max_length=255, verbose_name='Descripción corta del producto', null=True)
     unit = models.CharField(max_length=255, blank=True, null=True, verbose_name='Unidad')
     fractioned = models.BooleanField(default=False, verbose_name='Se vende Fracionado?', blank=True)
     department = models.CharField(max_length=255, null=True, verbose_name='Familia', default='', blank=True)
@@ -40,7 +41,7 @@ class Product(models.Model):
     supplier_code = models.CharField(max_length=255, verbose_name='Código del proveedor', null=True, blank=True)
     model = models.CharField(max_length=255, verbose_name='Modelos', null=True, blank=True)
     part_number = models.CharField(max_length=255, verbose_name='Número de parte', blank=True, null=True)
-    brand_code = models.CharField(max_length=2, verbose_name='Código de Marca', null=True, blank=True)
+    brand_code = models.CharField(max_length=80, verbose_name='Código de Marca', null=True, blank=True)
 
     inventory_enabled = models.BooleanField(default=False, verbose_name='Sistema de Inventarios?', blank=True)
     inventory_minimum = models.FloatField(default=0, blank=True, verbose_name='Mínimo en inventario', null=True)
