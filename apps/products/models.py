@@ -11,6 +11,7 @@ import channels
 from asgiref.sync import async_to_sync
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.db import IntegrityError
 
 
 def url(instance, filename):
@@ -28,7 +29,7 @@ def url(instance, filename):
 class Product(models.Model):
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    code = models.CharField(max_length=10, null=True, verbose_name='Código', unique=True)
+    code = models.CharField(max_length=12, null=True, verbose_name='Código', unique=True)
     description = models.CharField(max_length=255, verbose_name='Descripción del producto', null=True)
     short_description = models.CharField(max_length=255, verbose_name='Descripción corta del producto', null=True)
     unit = models.CharField(max_length=255, blank=True, null=True, verbose_name='Unidad')
@@ -92,15 +93,16 @@ class Product(models.Model):
         verbose_name_plural = 'Productos'
         ordering = ['code']
 
-#@receiver(post_save, sender=Product)
-#def send_message(sender, instance, **kwargs):
-#    async_to_sync(channels.layers.get_channel_layer().group_send)(
-#        'global_broadcaster',
-#        {
-#            'type': 'broadcast_message',
-#            'message': 'PRODUCT_UPDATED'
-#        }
-#    )
+
+# @receiver(post_save, sender=Product)
+# def send_message(sender, instance, **kwargs):
+#     async_to_sync(channels.layers.get_channel_layer().group_send)(
+#         'global_broadcaster',
+#         {
+#             'type': 'broadcast_message',
+#             'message': 'PRODUCT_UPDATED'
+#         }
+#     )
 
 
 # CUSTOM PERMISSION
@@ -112,7 +114,8 @@ try:
         content_type=content_type,
         )
 except Exception as e:
-    print (type(e))
+    if type(e) != IntegrityError:
+        print (type(e))
     pass
 
 
@@ -120,7 +123,7 @@ class ProductDepartment(models.Model):
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=255, verbose_name='Nombre de la Familia')
-    code = models.CharField(max_length=2, verbose_name='Identificador de Familia')
+    code = models.CharField(max_length=255, verbose_name='Identificador de Familia')
     observations = models.TextField(null=True, blank=True, verbose_name='Observaciones')
     created = models.DateTimeField(auto_now=False, auto_now_add=True, blank=True, null=True,
                                    verbose_name='Fecha de creación')
@@ -145,7 +148,8 @@ try:
         content_type=content_type,
         )
 except Exception as e:
-    print (type(e))
+    if type(e) != IntegrityError:
+        print (type(e))
     pass
 
 
@@ -154,7 +158,7 @@ class ProductSubDepartment(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     department = models.ForeignKey('ProductDepartment', on_delete=models.SET_NULL, null=True, verbose_name='Familia')
     name = models.CharField(max_length=255, verbose_name='Nombre de la Sub-Familia')
-    code = models.CharField(max_length=2, verbose_name='Identificador de Sub-Familia')
+    code = models.CharField(max_length=255, verbose_name='Identificador de Sub-Familia')
     observations = models.TextField(null=True, blank=True, verbose_name='Observaciones')
     created = models.DateTimeField(auto_now=False, auto_now_add=True, blank=True, null=True,
                                    verbose_name='Fecha de creación')
@@ -180,5 +184,6 @@ try:
         content_type=content_type,
         )
 except Exception as e:
-    print (type(e))
+    if type(e) != IntegrityError:
+        print (type(e))
     pass

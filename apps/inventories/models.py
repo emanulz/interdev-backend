@@ -4,6 +4,7 @@ from django.db import models
 import uuid
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
+from django.db import IntegrityError
 
 
 class Inventory_Movement(models.Model):
@@ -53,7 +54,8 @@ try:
         content_type=content_type,
         )
 except Exception as e:
-    print (type(e))
+    if type(e) != IntegrityError:
+        print (type(e))
     pass
 
 
@@ -86,5 +88,6 @@ try:
         content_type=content_type,
         )
 except Exception as e:
-    print (type(e))
+    if type(e) != IntegrityError:
+        print (type(e))
     pass

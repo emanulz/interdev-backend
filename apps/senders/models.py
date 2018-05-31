@@ -6,6 +6,7 @@ from django.db import models
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
 from uuid import uuid4
+from django.db import IntegrityError
 
 
 def logoUrl(instance, filename):
@@ -99,5 +100,6 @@ try:
         content_type=content_type,
         )
 except Exception as e:
-    print (type(e))
+    if type(e) != IntegrityError:
+        print (type(e))
     pass

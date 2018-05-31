@@ -5,8 +5,10 @@ from django.http import HttpResponse
 from django.core import serializers
 from django.contrib.auth.hashers import check_password
 from django.contrib.auth.models import User, Permission
+from apps.profiles.models import Profile
 from django.shortcuts import get_object_or_404
 import json
+from django.forms.models import model_to_dict
 
 
 @login_required
@@ -34,6 +36,34 @@ def checkUserPassword(request):
         password2 = user.password
         is_valid = check_password(password1, password2)
         return HttpResponse(is_valid, content_type='application/json')
+
+
+@login_required
+def getUserByCode(request):
+
+    if request.method == 'POST':
+        body_unicode = request.body.decode('utf-8')
+        body = json.loads(body_unicode)
+        code = body['code']
+        pin = body['pin']
+        try:
+            profile = Profile.objects.get(code=code)
+            is_valid = profile.pin == pin
+            # IF THE PIN AND USER MATCHS
+            if is_valid:
+                user = User.objects.get(username=profile.user.username)
+                user = model_to_dict(user)
+                profile = model_to_dict(profile)
+                return HttpResponse(json.dumps({'user': user, 'profile': profile}, default=str),
+                                    content_type='application/json')
+            # IF NOT THEN RETURN ERROR
+            return HttpResponse(json.dumps({'user': False, 'profile': False}), status=500,
+                                content_type='application/json')
+        # IF CANT GET PROFILE OR USER
+        except Exception as e:
+            print(e)
+            return HttpResponse(json.dumps({'user': False, 'profile': False}), status=500,
+                                content_type='application/json')
 
 
 @login_required
