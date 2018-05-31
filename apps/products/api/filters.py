@@ -7,6 +7,8 @@ from ..models import Product, ProductDepartment, ProductSubDepartment
 
 class ProductFilter(django_filters.FilterSet):
 
+    description = django_filters.CharFilter(lookup_expr='icontains')
+
     class Meta:
         model = Product
         fields = ('id', 'code', 'description', 'short_description', 'unit', 'department', 'subdepartment', 'barcode',

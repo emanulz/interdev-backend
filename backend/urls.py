@@ -8,7 +8,7 @@ from django.conf.urls.static import static
 from apps.profiles.views import profile_get, getUserByCode
 from django.contrib.auth.decorators import login_required
 from django.views.generic import TemplateView
-from apps.reporting import urls
+# from apps.reporting import urls
 
 from apps.administration.views import adminPage
 

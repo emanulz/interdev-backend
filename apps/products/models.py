@@ -94,15 +94,15 @@ class Product(models.Model):
         ordering = ['code']
 
 
-@receiver(post_save, sender=Product)
-def send_message(sender, instance, **kwargs):
-    async_to_sync(channels.layers.get_channel_layer().group_send)(
-        'global_broadcaster',
-        {
-            'type': 'broadcast_message',
-            'message': 'PRODUCT_UPDATED'
-        }
-    )
+# @receiver(post_save, sender=Product)
+# def send_message(sender, instance, **kwargs):
+#     async_to_sync(channels.layers.get_channel_layer().group_send)(
+#         'global_broadcaster',
+#         {
+#             'type': 'broadcast_message',
+#             'message': 'PRODUCT_UPDATED'
+#         }
+#     )
 
 
 # CUSTOM PERMISSION
