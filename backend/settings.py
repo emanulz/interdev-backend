@@ -120,6 +120,17 @@ DATABASES = {
     }
 }
 
+# DATABASES = {
+#      'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': 'interdev',
+#         'USER': 'interdev',
+#         'PASSWORD': 'Nodelez0105',
+#         'HOST': 'localhost',
+#         'PORT': '3306',
+#         }
+# }
+
 if not DEBUG:
     DATABASES = {
         'default': {

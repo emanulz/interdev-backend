@@ -13,6 +13,7 @@ from apps.credits.views import getClientDebt
 from rest_framework import routers
 from apps.clients.api.views import ClientViewSet
 from apps.products.api.views import ProductViewSet, ProductDepartmentViewSet, ProductSubDepartmentViewSet
+from apps.products.api.views import SearchProductViewSet
 from apps.suppliers.api.views import SupplierViewSet
 from apps.profiles.api.views import ProfileViewSet
 from apps.profiles.api.views import UserViewSet, PermissionsViewSet
@@ -37,6 +38,7 @@ router = routers.DefaultRouter()
 router.register(r'clients', ClientViewSet)
 router.register(r'logs', LogViewSet)
 router.register(r'products', ProductViewSet)
+router.register(r'searchproducts', SearchProductViewSet)
 router.register(r'sales', SaleViewSet)
 router.register(r'cashadvances', Cash_AdvanceViewSet)
 router.register(r'productdepartments', ProductDepartmentViewSet)

@@ -8,6 +8,11 @@ from ..models import Inventory_Movement, Warehouse
 from .filters import Inventory_MovementFilter, WarehouseFilter
 from .serializers import Inventory_MovementSerializer, WarehouseSerializer
 from .permissions import HasProperPermission, HasProperPermissionWarehouse
+from rest_framework.pagination import LimitOffsetPagination
+
+
+class LimitPaginationClass(LimitOffsetPagination):
+    default_limit = 50
 
 
 class Inventory_MovementViewSet(viewsets.ModelViewSet):
@@ -18,6 +23,7 @@ class Inventory_MovementViewSet(viewsets.ModelViewSet):
     filter_backends = (django_filters.DjangoFilterBackend, filters.OrderingFilter)
     ordering_fields = ('created', 'consecutive')
     filter_class = Inventory_MovementFilter
+    pagination_class = LimitPaginationClass
 
     def get_permissions(self):
         # allow non-authenticated user to create via POST
