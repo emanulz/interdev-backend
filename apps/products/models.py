@@ -4,14 +4,19 @@ from __future__ import unicode_literals
 import uuid
 from django.db import models
 import os
+import json
 from uuid import uuid4
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
 import channels
+from django.forms.models import model_to_dict
+
+from apps.inventories.models import Inventory_Movement
 from asgiref.sync import async_to_sync
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.db import IntegrityError
+from django.db import transaction
 
 
 def url(instance, filename):
@@ -41,13 +46,13 @@ class Product(models.Model):
     supplier_code = models.CharField(max_length=255, verbose_name='Código del proveedor', null=True, blank=True)
     model = models.CharField(max_length=255, verbose_name='Modelos', null=True, blank=True)
     part_number = models.CharField(max_length=255, verbose_name='Número de parte', blank=True, null=True)
-    brand_code = models.CharField(max_length=80, verbose_name='Código de Marca', null=True, blank=True)
+    brand_code = models.CharField(max_length=255, verbose_name='Código de Marca', null=True, blank=True)
 
     inventory_enabled = models.BooleanField(default=False, verbose_name='Sistema de Inventarios?', blank=True)
     inventory_minimum = models.FloatField(default=0, blank=True, verbose_name='Mínimo en inventario', null=True)
     inventory_maximum = models.FloatField(default=0, blank=True, verbose_name='Máximo en inventario', null=True)
     inventory_negative = models.BooleanField(default=False, verbose_name='Puede sobrefacturarse?', blank=True)
-
+    inventory_existent = models.TextField(default=r'{"total":"0"}', verbose_name='Inventory Data')
     cost = models.FloatField(default=0, verbose_name='Costo ₡', blank=True, null=True)
     cost_based = models.BooleanField(default=True, verbose_name='Precio basado en Costo?', blank=True)
     utility = models.FloatField(default=0, verbose_name='Utilidad %', blank=True, null=True)
@@ -93,7 +98,56 @@ class Product(models.Model):
         verbose_name_plural = 'Productos'
         ordering = ['code']
 
+    @classmethod
+    def inventory_movement(self_cls, product_id, warehouse, mov_type, amount, user,
+        description, id_generator):
 
+        with transaction.atomic():
+            #get product by its id
+            product = self_cls.objects.select_for_update().get(id=product_id)
+            inv_change = product.validate_movement(product, amount)
+            
+            product.inventory_existent = product.update_inventory(amount, warehouse.id)
+            product.save()
+            
+            #generate movement out of inventory
+            Inventory_Movement.simple_movement(mov_type, user, product, warehouse, 
+                                                description, id_generator, inv_change)
+            
+
+
+    def update_inventory(self, amount, warehouse_id):
+        warehouse_id = str(warehouse_id)
+        current_inv = json.loads(self.inventory_existent)
+        new_total = float(current_inv['total']) + amount
+        try:
+            current_inv[warehouse_id] = float(current_inv[warehouse_id]) + amount
+        except KeyError:
+            current_inv[warehouse_id] = amount
+
+        current_inv['total'] = new_total
+        return json.dumps(current_inv)
+        
+
+    def validate_movement(self, product, amount):
+        target_mov = 0
+        print('Fractioned --> ' + str(product.fractioned))
+        if(product.fractioned):
+            try:
+                target_mov = float(amount)
+            except ValueError:
+                pass #raise custom exception here
+        else:
+            try:
+                target_mov = int(amount)
+            except ValueError:
+                pass #raise custom exception
+        #check if the amount can be applied from the product inventory
+        print('Negative inv --> ' + str(product.inventory_negative))
+        if(product.inventory_negative):
+            pass
+
+        return target_mov
 # @receiver(post_save, sender=Product)
 # def send_message(sender, instance, **kwargs):
 #     async_to_sync(channels.layers.get_channel_layer().group_send)(

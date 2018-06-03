@@ -28,16 +28,18 @@ from apps.purchases.api.views import PurchaseViewSet
 from dynamic_preferences.users.viewsets import UserPreferencesViewSet
 from apps.payables.api.views import Credit_MovementPayableViewSet, Credit_PaymentPayableViewSet
 from apps.presales.api.views import PresaleViewSet
-
+from apps.sales.api.views import SaleCreateViewSet, SaleViewSetReadOnly
 
 # API COPIED FROM  dynamic_preferences into apps.preferences.api package and modified permissions class
 from apps.preferences.api.viewsets import GlobalPreferencesViewSet
 
 router = routers.DefaultRouter()
+router.register(r'sales', SaleCreateViewSet, base_name='sales')
+router.register(r'saleslist', SaleViewSetReadOnly)
 router.register(r'clients', ClientViewSet)
 router.register(r'logs', LogViewSet)
 router.register(r'products', ProductViewSet)
-router.register(r'sales', SaleViewSet)
+#router.register(r'sales', SaleViewSet)
 router.register(r'cashadvances', Cash_AdvanceViewSet)
 router.register(r'productdepartments', ProductDepartmentViewSet)
 router.register(r'productsubdepartments', ProductSubDepartmentViewSet)

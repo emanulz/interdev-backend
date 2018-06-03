@@ -7,14 +7,14 @@ from ..models import Client
 
 
 class ClientSerializer(serializers.ModelSerializer):
-    debt = serializers.SerializerMethodField()
+    #debt = serializers.SerializerMethodField()
 
     class Meta:
         model = Client
         fields = ('id', 'code', 'name', 'last_name', 'id_type', 'id_num', 'phone_number', 'cellphone_number',
                   'province', 'canton', 'district', 'town', 'other_address', 'email', 'pred_discount', 'max_discount',
                   'max_line_discount', 'pays_taxes', 'has_credit', 'credit_limit', 'credit_days', 'observations',
-                  'client_type', 'created', 'updated', 'debt')
+                  'client_type', 'created', 'updated')
 
     def get_debt(self, obj):
         return getClientDebt(obj.id)

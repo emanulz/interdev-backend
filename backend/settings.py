@@ -115,8 +115,17 @@ CHANNEL_LAYERS = {
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.mysql',
+        'USER': 'root',
+        'PASSWORD': '0688moraB',
+        'NAME': 'django_rj',
+        'HOST': 'localhost',
+        'PORT': '3306',
+        #'OPTIONS':{
+        #    'read_default_file':'/Program Files/MySQL/MySQL Server 8.0/my.cnf'
+        #}
+        #'ENGINE': 'django.db.backends.sqlite3',
+        #'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
 

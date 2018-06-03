@@ -54,20 +54,14 @@ class Client(models.Model):
     client_type = models.CharField(max_length=7, choices=CLIENT_TYPE_CHOICES, default=general,
                                    verbose_name='Tipo de Cliente')
 
-    pred_discount = models.DecimalField(max_digits=5, decimal_places=2, blank=True,
-                                        verbose_name='Descuento Predeterminado', validators=[MaxValueValidator(100)],
-                                        default=0)
-    max_discount = models.DecimalField(max_digits=5, decimal_places=2, blank=True,
-                                       verbose_name='Descuento Máximo', validators=[MaxValueValidator(100)], default=0)
-    max_line_discount = models.DecimalField(max_digits=5, decimal_places=2, blank=True,
-                                            verbose_name='Descuento Máximo por línea',
-                                            validators=[MaxValueValidator(100)], default=0)
+    pred_discount = models.FloatField(verbose_name='Descuento Predeterminado', default=0)
+    max_discount = models.FloatField(verbose_name='Descuento Máximo', default=0)
+    max_line_discount = models.FloatField(verbose_name='Descuento Máximo por línea', default=0)
 
     pays_taxes = models.BooleanField(default=True, verbose_name='Paga Impuestos?')
 
     has_credit = models.BooleanField(default=False, verbose_name='Tiene Crédito?')
-    credit_limit = models.DecimalField(max_digits=11, decimal_places=2, verbose_name='Límite de Crédito',
-                                       blank=True, default=0)
+    credit_limit = models.FloatField(verbose_name='Límite de Crédito', default=0)
     credit_days = models.PositiveIntegerField(default=30, null=True, blank=True, verbose_name='Días de Crédito')
     observations = models.TextField(null=True, blank=True, verbose_name='Observaciones')
     created = models.DateTimeField(auto_now=False, auto_now_add=True, blank=True, null=True,
