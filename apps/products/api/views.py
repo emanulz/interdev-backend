@@ -9,13 +9,37 @@ from .filters import ProductFilter, ProductDepartmentFilter, ProductSubDepartmen
 from .serializers import ProductSerializer, ProductDepartmentSerializer, ProductSubDepartmentSerializer
 from .permissions import HasProperPermission, HasProperDepartmentPermission, HasProperSubDepartmentPermission
 from rest_framework.pagination import LimitOffsetPagination
+from rest_framework.decorators import api_view
+from rest_framework.decorators import detail_route
+from rest_framework.response import Response
+from django.shortcuts import get_object_or_404
+from rest_framework import status
+
+class ProductInventoryViewSet(viewsets.ViewSet):
+
+    queryset = Product.objects.all()
+
+    def create(self, request):
+        print('Now?')
+        return Response()
+    
+    def retrieve(self, request, pk):
+        print(pk)
+        product = get_object_or_404(self.queryset, pk=pk)
+        return Response(ProductSerializer(product).data)
+
+    @detail_route(methods=('post',))
+    def inventory_transfer(self, request, pk):
+        product, origin_mov, destination_mov = Product.warehouse_transfer(request, pk)
+
+        return Response(data=ProductSerializer(product).data, status=status.HTTP_200_OK)
 
 
 class LimitPaginationClass(LimitOffsetPagination):
     default_limit = 50
 
 
-class ProductViewSet(viewsets.ModelViewSet):
+class ProductViewSet(viewsets.ReadOnlyModelViewSet):
 
     serializer_class = ProductSerializer
     queryset = Product.objects.all()

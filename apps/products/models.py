@@ -10,6 +10,11 @@ from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
 import channels
 from django.forms.models import model_to_dict
+from django.contrib.auth.models import User
+from apps.utils.serializers import UserSerialiazer
+
+from rest_framework.response import Response
+from rest_framework import status
 
 from apps.inventories.models import Inventory_Movement
 from asgiref.sync import async_to_sync
@@ -114,6 +119,109 @@ class Product(models.Model):
             Inventory_Movement.simple_movement(mov_type, user, product, warehouse, 
                                                 description, id_generator, inv_change)
             
+    @classmethod
+    def warehouse_transfer(self_cls, request, pk):
+        # user, description, generator
+        
+        
+        print('Product Inventory Transfer method --> ' + str(pk))
+        req_data = request.data
+        #select the product and lock it
+        with transaction.atomic():
+            prod = self_cls.objects.select_for_update().get(id=pk)
+            #validate the incoming data
+            errs, data = prod.warehouse_transfer_data_validation(req_data)
+            if(errs['status']=='BAD'):
+                return Response(data=errs, status=status.HTTP_400_BAD_REQUEST)
+
+            errs, transfer = prod.transfer_inv(errs, data, prod)
+            if(errs['status']=='BAD'):
+                return Response(data=errs, status=status.HTTP_400_BAD_REQUEST)
+            
+            print('Transfer')
+            print(transfer)
+            prod.inventory_existent =  transfer
+            prod.save()
+
+            #get the user
+            user = User.objects.get(id=data['user_id'])
+            user_string = UserSerialiazer(user).data
+            #generate movement in and out of inventory
+            origin_mov, destination_mov = Inventory_Movement.warehouse_transfer(user_string, prod, data['origin_warehouse_id'],
+                        data['destination_warehouse_id'], data['description'], data['generator'], data['amount'])
+
+            
+            return (prod, origin_mov, destination_mov)
+        return Response(data={'Error generating inventory transfer'},  status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    def warehouse_transfer_data_validation(self, data):
+        errs = {'status':'OK'}
+        #validates the parameters and returns them as tupple
+        amount = 0
+        try:
+            amount = float(data['amount'])
+        except (KeyError, ValueError) as e:
+            print(e)
+            errs['amount'] = 'Invalid or absent amount'
+        origin_warehouse_id = None
+        destination_warehouse_id = None
+        user_id = None
+        description = None
+        generator = None
+        try:
+            destination_warehouse_id = data['destination_warehouse_id']
+        except KeyError:
+            errs['destination_warehouse_id']='Destination warehouse id not sent'
+
+        try:
+            origin_warehouse_id = data['origin_warehouse_id']
+        except KeyError:
+            errs['origin_warehouse_id']='Origin warehouse id not sent'
+
+        try:
+            user_id = data['user_id']
+        except KeyError:
+            errs['user_id'] = 'User id not sent'
+        try:
+            description = data['description']
+        except KeyError:
+            errs['description'] = 'Description data not sent'
+        try:
+            generator = data['generator']
+        except KeyError:
+            errs['generator'] = "Id of generator transaction not sent"
+
+        if(len(errs.keys())>1): errs['status']='BAD'
+
+        data = {'amount':amount, 'destination_warehouse_id':destination_warehouse_id,
+            'origin_warehouse_id':origin_warehouse_id, 'user_id':user_id, 'description':description,
+            'generator':generator}
+
+        return(errs, data)
+
+    def transfer_inv(self, errs, data, prod):
+        #get the origin warehouse existence
+        current_inv = json.loads(self.inventory_existent)
+        total_origin = 0
+        total_destination = 0
+        try:
+            total_origin = float(current_inv[data['origin_warehouse_id']])
+        except KeyError:
+            errs['origin_warehouse_id'] = 'Product does not have existences on origin warehouse'
+        print('Total at origin warehouse --> ' + str(total_origin))
+        if not self.inventory_negative:
+            if(total_origin < data['amount']):
+                errs['amount']='Transfer requested {} is larger than avaialble inventory at origin {}'.format(data['amount'], total_origin)
+        #obtain the total at the destination warehouse
+        try:
+            total_destination = float(current_inv[data['destination_warehouse_id']])
+        except KeyError:
+            pass # the destination might not have inventory so far
+
+        current_inv[data['origin_warehouse_id']] =  total_origin - float(data['amount'])
+        current_inv[data['destination_warehouse_id']] = total_destination + float(data['amount'])
+        #total remains untouched, it is only a transfer
+        if(len(errs.keys())>1): errs['status']='BAD'
+        return (errs, json.dumps(current_inv))
 
 
     def update_inventory(self, amount, warehouse_id):

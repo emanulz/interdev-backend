@@ -4,10 +4,11 @@ from django.db import models
 import uuid
 from django.forms.models import model_to_dict
 import json
-from django.db.models import Max
+
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
 from django.db import IntegrityError
+from apps.utils.utils import calculate_next_consecutive
 
 #from apps.products.api.serializers import ProductSerializer
 
@@ -50,6 +51,55 @@ class Inventory_Movement(models.Model):
         ordering = ['consecutive']
 
     @classmethod
+    def warehouse_transfer(self_cls, user_string, product, origin_warehouse_id, destination_warehouse_id, 
+                            description, id_generator, inv_change):
+        origin = Warehouse.objects.get(id=origin_warehouse_id)
+        origin_string = json.dumps(model_to_dict(origin))
+
+        destination = Warehouse.objects.get(id=destination_warehouse_id)
+        destination_string = json.dumps(model_to_dict(destination))
+
+        prod_dict = model_to_dict(product)
+        del prod_dict['image']
+        prod_string = json.dumps(prod_dict)
+
+        next_consec = calculate_next_consecutive(self_cls)
+
+        #create movement on origin warehouse, as an exit
+        origin_mov = self_cls.objects.create(
+            consecutive = next_consec,
+            movement_type = 'OUTPUT',
+            user = user_string,
+            product_id = product.id,
+            product = prod_string,
+            warehouse_id = origin.id,
+            warehouse = origin_string,
+            description = description,
+            id_generator = id_generator,
+            amount = inv_change * -1
+        )
+
+        next_consec = calculate_next_consecutive(self_cls)        
+        
+        #create movement on destination warehouse, as an exit
+        destination_mov = self_cls.objects.create(
+            consecutive = next_consec,
+            movement_type = 'INPUT',
+            user = user_string,
+            product_id = product.id,
+            product = prod_string,
+            warehouse_id = destination.id,
+            warehouse = destination_string,
+            description = description,
+            id_generator = id_generator,
+            amount = inv_change 
+        )
+
+        return (origin_mov, destination_mov)
+
+        
+
+    @classmethod
     def simple_movement(self_cls, mov_type, user, product, warehouse,
                         description, id_generator, inv_change):
         prod_dict = model_to_dict(product)
@@ -58,15 +108,12 @@ class Inventory_Movement(models.Model):
         #print(ProductSerializer(product).data)
         warehouse_string = json.dumps(model_to_dict(warehouse))
 
-        next_consecutive = self_cls.objects.all().aggregate(Max('consecutive'))['consecutive__max']
-        next_consecutive = int(next_consecutive)+1
-        if(next_consecutive == None): next_consecutive = 1
+        next_consec = calculate_next_consecutive(self_cls)
         amount = amount
         if(mov_type=='OUTPUT'): amount = amount*-1
 
-        print(next_consecutive)
         mov = self_cls.objects.create(
-            consecutive = next_consecutive,
+            consecutive = next_consec,
             movement_type = mov_type,
             user = user,
             product_id = product.id,
