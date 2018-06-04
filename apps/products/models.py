@@ -16,7 +16,7 @@ from apps.utils.serializers import UserSerialiazer
 from rest_framework.response import Response
 from rest_framework import status
 
-from apps.inventories.models import Inventory_Movement
+from apps.inventories.models import Inventory_Movement, Warehouse
 from asgiref.sync import async_to_sync
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -97,6 +97,65 @@ class Product(models.Model):
         verbose_name = 'Producto'
         verbose_name_plural = 'Productos'
         ordering = ['code']
+
+    @classmethod
+    def set_absolute_existence(self_cls, product_id, user_id, **kwargs):
+        print("Adjusting product inventory")
+        user = User.objects.get(id=user_id)
+        user_string = UserSerialiazer(user).data
+        errors = {}
+        warehouse_id = None
+        description = None
+        new_amount = None
+        try:
+            warehouse_id = kwargs['warehouse_id']
+        except KeyError:
+            errors['warehouse_id']="Missing required parameter warehouse_id"
+
+        try:
+            description = kwargs['description']
+        except KeyError:
+            errors['description'] = 'Missing requiered field description'
+
+        try:
+            new_amount = float(kwargs['real_inv'])
+        except (KeyError, ValueError):
+            errors['amount'] = 'Amount field not sent or its not a number'
+
+        if len(errors.keys())>0:
+            return (None, None, errors)
+
+        warehouse = Warehouse.objects.get(id=warehouse_id)
+
+        with transaction.atomic():
+            product = self_cls.objects.select_for_update().get(id=product_id)
+            #update the product inventory on the product
+            new_inv_existent, mov_size = product.set_inventory(new_amount, warehouse_id)
+            error= {}
+            if(mov_size == 0):
+                error['real_inv'] = "The sent real_inv parameter matches the existences on the inv, no adjust made"
+                return (None, None, error)
+            product.inventory_existent = new_inv_existent
+            product.save()
+            #generate inventory movement
+            mov_type = 'INPUT'
+            mov_type_desc = 'INGRESO'
+            particle = 'un'
+            abs_mov_size = abs(mov_size)
+            if mov_size < 0:
+                mov_type = 'OUTPUT',
+                mov_type_desc = 'SALIDA'
+                particle = 'una'
+            description = '{} Ajuste requiere {} {} de inventario por {} {}'.format(description, particle, 
+                                                                                    mov_type_desc, abs_mov_size, product.unit)
+            inv_mov = Inventory_Movement.simple_movement(mov_type, user_string, 
+                                            product, warehouse, description, '', abs_mov_size)
+            return (product, inv_mov, error)
+
+
+
+
+
 
     @classmethod
     def partial_update(self_cls, user_id, product_id, **kwargs):
@@ -300,6 +359,27 @@ class Product(models.Model):
         #total remains untouched, it is only a transfer
         if(len(errs.keys())>1): errs['status']='BAD'
         return (errs, json.dumps(current_inv))
+
+    def set_inventory(self, real_existence, warehouse_id):
+        errors = {}
+        warehouse_id = str(warehouse_id)
+        current_inv = json.loads(self.inventory_existent)
+        current_total = float(current_inv['total'])
+        try:
+            current_existence_inv = float(current_inv[warehouse_id])
+        except KeyError:
+            current_existence_inv = 0
+        mov_size = (real_existence - current_existence_inv)
+
+        current_inv[warehouse_id] = real_existence
+        print("Mov_size")
+        print(mov_size)
+        print('Current')
+        print(current_existence_inv)
+        print("Real")
+        print(real_existence)
+        current_inv['total'] = current_total + mov_size
+        return (json.dumps(current_inv), mov_size)
 
 
     def update_inventory(self, amount, warehouse_id):

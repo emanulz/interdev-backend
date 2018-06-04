@@ -105,11 +105,11 @@ class Inventory_Movement(models.Model):
         prod_dict = model_to_dict(product)
         del prod_dict['image']
         prod_string = json.dumps(prod_dict)
-        #print(ProductSerializer(product).data)
+
         warehouse_string = json.dumps(model_to_dict(warehouse))
 
         next_consec = calculate_next_consecutive(self_cls)
-        amount = amount
+        amount = inv_change
         if(mov_type=='OUTPUT'): amount = amount*-1
 
         mov = self_cls.objects.create(

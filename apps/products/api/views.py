@@ -44,6 +44,15 @@ class ProductInventoryViewSet(viewsets.ViewSet):
         return Response(ProductSerializer(product).data, status=status.HTTP_200_OK)
 
     @detail_route(methods=('post',))
+    def physical_take(self, request, pk):
+        user_id = request.user.id
+        req_data = request.data
+        product, inv_mov, errors = Product.set_absolute_existence(pk, user_id, **req_data)
+        if(product == None):
+            return Response(data=errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(data=ProductSerializer(product).data, status= status.HTTP_200_OK)
+
+    @detail_route(methods=('post',))
     def inventory_transfer(self, request, pk):
         product, origin_mov, destination_mov = Product.warehouse_transfer(request, pk)
 
