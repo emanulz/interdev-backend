@@ -111,7 +111,6 @@ class Inventory_Movement(models.Model):
         next_consec = calculate_next_consecutive(self_cls)
         amount = inv_change
         if(mov_type=='OUTPUT'): amount = amount*-1
-
         mov = self_cls.objects.create(
             consecutive = next_consec,
             movement_type = mov_type,

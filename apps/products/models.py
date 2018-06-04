@@ -100,7 +100,6 @@ class Product(models.Model):
 
     @classmethod
     def set_absolute_existence(self_cls, product_id, user_id, **kwargs):
-        print("Adjusting product inventory")
         user = User.objects.get(id=user_id)
         user_string = UserSerialiazer(user).data
         errors = {}
@@ -143,7 +142,7 @@ class Product(models.Model):
             particle = 'un'
             abs_mov_size = abs(mov_size)
             if mov_size < 0:
-                mov_type = 'OUTPUT',
+                mov_type = 'OUTPUT'
                 mov_type_desc = 'SALIDA'
                 particle = 'una'
             description = '{} Ajuste requiere {} {} de inventario por {} {}'.format(description, particle, 
@@ -372,12 +371,6 @@ class Product(models.Model):
         mov_size = (real_existence - current_existence_inv)
 
         current_inv[warehouse_id] = real_existence
-        print("Mov_size")
-        print(mov_size)
-        print('Current')
-        print(current_existence_inv)
-        print("Real")
-        print(real_existence)
         current_inv['total'] = current_total + mov_size
         return (json.dumps(current_inv), mov_size)
 
