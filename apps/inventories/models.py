@@ -9,6 +9,7 @@ from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
 from django.db import IntegrityError
 from apps.utils.utils import calculate_next_consecutive
+from apps.utils.exceptions import TransactionError
 
 #from apps.products.api.serializers import ProductSerializer
 
@@ -94,7 +95,7 @@ class Inventory_Movement(models.Model):
             id_generator = id_generator,
             amount = inv_change 
         )
-
+        
         return (origin_mov, destination_mov)
 
         

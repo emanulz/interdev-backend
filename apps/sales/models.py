@@ -16,6 +16,7 @@ from apps.clients.models import Client
 from apps.products.models import Product
 from apps.inventories.models import Warehouse
 from django.contrib.auth.models import User
+from apps.utils.exceptions import TransactionError
 
 from apps.utils.serializers import UserSerialiazer
 
@@ -62,6 +63,7 @@ class Sale(models.Model):
         client_id = uuid.UUID('4ff0aa2f3ad44d439ed2e610cd77e42a')
         warehouse_id = uuid.UUID('4a25f16d0f1a4e9e95b0a464c085a20c')
         user_id = 1
+        
         with transaction.atomic():
             #fetch the client by id
             client = Client.objects.get(id=client_id)
@@ -96,8 +98,10 @@ class Sale(models.Model):
                 #create an inventory movement
                 prod = item['product']
                 amount = item['qty']
-                Product.inventory_movement(prod['id'], warehouse, 'OUTPUT', amount,
+                mov, error = Product.inventory_movement(prod['id'], warehouse, 'OUTPUT', amount,
                     user_string, individual_mov_desc, id_generator)
+                if mov == None:
+                    raise TransactionError(error)
 
             return sale
 

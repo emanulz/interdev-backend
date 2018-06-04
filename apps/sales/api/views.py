@@ -12,6 +12,7 @@ from ..models import Sale, Cash_Advance
 from .filters import SaleFilter, Cash_AdvanceFilter
 from .serializers import SaleSerializer, Cash_AdvanceSerializer
 from .permissions import HasProperPermission, HasProperPermissionCash_Advance
+from apps.utils.exceptions import TransactionError
 
 class SalePaginationClass(LimitOffsetPagination):
     default_limit = 50
@@ -56,11 +57,14 @@ class SaleCreateViewSet(viewsets.ViewSet):
         except:
             pass
         #check if I can reach the atomic create class method
-        sale = Sale.create(req_data['cart'], client_id,
-            pay, pay_type, payed, user_id, warehouse_id)
+        try:
+            sale = Sale.create(req_data['cart'], client_id,
+                pay, pay_type, payed, user_id, warehouse_id)
+            return Response(SaleSerializer(sale).data)
+        except TransactionError as e:
+            return Response(data=e.get_errors(), status=status.HTTP_400_BAD_REQUEST)
 
-        #serializer = SaleSerializer(self.queryset)
-        return Response(SaleSerializer(sale).data)
+
         
 
     def validate_sale_request(self, request_data):

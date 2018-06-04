@@ -23,6 +23,8 @@ from django.dispatch import receiver
 from django.db import IntegrityError
 from django.db import transaction
 
+from apps.utils.exceptions import TransactionError
+
 
 def url(instance, filename):
     ext = filename.split('.')[-1]
@@ -122,7 +124,7 @@ class Product(models.Model):
             errors['amount'] = 'Amount field not sent or its not a number'
 
         if len(errors.keys())>0:
-            return (None, None, errors)
+            raise TransactionError(errors)
 
         warehouse = Warehouse.objects.get(id=warehouse_id)
 
@@ -133,7 +135,7 @@ class Product(models.Model):
             error= {}
             if(mov_size == 0):
                 error['real_inv'] = "The sent real_inv parameter matches the existences on the inv, no adjust made"
-                return (None, None, error)
+                raise TransactionError(error)
             product.inventory_existent = new_inv_existent
             product.save()
             #generate inventory movement
@@ -150,11 +152,6 @@ class Product(models.Model):
             inv_mov = Inventory_Movement.simple_movement(mov_type, user_string, 
                                             product, warehouse, description, '', abs_mov_size)
             return (product, inv_mov, error)
-
-
-
-
-
 
     @classmethod
     def partial_update(self_cls, user_id, product_id, **kwargs):
@@ -173,7 +170,7 @@ class Product(models.Model):
         with transaction.atomic():
             product = self_cls.objects.select_for_update().get(id=product_id)
             if(len(errors.keys())>0):
-                return (None, errors)
+                raise TransactionError(errors)
             for key in patch_kwargs.keys():
                 setattr(product, key, patch_kwargs[key])
             product.save()
@@ -183,7 +180,7 @@ class Product(models.Model):
     @classmethod
     def create(self_cls, user_id,  **kwargs):
         with transaction.atomic():
-            errors = {'status':'OK'}
+            errors = {}
             create_data = {}
             self_cls.get_create_key(kwargs,create_data, 'code', errors)
             self_cls.get_create_key(kwargs, create_data, 'description', errors)
@@ -191,7 +188,7 @@ class Product(models.Model):
             self_cls.get_create_key(kwargs, create_data, 'unit', errors)
             self_cls.get_create_key(kwargs, create_data, 'fractioned', errors)
             self_cls.get_create_key(kwargs, create_data, 'department', errors, True)
-            self_cls.get_create_key(kwargs, create_data,'subdepartment', errors, True)
+            self_cls.get_create_key(kwargs, create_data, 'subdepartment', errors, True)
             self_cls.get_create_key(kwargs, create_data, 'barcode', errors, True)
             self_cls.get_create_key(kwargs, create_data, 'internal_barcode', errors, True)
             self_cls.get_create_key(kwargs, create_data, 'supplier_code', errors, True)
@@ -228,8 +225,12 @@ class Product(models.Model):
             self_cls.get_create_key(kwargs, create_data, 'generic', errors, True)
             self_cls.get_create_key(kwargs, create_data, 'observations', errors, True)
             if(len(errors.keys())>0):
-                return (None, errors)
+                raise TransactionError(errors)
+            #do model validation
+            prod_for_validation = Product(**create_data).full_clean()
+
             prod = self_cls.objects.create(**create_data)
+            
             prod.save()
             print("NEW ID --> {}".format(prod.id))
             return (prod, errors)
@@ -240,8 +241,7 @@ class Product(models.Model):
             create_data[key] = target_dict[key]
         except KeyError:
             if not optional:
-                errors[key] = 'Missing required argument {}'.format(key)
-
+                errors[key] = ['Missing required argument {}'.format(key)]
 
 
     @classmethod
@@ -251,9 +251,12 @@ class Product(models.Model):
         with transaction.atomic():
             #get product by its id
             product = self_cls.objects.select_for_update().get(id=product_id)
-            inv_change = product.validate_movement(product, amount)
+            inv_change = product.validate_movement(product, amount, mov_type)
             
-            product.inventory_existent = product.update_inventory(amount, warehouse.id)
+            product_inv, errors = product.update_inventory(amount, warehouse.id, mov_type)
+            if(len(errors.keys()>0)):
+                raise TransactionError(errors)
+            product.inventory_existent = product_inv
             product.save()
             
             #generate movement out of inventory
@@ -269,17 +272,10 @@ class Product(models.Model):
         with transaction.atomic():
             prod = self_cls.objects.select_for_update().get(id=pk)
             #validate the incoming data
-            errs, data = prod.warehouse_transfer_data_validation(req_data)
-            if(errs['status']=='BAD'):
-                return Response(data=errs, status=status.HTTP_400_BAD_REQUEST)
-
-            errs, transfer = prod.transfer_inv(errs, data, prod)
-            if(errs['status']=='BAD'):
-                return Response(data=errs, status=status.HTTP_400_BAD_REQUEST)
-
+            data = prod.warehouse_transfer_data_validation(req_data)
+            transfer = prod.transfer_inv(data, prod)
             prod.inventory_existent =  transfer
             prod.save()
-
             #get the user
             user = User.objects.get(id=data['user_id'])
             user_string = UserSerialiazer(user).data
@@ -287,17 +283,15 @@ class Product(models.Model):
             origin_mov, destination_mov = Inventory_Movement.warehouse_transfer(user_string, prod, data['origin_warehouse_id'],
                         data['destination_warehouse_id'], data['description'], data['generator'], data['amount'])
 
-            
             return (prod, origin_mov, destination_mov)
-        return Response(data={'Error generating inventory transfer'},  status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
     def warehouse_transfer_data_validation(self, data):
-        errs = {'status':'OK'}
+        errs = {}
         #validates the parameters and returns them as tupple
         amount = 0
         try:
             amount = float(data['amount'])
         except (KeyError, ValueError) as e:
-            print(e)
             errs['amount'] = 'Invalid or absent amount'
         origin_warehouse_id = None
         destination_warehouse_id = None
@@ -327,26 +321,28 @@ class Product(models.Model):
         except KeyError:
             errs['generator'] = "Id of generator transaction not sent"
 
-        if(len(errs.keys())>1): errs['status']='BAD'
+        if(len(errs.keys())>1): 
+            raise TransactionError(errs)
 
         data = {'amount':amount, 'destination_warehouse_id':destination_warehouse_id,
             'origin_warehouse_id':origin_warehouse_id, 'user_id':user_id, 'description':description,
             'generator':generator}
 
-        return(errs, data)
+        return data
 
-    def transfer_inv(self, errs, data, prod):
+    def transfer_inv(self, data, prod):
         #get the origin warehouse existence
+        errs = {}
         current_inv = json.loads(self.inventory_existent)
         total_origin = 0
         total_destination = 0
         try:
             total_origin = float(current_inv[data['origin_warehouse_id']])
         except KeyError:
-            errs['origin_warehouse_id'] = 'Product does not have existences on origin warehouse'
+            errs['origin_warehouse_id'] = ['Product does not have existences on origin warehouse']
         if not self.inventory_negative:
             if(total_origin < data['amount']):
-                errs['amount']='Transfer requested {} is larger than avaialble inventory at origin {}'.format(data['amount'], total_origin)
+                errs['amount']=['Transfer requested {} is larger than avaialble inventory at origin {}'.format(data['amount'], total_origin)]
         #obtain the total at the destination warehouse
         try:
             total_destination = float(current_inv[data['destination_warehouse_id']])
@@ -356,11 +352,11 @@ class Product(models.Model):
         current_inv[data['origin_warehouse_id']] =  total_origin - float(data['amount'])
         current_inv[data['destination_warehouse_id']] = total_destination + float(data['amount'])
         #total remains untouched, it is only a transfer
-        if(len(errs.keys())>1): errs['status']='BAD'
-        return (errs, json.dumps(current_inv))
+        if(len(errs.keys())>1): 
+            raise TransactionError(errs)
+        return json.dumps(current_inv)
 
     def set_inventory(self, real_existence, warehouse_id):
-        errors = {}
         warehouse_id = str(warehouse_id)
         current_inv = json.loads(self.inventory_existent)
         current_total = float(current_inv['total'])
@@ -376,6 +372,7 @@ class Product(models.Model):
 
 
     def update_inventory(self, amount, warehouse_id):
+        errors = {}
         warehouse_id = str(warehouse_id)
         current_inv = json.loads(self.inventory_existent)
         new_total = float(current_inv['total']) + amount
@@ -390,22 +387,16 @@ class Product(models.Model):
 
     def validate_movement(self, product, amount):
         target_mov = 0
-        print('Fractioned --> ' + str(product.fractioned))
         if(product.fractioned):
             try:
                 target_mov = float(amount)
             except ValueError:
-                pass #raise custom exception here
+                raise TransactionError({'amount': ['Amount supplied is not a number']})
         else:
             try:
                 target_mov = int(amount)
             except ValueError:
-                pass #raise custom exception
-        #check if the amount can be applied from the product inventory
-        print('Negative inv --> ' + str(product.inventory_negative))
-        if(product.inventory_negative):
-            pass
-
+                raise TransactionError({'amount': ['Amount supplied is not a number']})
         return target_mov
 # @receiver(post_save, sender=Product)
 # def send_message(sender, instance, **kwargs):
