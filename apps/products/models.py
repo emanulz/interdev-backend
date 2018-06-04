@@ -60,16 +60,11 @@ class Product(models.Model):
     inventory_existent = models.TextField(default=r'{"total":"0"}', verbose_name='Inventory Data')
     cost = models.FloatField(default=0, verbose_name='Costo ₡', blank=True, null=True)
     cost_based = models.BooleanField(default=True, verbose_name='Precio basado en Costo?', blank=True)
-    utility = models.FloatField(default=0, verbose_name='Utilidad %', blank=True, null=True)
-    utility2 = models.FloatField(default=0, verbose_name='Utilidad %', blank=True, null=True)
-    utility3 = models.FloatField(default=0, verbose_name='Utilidad %', blank=True, null=True)
-    price = models.FloatField(default=0, verbose_name='Precio sin Impuestos ₡', blank=True, null=True)
-    price2 = models.FloatField(default=0, verbose_name='Precio sin Impuestos ₡', blank=True, null=True)
-    price3 = models.FloatField(default=0, verbose_name='Precio sin Impuestos ₡', blank=True, null=True)
 
+    utility = models.FloatField(default=0, verbose_name='Utilidad %', blank=True, null=True)
+    price = models.FloatField(default=0, verbose_name='Precio sin Impuestos ₡', blank=True, null=True)
     sell_price = models.FloatField(default=0, verbose_name='Precio IVI ₡', blank=True, null=True)
-    sell_price2 = models.FloatField(default=0, verbose_name='Precio IVI ₡', blank=True, null=True)
-    sell_price3 = models.FloatField(default=0, verbose_name='Precio IVI ₡', blank=True, null=True)
+
     ask_price = models.BooleanField(default=False, verbose_name='Pide Precio al facturar?', blank=True)
 
     use_taxes = models.BooleanField(default=False, verbose_name='Usa impuesto 1?', blank=True)
@@ -104,6 +99,94 @@ class Product(models.Model):
         ordering = ['code']
 
     @classmethod
+    def partial_update(self_cls, user_id, product_id, **kwargs):
+        print("PATCHING PRODUCT")
+        patch_allowed_fields = ('code', 'description', 'short_description', 'unit', 'fractioned', 'department', 'subdepartment',
+                                'barcode', 'internal_barcode', 'supplier_code', 'model', 'part_number', 'brand_code', 'inventory_enabled',
+                                'inventory_minimum', 'inventory_maximum', 'inventory_negative', 'cost', 'cost_based', 'utility', 'price',
+                                'sell_price', 'ask_price', 'use_taxes', 'taxes', 'tax_code', 'use_taxes2', 'taxes2', 'tax_code2',
+                                'use_taxes3', 'taxes3', 'tax_code3', 'pred_discount', 'max_sale_discount', 'on_sale', 'is_active', 'consignment',
+                                'generic', 'observations')
+        patch_kwargs = {}
+        errors = {}
+        for field in patch_allowed_fields:
+            self_cls.get_create_key(kwargs, patch_kwargs, field, errors, True)
+
+        with transaction.atomic():
+            product = self_cls.objects.select_for_update().get(id=product_id)
+            if(len(errors.keys())>0):
+                return (None, errors)
+            for key in patch_kwargs.keys():
+                setattr(product, key, patch_kwargs[key])
+            product.save()
+            return (product, errors)
+
+
+    @classmethod
+    def create(self_cls, user_id,  **kwargs):
+        with transaction.atomic():
+            errors = {'status':'OK'}
+            create_data = {}
+            self_cls.get_create_key(kwargs,create_data, 'code', errors)
+            self_cls.get_create_key(kwargs, create_data, 'description', errors)
+            self_cls.get_create_key(kwargs, create_data, 'short_description', errors, True)
+            self_cls.get_create_key(kwargs, create_data, 'unit', errors)
+            self_cls.get_create_key(kwargs, create_data, 'fractioned', errors)
+            self_cls.get_create_key(kwargs, create_data, 'department', errors, True)
+            self_cls.get_create_key(kwargs, create_data,'subdepartment', errors, True)
+            self_cls.get_create_key(kwargs, create_data, 'barcode', errors, True)
+            self_cls.get_create_key(kwargs, create_data, 'internal_barcode', errors, True)
+            self_cls.get_create_key(kwargs, create_data, 'supplier_code', errors, True)
+            self_cls.get_create_key(kwargs, create_data, 'model', errors, True)
+            self_cls.get_create_key(kwargs, create_data, 'part_number', errors, True)
+            self_cls.get_create_key(kwargs, create_data, 'brand_code', errors, True)
+            self_cls.get_create_key(kwargs, create_data, 'inventory_enabled', errors, True)
+            self_cls.get_create_key(kwargs, create_data, 'inventory_minimum', errors, True)
+            self_cls.get_create_key(kwargs, create_data, 'inventory_maximum', errors, True)
+            self_cls.get_create_key(kwargs, create_data, 'inventory_negative', errors, True)
+            self_cls.get_create_key(kwargs, create_data, 'inventory_existent', errors, True)
+            self_cls.get_create_key(kwargs, create_data, 'cost', errors, True)
+            self_cls.get_create_key(kwargs, create_data, 'cost_based', errors, True)
+            self_cls.get_create_key(kwargs, create_data, 'utility', errors, True)
+            self_cls.get_create_key(kwargs, create_data, 'price', errors, True)
+            self_cls.get_create_key(kwargs, create_data, 'sell_price', errors, True)
+            self_cls.get_create_key(kwargs, create_data, 'ask_price', errors, True)
+            self_cls.get_create_key(kwargs, create_data, 'use_taxes', errors, True)
+            self_cls.get_create_key(kwargs, create_data, 'taxes', errors, True)
+            self_cls.get_create_key(kwargs, create_data, 'tax_code', errors, True)
+            self_cls.get_create_key(kwargs, create_data, 'use_taxes2', errors, True)
+            self_cls.get_create_key(kwargs, create_data, 'taxes2', errors, True)
+            self_cls.get_create_key(kwargs, create_data, 'tax_code2', errors, True)
+            self_cls.get_create_key(kwargs, create_data, 'use_taxes3', errors, True)
+            self_cls.get_create_key(kwargs, create_data, 'taxes3', errors, True)
+            self_cls.get_create_key(kwargs, create_data, 'tax_code3', errors, True)
+
+            self_cls.get_create_key(kwargs, create_data, 'pred_discount', errors, True)
+            self_cls.get_create_key(kwargs, create_data, 'max_sale_discount', errors, True)
+            self_cls.get_create_key(kwargs, create_data, 'on_sale', errors, True)
+
+            self_cls.get_create_key(kwargs, create_data, 'is_active', errors, True)
+            self_cls.get_create_key(kwargs, create_data, 'consignment', errors, True)
+            self_cls.get_create_key(kwargs, create_data, 'generic', errors, True)
+            self_cls.get_create_key(kwargs, create_data, 'observations', errors, True)
+            if(len(errors.keys())>0):
+                return (None, errors)
+            prod = self_cls.objects.create(**create_data)
+            prod.save()
+            print("NEW ID --> {}".format(prod.id))
+            return (prod, errors)
+
+
+    def get_create_key(target_dict, create_data, key, errors, optional= False):
+        try:
+            create_data[key] = target_dict[key]
+        except KeyError:
+            if not optional:
+                errors[key] = 'Missing required argument {}'.format(key)
+
+
+
+    @classmethod
     def inventory_movement(self_cls, product_id, warehouse, mov_type, amount, user,
         description, id_generator):
 
@@ -122,9 +205,7 @@ class Product(models.Model):
     @classmethod
     def warehouse_transfer(self_cls, request, pk):
         # user, description, generator
-        
-        
-        print('Product Inventory Transfer method --> ' + str(pk))
+
         req_data = request.data
         #select the product and lock it
         with transaction.atomic():
@@ -137,9 +218,7 @@ class Product(models.Model):
             errs, transfer = prod.transfer_inv(errs, data, prod)
             if(errs['status']=='BAD'):
                 return Response(data=errs, status=status.HTTP_400_BAD_REQUEST)
-            
-            print('Transfer')
-            print(transfer)
+
             prod.inventory_existent =  transfer
             prod.save()
 
@@ -207,7 +286,6 @@ class Product(models.Model):
             total_origin = float(current_inv[data['origin_warehouse_id']])
         except KeyError:
             errs['origin_warehouse_id'] = 'Product does not have existences on origin warehouse'
-        print('Total at origin warehouse --> ' + str(total_origin))
         if not self.inventory_negative:
             if(total_origin < data['amount']):
                 errs['amount']='Transfer requested {} is larger than avaialble inventory at origin {}'.format(data['amount'], total_origin)
