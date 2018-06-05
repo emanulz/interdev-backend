@@ -38,9 +38,7 @@ class Purchase(models.Model):
 
     pay = models.TextField(verbose_name='Objeto Pago', default='')
     pay_type = models.CharField(max_length=4, choices=PAY_CHOICES, default=cash, verbose_name='Tipo de Pago')
-    payed = models.BooleanField(default=True, verbose_name='Pagada')
 
-    
     invoice_number = models.CharField(max_length=255, verbose_name='Número de Factura')
     invoice_date = models.DateField(blank=True, null=True)
     credit_days =  models.IntegerField(default=0, verbose_name='Plazo Crédito')

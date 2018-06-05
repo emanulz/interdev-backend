@@ -18,7 +18,7 @@ from apps.profiles.api.views import ProfileViewSet
 from apps.profiles.api.views import UserViewSet, PermissionsViewSet
 from apps.sales.api.views import SaleViewSet, Cash_AdvanceViewSet
 from apps.logs.api.views import LogViewSet
-from apps.credits.api.views import Credit_MovementViewSet, Credit_PaymentViewSet
+from apps.credits.api.views import Credit_MovementViewSet, Credit_PaymentViewSet, CreditPaymentCreateViewSet
 from apps.taxes.api.views import TaxViewSet
 from apps.senders.api.views import SenderViewSet
 from apps.addresses.api.views import ProvinceViewSet, CantonViewSet, DistrictViewSet, TownViewSet
@@ -51,8 +51,9 @@ router.register(r'users', UserViewSet)
 router.register(r'permissions', PermissionsViewSet)
 router.register(r'userprefs', UserPreferencesViewSet, base_name='userprefs')
 router.register(r'globalprefs', GlobalPreferencesViewSet, base_name='globalprefs')
-router.register(r'creditmovements', Credit_MovementViewSet)
-router.register(r'creditpayments', Credit_PaymentViewSet)
+router.register(r'creditpaymentscreate', CreditPaymentCreateViewSet, base_name='credits')
+router.register(r'creditmovementslist', Credit_MovementViewSet)
+router.register(r'creditpaymentslist', Credit_PaymentViewSet)
 router.register(r'taxes', TaxViewSet)
 router.register(r'senders', SenderViewSet)
 router.register(r'provinces', ProvinceViewSet)
@@ -66,8 +67,8 @@ router.register(r'labor', LaborViewSet)
 router.register(r'usedparts', UsedPartViewSet)
 router.register(r'partrequest', PartRequestViewSet)
 router.register(r'purchase', PurchaseViewSet)
-router.register(r'payablescreditmovement', Credit_MovementPayableViewSet)
-router.register(r'payablescreditpayment', Credit_PaymentPayableViewSet)
+router.register(r'payablescreditmovement', Credit_MovementPayableViewSet, base_name='payables')
+router.register(r'payablescreditpayment', Credit_PaymentPayableViewSet, base_name='payables')
 router.register(r'presales', PresaleViewSet)
 
 urlpatterns = [

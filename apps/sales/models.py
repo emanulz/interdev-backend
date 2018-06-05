@@ -44,7 +44,8 @@ class Sale(models.Model):
     pay = models.TextField(verbose_name='Objeto Pago', default='')
     pay_types = models.CharField(max_length=255, default='', verbose_name='Tipos de Pago')
     sale_type = models.CharField(max_length=4, verbose_name="Tipo  de factura, Crédito o Débito", default='')
-    payed = models.BooleanField(default=True, verbose_name='Pagada')
+    sale_total = models.DecimalField(verbose_name="Monto total facturado", max_digits=19, decimal_places=5)
+    balance = models.DecimalField(verbose_name="Saldo de factura", max_digits=19, decimal_places=5)
     user = models.TextField(verbose_name='Objeto Usuario', default='')
     created = models.DateTimeField(auto_now=False, auto_now_add=True, blank=True, null=True,
                                    verbose_name='Fecha de creación')
@@ -102,18 +103,18 @@ class Sale(models.Model):
             pay_types = pay_types[:-1]
 
             cart = json.loads(cart)
-            print(cart)
             cart_total = Decimal(cart['cartTotal'])
-            cart_total_rounded = Decimal(round(cart_total, 0))
+            cart_total_rounded = Decimal(round(cart_total, 5))
             cart_rounding_diff = cart_total - cart_total_rounded
-            print('Cart raw total {}'.format(cart_total))
-            print('Cart total rounded {}'.format(cart_total_rounded))
-            print('Cart total diff {}'.format(cart_rounding_diff))
+            #print('Cart raw total {}'.format(cart_total))
+            #print('Cart total rounded {}'.format(cart_total_rounded))
+            #print('Cart total diff {}'.format(cart_rounding_diff))
             credit_balance = cart_total_rounded - total_payment
-            print('Credit balanance {}'.format(credit_balance))
+            #print('Credit balanance {}'.format(credit_balance))
             #try and apply the credit to the client
 
             sale_type = "CASH"
+            
             if(cart_total>total_payment): sale_type="CRED"
 
             sale_kwargs = {
@@ -121,10 +122,11 @@ class Sale(models.Model):
                 'cart': cart, 
                 'client': client_string, 
                 'client_id': client_id,
+                'sale_total': cart_total,
+                'balance': cart_total - total_payment,
                 'pay': pay, 
                 'sale_type': sale_type,
                 'pay_types': pay_types,
-                'payed': payed, 
                 'user': user_string
             }
 
@@ -178,6 +180,9 @@ class Sale(models.Model):
                     user_string, individual_mov_desc, id_generator)
             return sale
 
+    @classmethod
+    def apply_payment(self_cls, **kwargs):
+        print('Apply payment')
 
 
 class Cash_Advance(models.Model):

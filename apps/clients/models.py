@@ -83,8 +83,6 @@ class Client(models.Model):
 
     @classmethod
     def apply_credit_movement(self_cls, **kwargs):
-        print('Updating client balance ')
-        print(kwargs)
         #obtain client instance
 
         with transaction.atomic():
@@ -133,14 +131,8 @@ class Client(models.Model):
             else:
                 client.balance = client.balance + amount 
 
-            print('Before save')
-            print(client.balance)
-            try:
-                client.save()
-            except Exception as e:
-                print(e)
-            print('saved')
-            return client
+            client.save()
+
 
                 
 

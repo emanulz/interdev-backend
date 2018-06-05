@@ -64,19 +64,19 @@ class Product(models.Model):
     cost_based = models.BooleanField(default=True, verbose_name='Precio basado en Costo?', blank=True)
 
     utility = models.FloatField(default=0, verbose_name='Utilidad %', blank=True, null=True)
-    price = models.FloatField(default=0, verbose_name='Precio sin Impuestos ₡', blank=True, null=True)
-    sell_price = models.FloatField(default=0, verbose_name='Precio IVI ₡', blank=True, null=True)
+    price = models.DecimalField(max_digits=19, decimal_places=5, default=0, verbose_name='Precio sin Impuestos ₡', blank=True, null=True)
+    sell_price = models.DecimalField(max_digits=19, decimal_places=5, default=0, verbose_name='Precio IVI ₡', blank=True, null=True)
 
     ask_price = models.BooleanField(default=False, verbose_name='Pide Precio al facturar?', blank=True)
 
     use_taxes = models.BooleanField(default=False, verbose_name='Usa impuesto 1?', blank=True)
-    taxes = models.FloatField(default=0, verbose_name='Impuesto1 %', blank=True, null=True)
+    taxes = models.DecimalField(max_digits=19, decimal_places=5, default=0, verbose_name='Impuesto1 %', blank=True, null=True)
     tax_code = models.CharField(max_length=2, default='00', verbose_name='Código impuesto 1', blank=True)
     use_taxes2 = models.BooleanField(default=False, verbose_name='Usa impuesto 2?', blank=True)
-    taxes2 = models.FloatField(default=0, verbose_name='Impuesto2 %', blank=True, null=True)
+    taxes2 = models.DecimalField(max_digits=19, decimal_places=5, default=0, verbose_name='Impuesto2 %', blank=True, null=True)
     tax_code2 = models.CharField(max_length=2, default='00', verbose_name='Código impuesto 2', blank=True)
     use_taxes3 = models.BooleanField(default=False, verbose_name='Usa impuesto 3?', blank=True)
-    taxes3 = models.FloatField(default=0, verbose_name='Impuesto3 %', blank=True, null=True)
+    taxes3 = models.DecimalField(max_digits=19, decimal_places=5, default=0, verbose_name='Impuesto3 %', blank=True, null=True)
     tax_code3 = models.CharField(max_length=2, default='00', verbose_name='Código impuesto 3', blank=True, null=True)
     pred_discount = models.FloatField(default=0, verbose_name='Descuento Predeterminado %', blank=True, null=True)
     max_sale_discount = models.FloatField(default=0, verbose_name='Descuento Máximo en liquidación %', blank=True,
