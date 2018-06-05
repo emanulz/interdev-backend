@@ -7,11 +7,11 @@ class Credit_MovementSerializer(serializers.ModelSerializer):
         model = Credit_Movement
         fields = ('id', 'consecutive', 'supplier_id', 'purchase_id', 'credit_note_id',
                     'debit_note_id', 'payment_id', 'movement_type', 'amount', 'description',
-                    'is_null', 'created', 'updated')
+                     'created', 'updated')
 
 class Credit_PaymentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Credit_Payment
         fields = ('id', 'consecutive', 'purchase', 'user', 'supplier', 'supplier_id',
-                    'amount', 'description', 'is_null', 'created', 'updated')     
+                    'amount', 'description', 'created', 'updated')     

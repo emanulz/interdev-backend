@@ -26,9 +26,8 @@ class Credit_Movement(models.Model):
     payment_id = models.CharField(max_length=255, blank=True, null=True, verbose_name='ID Objeto Pago', default='')
     movement_type = models.CharField(max_length=4, choices=MOVEMENT_CHOICES, default=credit,
                                      verbose_name='Tipo de Movimiento')
-    amount = models.FloatField(verbose_name='Monto', blank=True, null=True, default=0)
+    amount = models.DecimalField(max_digits=19, decimal_places=5, verbose_name='Monto', blank=True, null=True, default=0)
     description = models.CharField(max_length=255, blank=True, verbose_name='Descripción del movimiento')
-    is_null = models.BooleanField(default=False, blank=True, verbose_name='Anulado?')
     created = models.DateTimeField(auto_now=False, auto_now_add=True, blank=True, null=True,
                                    verbose_name='Fecha de creación')
     updated = models.DateTimeField(auto_now=True, auto_now_add=False, blank=True, null=True,
@@ -59,7 +58,7 @@ class Credit_Payment(models.Model):
     supplier = models.TextField(verbose_name='Objeto Proveedor', default='')
     supplier_id = models.CharField(max_length=256, blank=True, null=True, verbose_name='ID Objeto Proveedor',
                                    default='')
-    amount = models.DecimalField(max_digits=11, decimal_places=2, verbose_name='Monto Pago',
+    amount = models.DecimalField(max_digits=19, decimal_places=5, verbose_name='Monto Pago',
                                  blank=True, default=0)
     description = models.CharField(max_length=255, blank=True, verbose_name='Descripción del movimiento')
     is_null = models.BooleanField(default=False, blank=True, verbose_name='Anulado?')
