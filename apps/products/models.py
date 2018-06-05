@@ -155,7 +155,6 @@ class Product(models.Model):
 
     @classmethod
     def partial_update(self_cls, user_id, product_id, **kwargs):
-        print("PATCHING PRODUCT")
         patch_allowed_fields = ('code', 'description', 'short_description', 'unit', 'fractioned', 'department', 'subdepartment',
                                 'barcode', 'internal_barcode', 'supplier_code', 'model', 'part_number', 'brand_code', 'inventory_enabled',
                                 'inventory_minimum', 'inventory_maximum', 'inventory_negative', 'cost', 'cost_based', 'utility', 'price',
@@ -251,16 +250,15 @@ class Product(models.Model):
         with transaction.atomic():
             #get product by its id
             product = self_cls.objects.select_for_update().get(id=product_id)
-            inv_change = product.validate_movement(product, amount, mov_type)
             
-            product_inv, errors = product.update_inventory(amount, warehouse.id, mov_type)
-            if(len(errors.keys()>0)):
-                raise TransactionError(errors)
+            inv_change = product.validate_movement(product, amount)
+            
+            product_inv = product.update_inventory(amount, warehouse.id)
             product.inventory_existent = product_inv
             product.save()
             
             #generate movement out of inventory
-            Inventory_Movement.simple_movement(mov_type, user, product, warehouse, 
+            return Inventory_Movement.simple_movement(mov_type, user, product, warehouse, 
                                                 description, id_generator, inv_change)
             
     @classmethod

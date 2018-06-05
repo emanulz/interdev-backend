@@ -33,9 +33,6 @@ class ProductInventoryViewSet(viewsets.ViewSet):
             if type(e)=='TransactionError':
                 return Response(data=e.get_errors(), status=status.HTTP_400_BAD_REQUEST)
             else:
-                print('Exit http')
-                print(e.args)
-                print(dir(e))
                 return Response(data=str(e))
         
     

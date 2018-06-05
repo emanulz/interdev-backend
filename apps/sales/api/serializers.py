@@ -21,7 +21,7 @@ class SaleSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Sale
-        fields = ('id', 'consecutive', 'cart', 'client', 'client_id', 'user', 'pay', 'pay_type', 'payed', 'created',
+        fields = ('id', 'consecutive', 'cart', 'client', 'client_id', 'user', 'pay', 'pay_types', 'sale_type', 'payed', 'created',
                   'updated', 'debt', 'debits', 'credits')
 
     def get_debt(self, obj):

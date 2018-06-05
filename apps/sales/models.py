@@ -15,10 +15,12 @@ from rest_framework.response import Response
 from apps.clients.models import Client
 from apps.products.models import Product
 from apps.inventories.models import Warehouse
+from apps.credits.models import Credit_Movement, Credit_Note
 from django.contrib.auth.models import User
 from apps.utils.exceptions import TransactionError
 
 from apps.utils.serializers import UserSerialiazer
+from decimal import Decimal, getcontext
 
 class Sale(models.Model):
 
@@ -40,7 +42,8 @@ class Sale(models.Model):
     client = models.TextField(verbose_name='Objeto Cliente', default='')
     client_id = models.CharField(max_length=255, verbose_name='Id de Cliente', default='1')
     pay = models.TextField(verbose_name='Objeto Pago', default='')
-    pay_type = models.CharField(max_length=4, choices=PAY_CHOICES, default=cash, verbose_name='Tipo de Pago')
+    pay_types = models.CharField(max_length=255, default='', verbose_name='Tipos de Pago')
+    sale_type = models.CharField(max_length=4, verbose_name="Tipo  de factura, Crédito o Débito", default='')
     payed = models.BooleanField(default=True, verbose_name='Pagada')
     user = models.TextField(verbose_name='Objeto Usuario', default='')
     created = models.DateTimeField(auto_now=False, auto_now_add=True, blank=True, null=True,
@@ -58,8 +61,9 @@ class Sale(models.Model):
 
 
     @classmethod
-    def create(self_cls, cart, client_id, pay, pay_type, payed, user_id, warehouse_id):
-        
+    def create(self_cls, cart, client_id, pay, payed, user_id, warehouse_id):
+        #set the context precision to 5 decimal places
+        getcontext().prec = 20
         client_id = uuid.UUID('4ff0aa2f3ad44d439ed2e610cd77e42a')
         warehouse_id = uuid.UUID('4a25f16d0f1a4e9e95b0a464c085a20c')
         user_id = 1
@@ -67,7 +71,11 @@ class Sale(models.Model):
         with transaction.atomic():
             #fetch the client by id
             client = Client.objects.get(id=client_id)
-            client_string =  json.dumps(model_to_dict(client))
+
+            client_dict = model_to_dict(client)
+            client_dict['balance'] = str(client_dict['balance'])
+            client_dict['credit_limit'] = str(client_dict['credit_limit'])
+            client_string =  json.dumps(client_dict)
             #fetch user object
             user = User.objects.get(id=user_id)
             user_string = UserSerialiazer(user).data
@@ -79,30 +87,95 @@ class Sale(models.Model):
             next_consecutive = int(next_consecutive)+1
             if(next_consecutive == None): next_consecutive = 1
 
-            sale = self_cls.objects.create(
-                consecutive = next_consecutive,
-                cart = cart, 
-                client = client_string, 
-                client_id = client_id,
-                pay = pay, 
-                pay_type = pay_type,
-                payed = payed, 
-                user = user_string
-            )
+            #check the payment data and apply credit as needed
+            pay = [
+                {'type':'CASH', 'amount': 2500.0},
+                {'type':'CARD', 'amount': 10000.0, 'digits': '4875', 'authorization': 'authorization_code'},
+                {'type':'CASH', 'amount': 1800.0}
+            ]
+            total_payment = Decimal(0)
+            pay_types = ''
+            for item in pay:
+                total_payment += Decimal(item['amount'])
+                pay_types = '{}-'.format(item['type'])
 
-            #extract the items form the cart
-            cartItems = json.loads(cart)['cartItems']
+            pay_types = pay_types[:-1]
+
+            cart = json.loads(cart)
+            print(cart)
+            cart_total = Decimal(cart['cartTotal'])
+            cart_total_rounded = Decimal(round(cart_total, 0))
+            cart_rounding_diff = cart_total - cart_total_rounded
+            print('Cart raw total {}'.format(cart_total))
+            print('Cart total rounded {}'.format(cart_total_rounded))
+            print('Cart total diff {}'.format(cart_rounding_diff))
+            credit_balance = cart_total_rounded - total_payment
+            print('Credit balanance {}'.format(credit_balance))
+            #try and apply the credit to the client
+
+            sale_type = "CASH"
+            if(cart_total>total_payment): sale_type="CRED"
+
+            sale_kwargs = {
+                'consecutive': next_consecutive,
+                'cart': cart, 
+                'client': client_string, 
+                'client_id': client_id,
+                'pay': pay, 
+                'sale_type': sale_type,
+                'pay_types': pay_types,
+                'payed': payed, 
+                'user': user_string
+            }
+
+            validation_sale = Sale(**sale_kwargs).full_clean()
+
+            sale = self_cls.objects.create(**sale_kwargs)
+
+            if sale_type == "CRED":
+                #apply credit movement on client
+                client_credit_kwargs = {
+                    'client_id': client_id,
+                    'amount': credit_balance,
+                    'mov_type': 'CRED',
+                }
+                Client.apply_credit_movement(**client_credit_kwargs)
+                
+                #create a credit movement for 100% of the trasaction
+                kwargs_full_credit = {
+                    'user': user_string,
+                    'client_id': client_id,
+                    'bill_id': sale.id,
+                    'movement_type': 'CRED',
+                    'amount': round(cart_total,5),
+                    'description': 'Movimiento de crédito inicial por factura {}'.format(sale.consecutive)
+                }
+                Credit_Movement.create(**kwargs_full_credit)
+                #apply a credit movement of type debit for the total of the payments
+                if total_payment > 0:
+                    #create a credit movement of type debit for the payment amount
+                    kwargs_debit = {
+                        'user': user_string,
+                        'client_id': client_id,
+                        'bill_id': sale.id,
+                        'movement_type': 'DEBI',
+                        'amount': round(total_payment,5),
+                        'description': 'Adelanto a crédito en compra para factura {}'.format(sale.consecutive)   
+                    }
+                    Credit_Movement.create(**kwargs_debit)
+
+            #extract the items from the cart
+            cartItems = cart['cartItems']
             id_generator = 'sa_' + str(sale.id)
             individual_mov_desc = "Movimiento por factura # {}".format(str(sale.consecutive))
             for item in cartItems:
                 #create an inventory movement
                 prod = item['product']
+                print("prod")
+                print(prod)
                 amount = item['qty']
-                mov, error = Product.inventory_movement(prod['id'], warehouse, 'OUTPUT', amount,
+                mov = Product.inventory_movement(prod['id'], warehouse, 'OUTPUT', amount,
                     user_string, individual_mov_desc, id_generator)
-                if mov == None:
-                    raise TransactionError(error)
-
             return sale
 
 

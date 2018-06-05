@@ -40,6 +40,7 @@ class SaleCreateViewSet(viewsets.ViewSet):
         return Response(SaleSerializer(sale).data)
 
     def create(self, request):
+       
         req_data =  request.data
         val_result = self.validate_sale_request(req_data)
         if(val_result['status']!= 'OK'):
@@ -57,13 +58,17 @@ class SaleCreateViewSet(viewsets.ViewSet):
         except:
             pass
         #check if I can reach the atomic create class method
+        
         try:
             sale = Sale.create(req_data['cart'], client_id,
-                pay, pay_type, payed, user_id, warehouse_id)
+                pay, payed, user_id, warehouse_id)
             return Response(SaleSerializer(sale).data)
-        except TransactionError as e:
-            return Response(data=e.get_errors(), status=status.HTTP_400_BAD_REQUEST)
-
+        except Exception as e:
+            if type(e)=='TransactionError':
+                return Response(data=e.get_errors(), status=status.HTTP_400_BAD_REQUEST)
+            else:
+                
+                return Response(data=str(e))
 
         
 
@@ -87,7 +92,6 @@ class SaleCreateViewSet(viewsets.ViewSet):
             validation_failures['status'] = 'FAIL'
         else:
             validation_failures['status'] = 'OK'
-        print(validation_failures)
         return validation_failures
 
 class SaleViewSet(viewsets.ModelViewSet):

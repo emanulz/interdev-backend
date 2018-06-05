@@ -124,6 +124,7 @@ class Inventory_Movement(models.Model):
             id_generator = id_generator,
             amount = inv_change
         )
+        print('individual mov created')
         return mov
 
 
