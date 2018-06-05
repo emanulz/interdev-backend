@@ -13,7 +13,7 @@ from rest_framework.pagination import LimitOffsetPagination
 
 
 class LimitPaginationClass(LimitOffsetPagination):
-    default_limit = 50
+    default_limit = 200
 
 
 class SearchProductViewSet(viewsets.ModelViewSet):
