@@ -99,8 +99,8 @@ class Sale(models.Model):
 
             pay_types = pay_types[:-1]
 
-            cart = json.loads(cart)
-            cart_total = Decimal(cart['cartTotal'])
+            cart_object = json.loads(cart)
+            cart_total = Decimal(cart_object['cartTotal'])
             cart_total_rounded = Decimal(round(cart_total, 5))
             credit_balance = cart_total_rounded - total_payment
 
@@ -121,7 +121,7 @@ class Sale(models.Model):
             }
 
             validation_sale = Sale(**sale_kwargs).full_clean()
-
+            print('HERE')
             sale = self_cls.objects.create(**sale_kwargs)
             sale_string = dump_object_json(sale)
             #log the sale creation
@@ -167,9 +167,9 @@ class Sale(models.Model):
                     }
                     #the credit movement will log an event of its own creation
                     Credit_Movement.create(**kwargs_debit)
-            
+            print('HERE2')
             #extract the items from the cart
-            cartItems = cart['cartItems']
+            cartItems = cart_object['cartItems']
             id_generator = 'sa_' + str(sale.id)
             individual_mov_desc = "Movimiento por factura # {}".format(str(sale.consecutive))
             for item in cartItems:
@@ -216,8 +216,29 @@ class Sale(models.Model):
 
             
     @classmethod
-    def return_products(self_cls, **kwargs):
-        print('Return products')
+    def return_products(self_cls, pk, user_id, **kwargs):
+        kwargs['return_list']=[{'id':'a02e155c-dd93-41b6-bf27-0c0afdd670b0', 'ret_qty':2}]
+        with transaction.atomic():
+            sale = self_cls.objects.select_for_update().get(id=pk)
+            user = User.objects.get(id=user_id)
+            user_string = UserSerialiazer(user).data
+            original_sale = dump_object_json(sale)
+            client_id =  sale.client,
+            client_string = sale.client
+
+            #create a  return object
+            return_kwargs = {
+                'sale_id': pk,
+                'user': user_string,
+                'client': client_string,
+                'client_id': client_id,
+                'sale_cart': sale.cart,
+                'return_list': kwargs['return_list']
+            }
+            print('Return call create')
+            Return.create(**return_kwargs)
+
+
 
 
 
@@ -236,6 +257,37 @@ class Return(models.Model):
                                    verbose_name='Fecha de creación')
     updated = models.DateTimeField(auto_now=True, auto_now_add=False, blank=True, null=True,
                                    verbose_name='Fecha de modificación')
+
+    @classmethod
+    def create(self_cls, **kwargs):
+        print('create Return')
+        next_consecutive = calculate_next_consecutive(self_cls)
+
+        sale_cart = kwargs['sale_cart'] #.replace("'", '"').replace('True', '"True"').replace('False', '"False"')
+        return_list = kwargs['return_list']
+        print('Return list --> ' + str(return_list))
+        #hydarate the sale_Cart string
+
+        cart = json.loads(sale_cart)
+        print(cart)
+        print(type(cart))
+        print('Boom')
+        return_object =  self_cls.objects.create({
+            'consecutive': next_consecutive,
+            'cart': cart,
+
+
+        })
+        #log the creation of the object
+        return_string = dump_object_json(return_object)
+        Log.objects.create(**{
+            'code': 'RETURN_OF_PRODUCT',
+            'model': 'RETURN',
+            'prev_object': '',
+            'new_object': return_string,
+            'description': 'Retorno de producto para venta {}'.format(kwargs['sale_id']),
+            'user': kwargs['user']
+        })
 
     def __str__(self):
         return '%s' % (self.consecutive)
