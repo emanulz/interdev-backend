@@ -2,7 +2,8 @@
 from __future__ import unicode_literals
 
 from rest_framework import viewsets
-from ..models import Credit_Movement, Credit_Payment
+from ..models import Credit_Movement
+from ..credit_payment_model import Credit_Payment
 from .filters import Credit_MovementFilter, Credit_PaymentFilter
 from .serializers import Credit_MovementSerializer, Credit_PaymentSerializer
 from .permissions import HasProperPermission, HasProperPermissionCreditPayment

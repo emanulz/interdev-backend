@@ -10,9 +10,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.db import IntegrityError
 from apps.utils.utils import calculate_next_consecutive
 from apps.utils.exceptions import TransactionError
-
-#from apps.products.api.serializers import ProductSerializer
-
+from apps.utils.utils import dump_object_json
 
 class Inventory_Movement(models.Model):
 
@@ -56,13 +54,10 @@ class Inventory_Movement(models.Model):
                             description, id_generator, inv_change):
         origin = Warehouse.objects.get(id=origin_warehouse_id)
         origin_string = json.dumps(model_to_dict(origin))
-
         destination = Warehouse.objects.get(id=destination_warehouse_id)
         destination_string = json.dumps(model_to_dict(destination))
 
-        prod_dict = model_to_dict(product)
-        del prod_dict['image']
-        prod_string = json.dumps(prod_dict)
+        prod_string = dump_object_json(product)
 
         next_consec = calculate_next_consecutive(self_cls)
 
@@ -103,14 +98,12 @@ class Inventory_Movement(models.Model):
     @classmethod
     def simple_movement(self_cls, mov_type, user, product, warehouse,
                         description, id_generator, inv_change):
-        prod_dict = model_to_dict(product)
-        del prod_dict['image']
-        prod_string = json.dumps(prod_dict)
+        prod_string = dump_object_json(product)
 
         warehouse_string = json.dumps(model_to_dict(warehouse))
-
         next_consec = calculate_next_consecutive(self_cls)
         amount = inv_change
+
         if(mov_type=='OUTPUT'): amount = amount*-1
         mov = self_cls.objects.create(
             consecutive = next_consec,
@@ -122,9 +115,8 @@ class Inventory_Movement(models.Model):
             warehouse = warehouse_string,
             description = description,
             id_generator = id_generator,
-            amount = inv_change
+            amount = amount
         )
-        print('individual mov created')
         return mov
 
 

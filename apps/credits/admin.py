@@ -3,7 +3,8 @@
 from __future__ import unicode_literals
 
 from django.contrib import admin
-from .models import Credit_Movement, Credit_Payment
+from .models import Credit_Movement
+from .credit_payment_model import Credit_Payment
 # from general.models.companies import Company
 
 

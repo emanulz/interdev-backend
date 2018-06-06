@@ -11,8 +11,10 @@ from django.contrib.contenttypes.models import ContentType
 import channels
 from django.forms.models import model_to_dict
 from django.contrib.auth.models import User
+from apps.logs.models import Log
 from apps.utils.serializers import UserSerialiazer
-
+from apps.utils.utils import dump_object_json
+from apps.logs.models import Log
 from rest_framework.response import Response
 from rest_framework import status
 
@@ -168,11 +170,26 @@ class Product(models.Model):
 
         with transaction.atomic():
             product = self_cls.objects.select_for_update().get(id=product_id)
+            original_prod_string = dump_object_json(product)
+
             if(len(errors.keys())>0):
                 raise TransactionError(errors)
             for key in patch_kwargs.keys():
                 setattr(product, key, patch_kwargs[key])
             product.save()
+            updated_prod_string = dump_object_json(product)
+            #get the user
+            user = User.objects.get(id=user_id)
+            user_string = UserSerialiazer(user).data
+
+            Log.objects.create(**{
+                'code': 'PRODUCT_PARTIAL_UPDATE',
+                'model': 'PRODUCT',
+                'prev_object': original_prod_string,
+                'new_object': updated_prod_string,
+                'description': 'Patch on product',
+                'user': user_string
+            })
             return (product, errors)
 
 
@@ -231,6 +248,15 @@ class Product(models.Model):
             prod = self_cls.objects.create(**create_data)
             
             prod.save()
+            user = User.objects.get(id=user_id)
+            #make a log of the product creation
+            Log.objects.create(**{
+                'code': 'PRODUCT_CREATED',
+                'model': 'PRODUCT',
+                'prev_object': '',
+                'new_object': dump_object_json(prod),
+                'user': dump_object_json(user)
+            })
             print("NEW ID --> {}".format(prod.id))
             return (prod, errors)
 
@@ -250,13 +276,22 @@ class Product(models.Model):
         with transaction.atomic():
             #get product by its id
             product = self_cls.objects.select_for_update().get(id=product_id)
-            
+            #dump the object before its modification
+            original_prod_string = dump_object_json(product)
             inv_change = product.validate_movement(product, amount)
             
-            product_inv = product.update_inventory(amount, warehouse.id)
+            product_inv = product.update_inventory(amount, warehouse.id, mov_type)
             product.inventory_existent = product_inv
             product.save()
-            
+            new_prod_string = dump_object_json(product)
+            Log.objects.create(**{
+                'code':'INVENTORY_MOVEMENT',
+                'model': 'PRODUCT',
+                'prev_object': original_prod_string,
+                'new_object': new_prod_string,
+                'description': 'Product inventory updated',
+                'user': user
+            })
             #generate movement out of inventory
             return Inventory_Movement.simple_movement(mov_type, user, product, warehouse, 
                                                 description, id_generator, inv_change)
@@ -271,12 +306,28 @@ class Product(models.Model):
             prod = self_cls.objects.select_for_update().get(id=pk)
             #validate the incoming data
             data = prod.warehouse_transfer_data_validation(req_data)
+
+            original_prod_string = dump_object_json(prod)
+
             transfer = prod.transfer_inv(data, prod)
             prod.inventory_existent =  transfer
             prod.save()
+
+            updated_prod_string = dump_object_json(prod)
+
             #get the user
             user = User.objects.get(id=data['user_id'])
             user_string = UserSerialiazer(user).data
+            
+            #log the product change
+            Log.objects.create(**{
+                'code': 'INVENTORY_CHANGE_WAREHOUSE_TRANSFER',
+                'model': 'PRODUCT',
+                'prev_object': original_prod_string,
+                'new_object': updated_prod_string,
+                'description': 'Warehouse Inventory transfer',
+                'user': user_string
+            })
             #generate movement in and out of inventory
             origin_mov, destination_mov = Inventory_Movement.warehouse_transfer(user_string, prod, data['origin_warehouse_id'],
                         data['destination_warehouse_id'], data['description'], data['generator'], data['amount'])
@@ -369,13 +420,14 @@ class Product(models.Model):
         return (json.dumps(current_inv), mov_size)
 
 
-    def update_inventory(self, amount, warehouse_id):
-        errors = {}
+    def update_inventory(self, amount, warehouse_id, mov_type):
         warehouse_id = str(warehouse_id)
         current_inv = json.loads(self.inventory_existent)
-        new_total = float(current_inv['total']) + amount
+        change = amount
+        if(mov_type == 'OUTPUT'): change = change*-1
+        new_total = float(current_inv['total']) + change
         try:
-            current_inv[warehouse_id] = float(current_inv[warehouse_id]) + amount
+            current_inv[warehouse_id] = float(current_inv[warehouse_id]) + change
         except KeyError:
             current_inv[warehouse_id] = amount
 
