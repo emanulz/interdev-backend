@@ -7,7 +7,7 @@ from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.pagination import LimitOffsetPagination
-
+from rest_framework.decorators import detail_route
 from ..models import Sale, Cash_Advance
 from .filters import SaleFilter, Cash_AdvanceFilter
 from .serializers import SaleSerializer, Cash_AdvanceSerializer
@@ -62,15 +62,26 @@ class SaleCreateViewSet(viewsets.ViewSet):
         try:
             sale = Sale.create(req_data['cart'], client_id,
                 pay, payed, user_id, warehouse_id)
-            return Response(SaleSerializer(sale).data)
+            return Response(SaleSerializer(sale).data, status=status.HTTP_200_OK)
         except Exception as e:
             if type(e)=='TransactionError':
                 return Response(data=e.get_errors(), status=status.HTTP_400_BAD_REQUEST)
             else:
-                
-                return Response(data=str(e))
+                return Response(data=str(e), status=status.HTTP_400_BAD_REQUEST)
 
-        
+    @detail_route(methods=('post',))
+    def product_return(self, request, pk):
+        print('Product return entry point')
+        user_id = request.user.id
+        req_data = request.data
+        try:
+            prod_return = Sale.return_products(pk, user_id, **req_data)
+            return Response(data=prod_return, status=status.HTTP_201_CREATED)
+        except Exception as e:
+            if type(e)=="TransactionError":
+                return Response(data=e.get_errors(), status=status.HTTP_400_BAD_REQUEST)
+            else:
+                return Response(data=str(e), status=status.HTTP_400_BAD_REQUEST)
 
     def validate_sale_request(self, request_data):
         full_validation = False

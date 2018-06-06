@@ -182,7 +182,6 @@ class Sale(models.Model):
 
     @classmethod
     def apply_payment(self_cls, **kwargs):
-        print('Apply payment')
         try:
             amount = Decimal(abs(round(kwargs['amount'], 5)))
         except KeyError:
@@ -214,10 +213,6 @@ class Sale(models.Model):
                 'description': 'Credit payment applied',
                 'user': kwargs['user'],  
             })
-
-
-
-
 
             
     @classmethod

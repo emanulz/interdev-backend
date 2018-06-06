@@ -50,7 +50,6 @@ class Credit_Movement(models.Model):
 
     @classmethod
     def create(self_cls, **kwargs): #create  alog of the transaction
-        print('create credit movement')
         with transaction.atomic():
             #check incoming data
             if kwargs['movement_type']=='CRED':
@@ -70,7 +69,6 @@ class Credit_Movement(models.Model):
             mov_dic['bill_id'] = str(mov_dic['bill_id'])
             
             mov_new = json.dumps(mov_dic)
-            print('Log credit movement')
             Log.objects.create(**{
                 'code':'CREDIT_MOVEMENT_CREATED',
                 'model':'CREDIT_MOVEMENT',
