@@ -3,6 +3,8 @@ import uuid
 from django.db import IntegrityError, transaction
 from decimal import Decimal, getcontext
 from apps.utils.utils import calculate_next_consecutive
+from apps.logs.models import Log
+from apps.utils.utils import dump_object_json
 
 
 class Money_Return(models.Model):
@@ -36,7 +38,7 @@ class Money_Return(models.Model):
 
 
 
-class Money_Voucher(models.Model):
+class Credit_Voucher(models.Model):
     
     id = models.UUIDField(default=uuid.uuid4, editable=False)
     consecutive = models.IntegerField(primary_key=True, verbose_name='Número de movimiento', editable=False)    
@@ -50,12 +52,12 @@ class Money_Voucher(models.Model):
     #the total original value of the voucher
     amount = models.DecimalField(max_digits=19, decimal_places=5, verbose_name='Monto movimiento', editable=False)
     #the value of the voucher spent when it was consumed
-    amount_applied = models.DecimalField(max_digits=19, decimal_places=5, verbose_name='Monto del Vale gastado')
+    amount_applied = models.DecimalField(max_digits=19, decimal_places=5, default=0, verbose_name='Monto del Vale gastado')
     sale_id = models.CharField(max_length=80, verbose_name='ID Objeto Factura')
-    #the money voucher will be normally left untouched, it will be there in case a voucher is only partially
+    #the money voucher id will be normally left untouched, it will be there in case a voucher is only partially
     #used, then a new voucher for the remaining amount will be created, this will keep a link to the original voucher
     money_voucher_id = models.CharField(max_length=80, verbose_name="ID del creador", null=True, blank=True)
-    valid_by = models.DateField(verbose_name="Fecha de Expiración Vale")
+    description = models.CharField(max_length=255, blank=True, verbose_name='Descripción del movimiento')
     created = models.DateTimeField(auto_now=False, auto_now_add=True, blank=True, null=True,
                                    verbose_name='Fecha de creación')
     updated = models.DateTimeField(auto_now=True, auto_now_add=False, blank=True, null=True,
@@ -64,17 +66,28 @@ class Money_Voucher(models.Model):
 
     @classmethod
     def create(self_cls, **kwargs):
-        print('Creating voucher')
+        next_consecutive = calculate_next_consecutive(self_cls)
+        kwargs['consecutive']= next_consecutive
+        with transaction.atomic():
+            voucher = self_cls.objects.create(**kwargs)
+            #log the creation of the voucher itself
+            voucher_string = dump_object_json(voucher)
+            Log.objects.create(**{
+                'code': 'CREDIT_VOUCHER_CREATED',
+                'model': 'CREDIT_VOUCHER',
+                'prev_object': '',
+                'new_object': voucher_string,
+                'description': '',
+                'user':kwargs['user']
+            })
+            return voucher
 
-
-    @classmethod
-    def spend(self_cls, **kwargs):
-        print('Spending the voucher')
+    
 
     def __str__(self):
         return '%s' % (self.consecutive)
 
     class Meta:
-        verbose_name = 'Vale'
-        verbose_name_plural = 'Vales'
+        verbose_name = 'Vale Crédito'
+        verbose_name_plural = 'Vales Crédito'
         ordering = ['consecutive']

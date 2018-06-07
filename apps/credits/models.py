@@ -140,6 +140,7 @@ class Credit_Note(models.Model):
             #it will log its creation itself
             print('Credit note created')
             Credit_Movement.create(**kwargs_debit)
+            return credit_note
 
 
 

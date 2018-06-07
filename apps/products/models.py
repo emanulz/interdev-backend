@@ -272,7 +272,6 @@ class Product(models.Model):
     @classmethod
     def inventory_movement(self_cls, product_id, warehouse, mov_type, amount, user,
         description, id_generator):
-
         with transaction.atomic():
             #get product by its id
             product = self_cls.objects.select_for_update().get(id=product_id)

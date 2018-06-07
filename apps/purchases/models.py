@@ -49,8 +49,7 @@ class Purchase(models.Model):
                                    verbose_name='Fecha de modificación')
 
     @classmethod
-    def create(self_cls, user, cart, pay, pay_type, payed, invoice_number, invoice_date, 
-                credit_days, is_closed, supplier_id, supplier, warehouse_id, warehouse):
+    def create(self_cls, user_id,  **kwargs):
         
         print('Atomic Purchase Start')
         with transaction.atomic():
