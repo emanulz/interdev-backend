@@ -20,6 +20,7 @@ from django.contrib.auth.models import User
 from apps.logs.models import Log
 from apps.utils.exceptions import TransactionError
 from apps.utils.utils import calculate_next_consecutive, dump_object_json
+from apps.money_returns.models import Money_Return, Money_Voucher
 
 from apps.utils.serializers import UserSerialiazer
 from decimal import Decimal, getcontext
@@ -88,8 +89,7 @@ class Sale(models.Model):
             #check the payment data and apply credit as needed
             pay = [
                 {'type':'CASH', 'amount': 2500.0},
-                {'type':'CARD', 'amount': 10000.0, 'digits': '4875', 'authorization': 'authorization_code'},
-                {'type':'CASH', 'amount': 1800.0}
+                {'type':'CARD', 'amount': 7500.0, 'digits': '4875', 'authorization': 'authorization_code'},
             ]
             total_payment = Decimal(0)
             pay_types = ''
@@ -121,7 +121,6 @@ class Sale(models.Model):
             }
 
             validation_sale = Sale(**sale_kwargs).full_clean()
-            print('HERE')
             sale = self_cls.objects.create(**sale_kwargs)
             sale_string = dump_object_json(sale)
             #log the sale creation
@@ -167,7 +166,6 @@ class Sale(models.Model):
                     }
                     #the credit movement will log an event of its own creation
                     Credit_Movement.create(**kwargs_debit)
-            print('HERE2')
             #extract the items from the cart
             cartItems = cart_object['cartItems']
             id_generator = 'sa_' + str(sale.id)
@@ -192,18 +190,13 @@ class Sale(models.Model):
             if amount > sale.balance:
                 raise TransactionError({'amount_sale_payment': ['The payment amount is larger than the existent balance. It can be equal at most']})
             #create a json of the current state of the object before the change
-            sale_dict = model_to_dict(sale)
-            sale_dict['sale_total'] = str(sale_dict['sale_total'])
-            sale_dict['balance'] = str(sale_dict['balance'])
-            sale_old = json.dumps(sale_dict)
-
+            sale_old = dump_object_json(sale)
             new_balance = sale.balance - amount
             if(new_balance<0.1): new_balance=Decimal(0)
-            sale.balanance = new_balance
+            sale.balance = new_balance
             sale.save()
             #create a json of the new sale, re using the model_dict
-            sale_dict['balance'] = new_balance
-            sale_new = json.dumps(sale_dict)
+            sale_new = dump_object_json(sale)
             #create the log of the change
             log = Log.objects.create(**{
                 'code': 'SALE_CREDIT_BALANCE_UDPATE',
@@ -213,29 +206,39 @@ class Sale(models.Model):
                 'description': 'Credit payment applied',
                 'user': kwargs['user'],  
             })
+            print('sale credit payment applied')
 
             
     @classmethod
     def return_products(self_cls, pk, user_id, **kwargs):
-        kwargs['return_list']=[{'id':'a02e155c-dd93-41b6-bf27-0c0afdd670b0', 'ret_qty':2}]
+        print('Return products class method entry')
+        kwargs['return_list']=[{'id':'a02e155c-dd93-41b6-bf27-0c0afdd670b0', 'ret_qty':1}]
+        kwargs['return_method']='CREDIT'
         with transaction.atomic():
-            sale = self_cls.objects.select_for_update().get(id=pk)
+            sale = self_cls.objects.get(id=pk)
             user = User.objects.get(id=user_id)
             user_string = UserSerialiazer(user).data
             original_sale = dump_object_json(sale)
-            client_id =  sale.client,
+            client_id =  sale.client_id
             client_string = sale.client
+
+            return_method = kwargs['return_method']
+            return_options = ['CASH', 'CREDIT', 'VOUCHER']
+            if return_method not in return_options: 
+                raise TransactionError({'return_method': ['Return method not sent']})
 
             #create a  return object
             return_kwargs = {
                 'sale_id': pk,
                 'user': user_string,
+                'user_id': user_id,
                 'client': client_string,
                 'client_id': client_id,
-                'sale_cart': sale.cart,
-                'return_list': kwargs['return_list']
+                'return_list': kwargs['return_list'],
+                'return_method': return_method,
+                'sale': sale
             }
-            print('Return call create')
+
             Return.create(**return_kwargs)
 
 
@@ -247,7 +250,8 @@ class Return(models.Model):
     id = models.UUIDField(default=uuid.uuid4, editable=False)
     consecutive = models.IntegerField(verbose_name='Número de factura', primary_key=True, editable=False)
     #subset of the sale cart, with the items being returned and the quantities being returned
-    cart = models.TextField(verbose_name='Objeto Carrito', default='')
+    sale_cart = models.TextField(verbose_name='Objeto Carrito Devolución', default='')
+    return_list = models.TextField(verbose_name='Lista de productos retornados')
     client = models.TextField(verbose_name='Objeto Cliente', default='')
     client_id = models.CharField(max_length=255, verbose_name='Id de Cliente', default='1')
     sale_id = models.CharField(max_length=80, verbose_name='ID objecto Venta')
@@ -262,23 +266,62 @@ class Return(models.Model):
     def create(self_cls, **kwargs):
         print('create Return')
         next_consecutive = calculate_next_consecutive(self_cls)
-
-        sale_cart = kwargs['sale_cart'] #.replace("'", '"').replace('True', '"True"').replace('False', '"False"')
+        sale= kwargs['sale']
+        sale_cart = sale.cart #.replace("'", '"').replace('True', '"True"').replace('False', '"False"')
         return_list = kwargs['return_list']
-        print('Return list --> ' + str(return_list))
-        #hydarate the sale_Cart string
 
-        cart = json.loads(sale_cart)
-        print(cart)
-        print(type(cart))
-        print('Boom')
-        return_object =  self_cls.objects.create({
+        #hydrate the sale_Cart string
+        sale_cart_object = json.loads(sale_cart)
+        merchandise_total_value = Decimal(0)
+        for item in return_list:
+            sale_cart_items = sale_cart_object['cartItems']
+            original_sale_line = None
+            for cart_item in sale_cart_items:
+                if cart_item['product']['id'] == item['id']:
+                    original_sale_line = cart_item
+                    break
+            original_sale_qty = original_sale_line['qty']
+            if original_sale_qty < item['ret_qty']:
+                raise TransactionError({'return_list': ['Para producto {} la cantidad a retornar es mayor a la vendida'.format(item['id'])]})
+            merchandise_total_value += Decimal(original_sale_line['product']['sell_price'])
+        
+        #check if the sale still has a debt
+        sale_balance = sale.balance
+        client_positive_balance =  merchandise_total_value - sale_balance
+        if client_positive_balance < 0: client_positive_balance = 0
+        if sale_balance > 0:
+            kwargs_balance = {
+                'amount': merchandise_total_value,
+                'sale_id': kwargs['sale_id'],
+                'user': kwargs['user']
+            }
+            Sale.apply_payment(**kwargs_balance)
+        #if this was a credit sale, undo the value of the merchandise on the client credit
+        if(sale.sale_type == 'CRED'):
+            kwargs_client_mov = {
+                'client_id': kwargs['client_id'],
+                'amount': merchandise_total_value,
+                'mov_type': 'DEBI',
+                'user':kwargs['user']
+            }
+            Client.apply_credit_movement(**kwargs_client_mov)
+
+        return_object =  self_cls.objects.create(**{
             'consecutive': next_consecutive,
-            'cart': cart,
-
+            'client': kwargs['client'],
+            'client_id': kwargs['client_id'],
+            'sale_cart': sale_cart,
+            'return_list': json.dumps(return_list),
+            'sale_id': kwargs['sale_id'],
+            'user': kwargs['user'],
+            'amount': merchandise_total_value
 
         })
+        #check the balance of the sale, if the balance of the sale its larger than the
+        #credit note value, nothing must be returned, just the balance adjsuted
+        #by the value of the credit note
         #log the creation of the object
+
         return_string = dump_object_json(return_object)
         Log.objects.create(**{
             'code': 'RETURN_OF_PRODUCT',
@@ -288,6 +331,43 @@ class Return(models.Model):
             'description': 'Retorno de producto para venta {}'.format(kwargs['sale_id']),
             'user': kwargs['user']
         })
+
+        #create a credit note for the return
+        print('Prepare credit note')
+        credit_note_kwargs = {
+            'sale_id': kwargs['sale_id'],
+            'user': kwargs['user'],
+            'user_id': kwargs['user_id'],
+            'client': kwargs['client'],
+            'client_id': kwargs['client_id'],
+            'amount': merchandise_total_value,
+            'description': 'Nota de Crédito por retorno de producto'
+        }
+        #the credit note itself will store its creation log. it will create
+        #the debit movement itself
+        credit_note = Credit_Note.create(**credit_note_kwargs)
+
+        #apply the value of the return according to the selected method
+        if client_positive_balance <=0:
+            return return_object #return here, no balance for the customer
+        return_method = kwargs['return_method']
+        print('Client positive balance --> ' + str(client_positive_balance))
+        if return_method == 'CREDIT':
+            kwargs_debit = {
+                'client_id': kwargs['client_id'],
+                'amount': client_positive_balance,
+                'mov_type': 'DEBI',
+                'user': kwargs['user']
+            }
+            Client.apply_credit_movement(**kwargs_debit)
+
+        elif return_method == 'CASH':
+            print('Hand over cash to the client')
+        elif return_method == 'VOUCHER':
+            print('Generate a voucher object for the client')
+
+        return return_object
+
 
     def __str__(self):
         return '%s' % (self.consecutive)

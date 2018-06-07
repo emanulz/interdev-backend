@@ -71,7 +71,6 @@ class SaleCreateViewSet(viewsets.ViewSet):
 
     @detail_route(methods=('post',))
     def product_return(self, request, pk):
-        print('Product return entry point')
         user_id = request.user.id
         req_data = request.data
         try:

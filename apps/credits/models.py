@@ -13,7 +13,7 @@ from apps.utils.serializers import UserSerialiazer
 from apps.clients.models import Client
 from decimal import Decimal, getcontext
 from apps.logs.models import Log
-from django.forms.models import model_to_dict
+from apps.utils.utils import dump_object_json
 
 
 
@@ -41,7 +41,7 @@ class Credit_Movement(models.Model):
 
     amount = models.DecimalField(max_digits=19, decimal_places=5, verbose_name='Monto movimiento')
 
-    description = models.CharField(max_length=80, blank=True, verbose_name='Descripción del movimiento')
+    description = models.CharField(max_length=255, blank=True, verbose_name='Descripción del movimiento')
     created = models.DateTimeField(auto_now=False, auto_now_add=True, blank=True, null=True,
                                    verbose_name='Fecha de creación')
     updated = models.DateTimeField(auto_now=True, auto_now_add=False, blank=True, null=True,
@@ -49,12 +49,13 @@ class Credit_Movement(models.Model):
 
 
     @classmethod
-    def create(self_cls, **kwargs): #create  alog of the transaction
+    def create(self_cls, **kwargs): 
+        print('Create credit movement')
         with transaction.atomic():
             #check incoming data
             if kwargs['movement_type']=='CRED':
-                kwargs['amount'] = kwargs['amount']*-1
-            mov_for_validation =  Credit_Movement(**kwargs).full_clean()
+                kwargs['amount'] = abs(kwargs['amount'])*-1
+            Credit_Movement(**kwargs).full_clean()
             #obtain the next consecutive
             next_consecutive = calculate_next_consecutive(self_cls)
             #inject the consecutive in the incoming kwargs
@@ -62,13 +63,8 @@ class Credit_Movement(models.Model):
             #create the Creditmovement object
             mov = self_cls.objects.create(**kwargs)
             mov.save()
-            mov_dic = model_to_dict(mov)
-
-            mov_dic['amount'] = str(mov_dic['amount'])
-            mov_dic['client_id'] = str(mov_dic['client_id'])
-            mov_dic['bill_id'] = str(mov_dic['bill_id'])
             
-            mov_new = json.dumps(mov_dic)
+            mov_new = dump_object_json(mov)
             Log.objects.create(**{
                 'code':'CREDIT_MOVEMENT_CREATED',
                 'model':'CREDIT_MOVEMENT',
@@ -90,15 +86,6 @@ class Credit_Movement(models.Model):
         ordering = ['consecutive']
 
 
-
-
-
-
-            
-    
-
-
-
 class Credit_Note(models.Model):
     id = models.UUIDField(default=uuid.uuid4, editable=False)
     consecutive = models.AutoField(primary_key=True, verbose_name='Número de movimiento', editable=False)
@@ -108,12 +95,54 @@ class Credit_Note(models.Model):
     user_id =  models.CharField(max_length=80, verbose_name="ID Objeto Usuario")
     client = models.TextField(verbose_name='Objeto Cliente', default='')
     client_id = models.CharField(max_length=255, blank=True, null=True, verbose_name='ID Objeto Cliente', default='')
+    description = models.CharField(max_length=255, blank=True, verbose_name='Descripción del movimiento')
     amount = models.DecimalField(max_digits=19, decimal_places=5, verbose_name='Monto',
                                  blank=True, default=0) 
     created = models.DateTimeField(auto_now=False, auto_now_add=True, blank=True, null=True,
                                    verbose_name='Fecha de creación')
     updated = models.DateTimeField(auto_now=True, auto_now_add=False, blank=True, null=True,
                                    verbose_name='Fecha de modificación')
+
+
+    @classmethod
+    def create(self_cls, **kwargs):
+        next_consecutive = calculate_next_consecutive(self_cls)
+        kwargs['consecutive'] = next_consecutive
+        kwargs['submited_to_hacienda'] = False
+        with transaction.atomic():
+            credit_note = self_cls.objects.create(**kwargs)
+            credit_note_string = dump_object_json(credit_note)
+            description = None
+            try:
+                description = kwargs['description']
+            except KeyError:
+                description = 'Nota de Crédito'
+
+            Log.objects.create(**{
+                'code':'CREDIT_NOTE_CREATED',
+                'model':'CREDIT_NOTE',
+                'prev_object': '',
+                'new_object': credit_note_string,
+                'description': description
+            })
+            #apply credit movement
+            kwargs_debit = {
+                'client_id': kwargs['client_id'],
+                'user': kwargs['user'],
+                'bill_id': kwargs['sale_id'],
+                'credit_note_id': credit_note.id,
+                'debit_note_id': '',
+                'payment_id': '',
+                'movement_type': 'DEBI',
+                'amount': kwargs['amount'],
+                'description': 'Movimiento de Débito por Nota Crédito {}'.format(credit_note.id)
+            }
+            #it will log its creation itself
+            print('Credit note created')
+            Credit_Movement.create(**kwargs_debit)
+
+
+
 
     def __str__(self):
         return self.consecutive

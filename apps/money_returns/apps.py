@@ -2,4 +2,5 @@ from django.apps import AppConfig
 
 
 class MoneyReturnsConfig(AppConfig):
-    name = 'money_returns'
+    name = 'apps.money_returns'
+    verbose_name ='Retornos de Dinero'

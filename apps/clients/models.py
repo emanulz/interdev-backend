@@ -16,7 +16,7 @@ from django.db import transaction
 from apps.utils.exceptions import TransactionError
 from decimal import Decimal, getcontext
 from apps.logs.models import Log
-
+from apps.utils.utils import dump_object_json
 
 class Client(models.Model):
 
@@ -86,7 +86,6 @@ class Client(models.Model):
 
     @classmethod
     def apply_credit_movement(self_cls, **kwargs):
-        #obtain client instance
 
         with transaction.atomic():
             client_code = None
@@ -141,8 +140,7 @@ class Client(models.Model):
             
             client.save()
 
-            client_dict['balance'] = str(client.balance)
-            client_new = json.dumps(client_dict)
+            client_new = dump_object_json(client)
             Log.objects.create(**{
                 'code': 'CLIENT_CREDIT_BALANCE_UPDATED',
                 'model': 'CLIENT',
