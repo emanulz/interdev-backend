@@ -275,6 +275,8 @@ class Product(models.Model):
         with transaction.atomic():
             #get product by its id
             product = self_cls.objects.select_for_update().get(id=product_id)
+            if product.inventory_enabled == False: #if its a product not using inventory, return
+                return
             #dump the object before its modification
             original_prod_string = dump_object_json(product)
             inv_change = product.validate_movement(product, amount)

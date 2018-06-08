@@ -214,7 +214,6 @@ class Sale(models.Model):
             
     @classmethod
     def return_products(self_cls, pk, user_id, **kwargs):
-        print('Return products class method entry')
         kwargs['return_list']='[{"id":"a02e155c-dd93-41b6-bf27-0c0afdd670b0", "ret_qty":1}]'
         kwargs['return_method']='CREDIT'
         
@@ -268,9 +267,7 @@ class Sale(models.Model):
                 prev_returns = []
                 #load previous returns
                 if sale.returns_collection != '':
-                    print('load')
                     prev_returns = json.loads(sale.returns_collection)
-                print('duh')
                 #create a return list that matches the sale original sale minus previous returns
                 for item in sale_cart_items:
                     #calculate item previous returns
@@ -286,8 +283,6 @@ class Sale(models.Model):
                     })
                 if len(return_list) <1:
                     raise TransactionError({'nothing_to_return':['Ningua de las líneas de la factura tiene pendientes de devolución']})
-                print("Return list")
-                print(return_list)
                 return_kwargs = {
                     'sale_id': pk,
                     'user': user_string,
@@ -300,11 +295,6 @@ class Sale(models.Model):
                 }
 
                 return Return.create(**return_kwargs)
-
-
-
-
-
 
 
 class Return(models.Model):

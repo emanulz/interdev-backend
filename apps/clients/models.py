@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 import uuid
-import json
 from django.core.validators import MaxValueValidator
 from django.db import models
 from django.contrib.auth.models import Permission
@@ -17,6 +16,9 @@ from apps.utils.exceptions import TransactionError
 from decimal import Decimal, getcontext
 from apps.logs.models import Log
 from apps.utils.utils import dump_object_json
+from apps.money_returns.models import Credit_Voucher
+from apps.money_returns.api.serializers import Credit_VoucherSerializer
+
 
 class Client(models.Model):
 
@@ -83,6 +85,21 @@ class Client(models.Model):
         verbose_name = 'Cliente'
         verbose_name_plural = 'Clientes'
         ordering = ['code']
+
+    @classmethod
+    def getClientAndRelated(self_cls, user_id, client_id):
+
+        client = self_cls.objects.get(id= client_id)
+        client_dict = model_to_dict(client)
+        #check if the object has any active credit vouchers
+        vouchers = Credit_Voucher.objects.filter(client_id__exact=client_id).filter(voucher_applied=False)
+        vouchers_serialized = []
+        for voucher in vouchers:
+            vouchers_serialized.append(Credit_VoucherSerializer(voucher).data)
+        print('here')
+        return (client, vouchers_serialized)
+
+
 
     @classmethod
     def apply_credit_movement(self_cls, **kwargs):
