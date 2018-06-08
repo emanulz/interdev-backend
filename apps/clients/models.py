@@ -6,6 +6,7 @@ from django.db import models
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
 import channels
+from django.forms.models import model_to_dict
 from asgiref.sync import async_to_sync
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -13,6 +14,10 @@ from django.db import IntegrityError
 from django.db import transaction
 from apps.utils.exceptions import TransactionError
 from decimal import Decimal, getcontext
+from apps.logs.models import Log
+from apps.utils.utils import dump_object_json
+from apps.money_returns.models import Credit_Voucher
+from apps.money_returns.api.serializers import Credit_VoucherSerializer
 
 
 class Client(models.Model):
@@ -82,8 +87,22 @@ class Client(models.Model):
         ordering = ['code']
 
     @classmethod
+    def getClientAndRelated(self_cls, user_id, client_id):
+
+        client = self_cls.objects.get(id= client_id)
+        client_dict = model_to_dict(client)
+        #check if the object has any active credit vouchers
+        vouchers = Credit_Voucher.objects.filter(client_id__exact=client_id).filter(voucher_applied=False)
+        vouchers_serialized = []
+        for voucher in vouchers:
+            vouchers_serialized.append(Credit_VoucherSerializer(voucher).data)
+        print('here')
+        return (client, vouchers_serialized)
+
+
+
+    @classmethod
     def apply_credit_movement(self_cls, **kwargs):
-        #obtain client instance
 
         with transaction.atomic():
             client_code = None
@@ -107,7 +126,12 @@ class Client(models.Model):
             else:
                 raise TransactionError({"client_code": ["No se suministro un código de cliente"],
                                         "client_id":["No se suministro un id de cliente"]})
-            
+            #generate the old client object
+            client_dict = model_to_dict(client)
+            client_dict['balance'] = str(client_dict['balance'])
+            client_dict['credit_limit'] = str(client_dict['credit_limit'])
+            client_old = json.dumps(client_dict)
+
             #check if the customer has credit
             if(not client.has_credit):
                 raise TransactionError({"has_credit": ["El cliente no posee una línea de crédito"]})
@@ -118,7 +142,7 @@ class Client(models.Model):
             try:
                 mov_type = kwargs["mov_type"]
                 if mov_type != "CRED" and mov_type != "DEBI":
-                    raise TransactionError({"mov_type":["El tipo de moviemiento debe ser CRED or DEBI"]})
+                    raise TransactionError({"mov_type":["El tipo de movimiento debe ser CRED or DEBI"]})
             except KeyError:
                 raise TransactionError({"mov_type":["No se envió el tipo de movimiento de crédito"]})
             
@@ -130,9 +154,18 @@ class Client(models.Model):
                 client.balance = client.balance - amount
             else:
                 client.balance = client.balance + amount 
-
+            
             client.save()
 
+            client_new = dump_object_json(client)
+            Log.objects.create(**{
+                'code': 'CLIENT_CREDIT_BALANCE_UPDATED',
+                'model': 'CLIENT',
+                'prev_object': client_old,
+                'new_object': client_new,
+                'description': 'Credit payment type {}'.format(mov_type),
+                'user': kwargs['user']
+            })
 
                 
 

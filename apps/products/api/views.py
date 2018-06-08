@@ -58,8 +58,13 @@ class ProductInventoryViewSet(viewsets.ViewSet):
         req_data = request.data
         try:
             product, inv_mov, errors = Product.set_absolute_existence(pk, user_id, **req_data)
-        except TransactionError as e:
-            return Response(data=e.get_errors(), status=status.HTTP_400_BAD_REQUEST)
+            return Response(data=ProductSerializer(product).data, status=status.HTTP_200_OK)
+        except Exception as e:
+            if type(e)=="TransactionError":
+                return Response(data=e.get_errors(), status=status.HTTP_400_BAD_REQUEST)
+            else:
+                return Response(data=str(e))
+            
 
         return Response(data=ProductSerializer(product).data, status= status.HTTP_200_OK)
 
@@ -68,8 +73,11 @@ class ProductInventoryViewSet(viewsets.ViewSet):
         try:
             product, origin_mov, destination_mov = Product.warehouse_transfer(request, pk)
             return Response(data=ProductSerializer(product).data, status=status.HTTP_200_OK)
-        except TransactionError as e:
-            return Response(data=e.get_errors(), status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            if type(e)=="TransactionError":
+                return Response(data=e.get_errors(), status=status.HTTP_400_BAD_REQUEST)
+            else:
+                return Response(data=str(e))
             
 
         

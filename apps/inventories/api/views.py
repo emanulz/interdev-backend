@@ -2,7 +2,7 @@
 from __future__ import unicode_literals
 from rest_framework import filters
 from django_filters import rest_framework as django_filters
-
+from rest_framework.pagination import LimitOffsetPagination
 from rest_framework import viewsets
 from ..models import Inventory_Movement, Warehouse
 from .filters import Inventory_MovementFilter, WarehouseFilter
@@ -14,8 +14,10 @@ from rest_framework.pagination import LimitOffsetPagination
 class LimitPaginationClass(LimitOffsetPagination):
     default_limit = 50
 
+class LimitPaginationClass(LimitOffsetPagination):
+    default_limit = 50
 
-class Inventory_MovementViewSet(viewsets.ModelViewSet):
+class Inventory_MovementViewSet(viewsets.ReadOnlyModelViewSet):
 
     serializer_class = Inventory_MovementSerializer
     queryset = Inventory_Movement.objects.all()
@@ -36,6 +38,7 @@ class WarehouseViewSet(viewsets.ModelViewSet):
     queryset = Warehouse.objects.all()
     lookup_field = 'id'
     filter_class = WarehouseFilter
+    pagination_class = LimitPaginationClass
 
     def get_permissions(self):
         # allow non-authenticated user to create via POST

@@ -2,7 +2,8 @@
 from __future__ import unicode_literals
 
 from rest_framework import serializers
-from ..models import Credit_Movement, Credit_Payment, Credit_Note
+from ..models import Credit_Movement, Credit_Note
+from ..credit_payment_model import Credit_Payment
 
 
 class Credit_MovementSerializer(serializers.ModelSerializer):
