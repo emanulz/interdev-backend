@@ -10,6 +10,8 @@ company = Section('company')
 
 installed_apps = Section('installed_apps')
 
+inventory = Section('inventory')
+
 @global_preferences_registry.register
 class WorkshopAppInstalled(BooleanPreference):
     section = installed_apps
@@ -111,3 +113,10 @@ class CompanyEmail(StringPreference):
     section = company
     name = 'email'
     default = 'emanuelziga@gmail.com'
+
+
+@global_preferences_registry.register
+class CompanyEmail(StringPreference):
+    section = inventory
+    name = 'sales_warehouse'
+    default = ''

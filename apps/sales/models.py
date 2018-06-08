@@ -62,12 +62,12 @@ class Sale(models.Model):
 
 
     @classmethod
-    def create(self_cls, cart, client_id, pay, payed, user_id, warehouse_id):
+    def create(self_cls, cart, client_id, pay, user_id, warehouse_id):
         #set the context precision to 5 decimal places
         getcontext().prec = 20
-        client_id = uuid.UUID('4ff0aa2f3ad44d439ed2e610cd77e42a')
-        warehouse_id = uuid.UUID('4a25f16d0f1a4e9e95b0a464c085a20c')
-        user_id = 1
+        # client_id = uuid.UUID('4ff0aa2f3ad44d439ed2e610cd77e42a')
+        # warehouse_id = uuid.UUID('4a25f16d0f1a4e9e95b0a464c085a20c')
+        # user_id = 1
         
         with transaction.atomic():
             #fetch the client by id
