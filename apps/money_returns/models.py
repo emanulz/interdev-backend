@@ -5,6 +5,7 @@ from decimal import Decimal, getcontext
 from apps.utils.utils import calculate_next_consecutive
 from apps.logs.models import Log
 from apps.utils.utils import dump_object_json
+from apps.utils.exceptions import TransactionError
 
 
 class Money_Return(models.Model):
@@ -62,6 +63,48 @@ class Credit_Voucher(models.Model):
                                    verbose_name='Fecha de creación')
     updated = models.DateTimeField(auto_now=True, auto_now_add=False, blank=True, null=True,
                                    verbose_name='Fecha de modificación')
+
+
+    @classmethod
+    def spend_voucher(self_cls, **kwargs):
+        '''spend the voucher paying the balances in the pay details'''
+        amount =  abs(Decimal(kwargs['amount']))
+
+        voucher = self_cls.objects.get(id=kwargs['credit_voucher_id'])
+        original_voucher_string = dump_object_json(voucher)
+
+        if(amount > voucher.amount):
+            raise TransactionError({'payment_amount':['The amount to be paid with the voucher is larger than its value']})
+        
+        #decrease the voucher by the payment amount
+        voucher.amount_applied = amount
+        voucher_applied = True
+        voucher.save()
+        updated_voucher_string = dump_object_json(voucher)
+        Log.objects.create(**{
+            'code': 'CREDIT_VOUCHER_APPLIED',
+            'model': 'CREDIT_VOUCHER',
+            'prev_object': original_voucher_string,
+            'new_object': updated_voucher_string
+        })
+        if(voucher.amount_applied < voucher.amount):
+            #create a new voucher for the leftover balance
+            child_voucher = self_cls.create(**{
+                'client': voucher.client,
+                'client_id': voucher.client_id,
+                'user': voucher.user,
+                'user_id': voucher.user_id,
+                'credit_note_id': voucher.credit_note_id,
+                'sale_id': voucher.sale_id,
+                'amount': Decimal(round(voucher.amount-voucher.amount_applied, 5)),
+                'money_voucher_id': voucher.id,
+                'description': 'Creado por gasto parcial de voucher padre'
+            })
+            return child_voucher
+
+        return None
+
+
 
 
     @classmethod

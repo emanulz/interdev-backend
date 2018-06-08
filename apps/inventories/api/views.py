@@ -27,12 +27,13 @@ class Inventory_MovementViewSet(viewsets.ReadOnlyModelViewSet):
         return [HasProperPermission(), ]
 
 
-class WarehouseViewSet(viewsets.ReadOnlyModelViewSet):
+class WarehouseViewSet(viewsets.ModelViewSet):
 
     serializer_class = WarehouseSerializer
     queryset = Warehouse.objects.all()
     lookup_field = 'id'
     filter_class = WarehouseFilter
+    pagination_class = LimitPaginationClass
 
     def get_permissions(self):
         # allow non-authenticated user to create via POST

@@ -4,7 +4,9 @@ import uuid
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
 from django.db import transaction
-from .errors import *
+from apps.utils.utils import calculate_next_consecutive, dump_object_json
+from apps.utils.serializers import UserSerialiazer
+from django.contrib.auth.models import User
 
 
 class Purchase(models.Model):
@@ -37,8 +39,7 @@ class Purchase(models.Model):
     is_closed = models.BooleanField(verbose_name="Factura Cerrada", default=False)
 
     pay = models.TextField(verbose_name='Objeto Pago', default='')
-    pay_type = models.CharField(max_length=4, choices=PAY_CHOICES, default=cash, verbose_name='Tipo de Pago')
-
+    
     invoice_number = models.CharField(max_length=255, verbose_name='Número de Factura')
     invoice_date = models.DateField(blank=True, null=True)
     credit_days =  models.IntegerField(default=0, verbose_name='Plazo Crédito')
@@ -50,30 +51,10 @@ class Purchase(models.Model):
 
     @classmethod
     def create(self_cls, user_id,  **kwargs):
-        
-        print('Atomic Purchase Start')
+        user = User.objects.get(id=user_id)
+        user_string = UserSerialiazer(user).data
         with transaction.atomic():
-            purchase = self_cls.create(
-                user = user,
-                cart = cart,
-                pay = pay, 
-                pay_type = pay_type,
-                payed = payed,
-                invoice_number = invoice_number,
-                invoice_date = invoice_date,
-                credit_days = credit_days,
-                is_closed = is_closed,
-                supplier_id = supplier_id,
-                supplier = supplier,
-                warehouse_id = warehouse_id,
-                warehouse = warehouse
-            )
-            print('Atomic Purchase End')
-            return purchase
+            print("Purchase creation start")
 
-    @classmethod
-    def InventoryMovement(self_cls):
-        print('Atomic Inventory Movement Start')
-        
-        print('Atomic Inventory Movement End')
+
 
