@@ -108,7 +108,7 @@ class Inventory_Movement(models.Model):
         mov = self_cls.objects.create(
             consecutive = next_consec,
             movement_type = mov_type,
-            user = user,
+            user = user_string,
             product_id = product.id,
             product = prod_string,
             warehouse_id = warehouse.id,

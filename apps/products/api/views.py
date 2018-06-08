@@ -9,6 +9,7 @@ from .filters import ProductFilter, ProductDepartmentFilter, ProductSubDepartmen
 from .serializers import ProductSerializer, ProductDepartmentSerializer, ProductSubDepartmentSerializer
 from .permissions import HasProperPermission, HasProperDepartmentPermission, HasProperSubDepartmentPermission
 from apps.utils.exceptions import TransactionError
+#from apps.inventories.api.serializers import Inventory_MovementSerializer
 
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.decorators import api_view
@@ -69,14 +70,32 @@ class ProductInventoryViewSet(viewsets.ViewSet):
 
     @detail_route(methods=('post',))
     def inventory_transfer(self, request, pk):
+        user_id = request.user.id
+        req_data = request.data
         try:
-            product, origin_mov, destination_mov = Product.warehouse_transfer(request, pk)
+            product, origin_mov, destination_mov = Product.warehouse_transfer(pk, user_id, **req_data)
             return Response(data=ProductSerializer(product).data, status=status.HTTP_200_OK)
         except Exception as e:
             if type(e)=="TransactionError":
                 return Response(data=e.get_errors(), status=status.HTTP_400_BAD_REQUEST)
             else:
-                return Response(data=str(e))
+                return Response(data=str(e), status=status.HTTP_400_BAD_REQUEST)
+
+    @detail_route(methods=('post',))
+    def inventory_movement(self, request, pk):
+        '''
+        kwargs: warehouse_id, amount
+        '''
+        user_id = request.user.id
+        req_data = request.data
+        try:
+            movement = Product.warehouse_movement(pk, user_id, **req_data)
+            return Response(data=Inventory_MovementSerializer(movement).data, status=status.HTTP_201_CREATED)
+        except Exception as e:
+            if type(e)=="TransactionError":
+                return Response(data=e.get_errors(), status=status.HTTP_400_BAD_REQUEST)
+            else:
+                return Response(data=str(e), status=status.HTTP_400_BAD_REQUEST)
             
 
         

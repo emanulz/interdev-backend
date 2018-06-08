@@ -29,6 +29,24 @@ class Money_Return(models.Model):
                                    verbose_name='Fecha de modificación')
 
 
+    @classmethod
+    def create(self_cls, **kwargs):
+        '''creates a Money Return transaction and logs its creation'''
+        next_consecutive = calculate_next_consecutive(self_cls)
+        kwargs['consecutive'] = next_consecutive
+        money_return = self_cls.objects.create(**kwargs)
+        money_return_string = dump_object_json(money_return)
+        #log the object creation
+        Log.objects.create(**{
+            'code': 'MONEY_RETURN_CREATED',
+            'model': 'MONEY_RETURN',
+            'prev_object': '',
+            'new_object': money_return_string
+        })
+
+        return money_return
+
+
     def __str__(self):
         return '%s' % (self.consecutive)
 
@@ -69,8 +87,9 @@ class Credit_Voucher(models.Model):
     def spend_voucher(self_cls, **kwargs):
         '''spend the voucher paying the balances in the pay details'''
         amount =  abs(Decimal(kwargs['amount']))
+        user_string = kwargs['user_string']
 
-        voucher = self_cls.objects.get(id=kwargs['credit_voucher_id'])
+        voucher = self_cls.objects.select_for_update().get(id=kwargs['credit_voucher_id'])
         original_voucher_string = dump_object_json(voucher)
 
         if(amount > voucher.amount):
@@ -85,7 +104,9 @@ class Credit_Voucher(models.Model):
             'code': 'CREDIT_VOUCHER_APPLIED',
             'model': 'CREDIT_VOUCHER',
             'prev_object': original_voucher_string,
-            'new_object': updated_voucher_string
+            'new_object': updated_voucher_string,
+            'description':'Aplicado por completo' if voucher.amount_applied >= voucher.amount else 'Consumido parcialmente',
+            'user': user_string
         })
         if(voucher.amount_applied < voucher.amount):
             #create a new voucher for the leftover balance
@@ -104,7 +125,28 @@ class Credit_Voucher(models.Model):
 
         return None
 
+    @classmethod
+    def convert_to_cash(self_cls, **kwargs):
 
+        user_string = kwargs['user_string']
+        voucher = self_cls.objects.get(id=kwargs['credit_voucher_id'])
+        original_voucher_string = dump_object_json(voucher)
+
+        #do not allow partial conversions to cash
+        voucher.amount_applied = voucher.amount
+        voucher.applied = True
+        voucher.save()
+        updated_voucher_string = dump_object_json(voucher)
+        Log.objects.create(**{
+            'code':'CREDIT_VOUCHER_CONVERTED_TO_CASH',
+            'model': 'MONEY_VOUCHER',
+            'prev_object': original_voucher_string,
+            'new_object': updated_voucher_string,
+            'description': 'Voucher de Crédito devuelto como dinero',
+            'user': user_string
+        })
+
+        #create a Money return object
 
 
     @classmethod

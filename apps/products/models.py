@@ -268,9 +268,44 @@ class Product(models.Model):
             if not optional:
                 errors[key] = ['Missing required argument {}'.format(key)]
 
+    @classmethod
+    def warehouse_movement(self_cls, product_id, user_id, **kwargs):
+        warehouse = None
+        mov_type = None
+        amount = None
+        user = User.objects.get(id=user_id)
+        user_string = UserSerialiazer(user).data
+        description = None
+        try:
+            warehouse_id = kwargs['warehouse_id']
+            warehouse = Warehouse.objects.get(id=warehouse_id)
+        except KeyError:
+            raise TransactionError({'warehouse_id': ['The warehouse_id parameter was not sent']})
+        try:
+            mov_type = kwargs['mov_type']
+        except KeyError:
+            raise TransactionError({'mov_type':['The parameter mov_type was not sent.']})
+        try:
+            amount = abs(Decimal(kwargs['amount']))
+        except (KeyError, ValueError):
+            raise TransactionError({'amount': ['The amount parameter was not sent or its not a number']})
+        
+        try:
+            description = kwargs['description']
+        except KeyError:
+            raise TransactionError({'description':['No description was sent for the inventory movement']})
+        return self_cls.inventory_movement(
+            product_id,
+            warehouse,
+            mov_type,
+            amount,
+            user_string,
+            description,
+            ''
+        )
 
     @classmethod
-    def inventory_movement(self_cls, product_id, warehouse, mov_type, amount, user,
+    def inventory_movement(self_cls, product_id, warehouse, mov_type, amount, user_string,
         description, id_generator):
         with transaction.atomic():
             #get product by its id
@@ -291,22 +326,21 @@ class Product(models.Model):
                 'prev_object': original_prod_string,
                 'new_object': new_prod_string,
                 'description': 'Product inventory updated',
-                'user': user
+                'user': user_string
             })
             #generate movement out of inventory
-            return Inventory_Movement.simple_movement(mov_type, user, product, warehouse, 
+            return Inventory_Movement.simple_movement(mov_type, user_string, product, warehouse, 
                                                 description, id_generator, inv_change)
             
     @classmethod
-    def warehouse_transfer(self_cls, request, pk):
+    def warehouse_transfer(self_cls, pk, user_id, **kwargs):
         # user, description, generator
 
-        req_data = request.data
         #select the product and lock it
         with transaction.atomic():
             prod = self_cls.objects.select_for_update().get(id=pk)
             #validate the incoming data
-            data = prod.warehouse_transfer_data_validation(req_data)
+            data = prod.warehouse_transfer_data_validation(kwargs)
 
             original_prod_string = dump_object_json(prod)
 
@@ -317,7 +351,7 @@ class Product(models.Model):
             updated_prod_string = dump_object_json(prod)
 
             #get the user
-            user = User.objects.get(id=data['user_id'])
+            user = User.objects.get(id=user_id)
             user_string = UserSerialiazer(user).data
             
             #log the product change
@@ -358,10 +392,6 @@ class Product(models.Model):
         except KeyError:
             errs['origin_warehouse_id']='Origin warehouse id not sent'
 
-        try:
-            user_id = data['user_id']
-        except KeyError:
-            errs['user_id'] = 'User id not sent'
         try:
             description = data['description']
         except KeyError:
