@@ -315,8 +315,8 @@ class Product(models.Model):
             #dump the object before its modification
             original_prod_string = dump_object_json(product)
             inv_change = product.validate_movement(product, amount)
-            
-            product_inv = product.update_inventory(amount, warehouse.id, mov_type)
+            if product.inventory_enabled:
+                product_inv = product.update_inventory(amount, warehouse.id, mov_type, product.inventory_negative)
             product.inventory_existent = product_inv
             product.save()
             new_prod_string = dump_object_json(product)
@@ -451,7 +451,7 @@ class Product(models.Model):
         return (json.dumps(current_inv), mov_size)
 
 
-    def update_inventory(self, amount, warehouse_id, mov_type):
+    def update_inventory(self, amount, warehouse_id, mov_type, allow_negative):
         warehouse_id = str(warehouse_id)
         current_inv = json.loads(self.inventory_existent)
         change = amount
@@ -459,6 +459,8 @@ class Product(models.Model):
         new_total = float(current_inv['total']) + change
         try:
             current_inv[warehouse_id] = float(current_inv[warehouse_id]) + change
+            if not allow_negative and current_inv[warehouse_id]<0:
+                raise TransactionError({'amount': ['The product does not allow negative inventories - {}'.format(str(self))]})
         except KeyError:
             current_inv[warehouse_id] = amount
 

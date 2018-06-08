@@ -5,6 +5,21 @@ import django_filters
 from ..models import Product, ProductDepartment, ProductSubDepartment
 
 
+class SearchProductFilter(django_filters.FilterSet):
+
+    description = django_filters.CharFilter(lookup_expr='icontains')
+    short_description = django_filters.CharFilter(lookup_expr='icontains')
+    supplier_code = django_filters.CharFilter(lookup_expr='icontains')
+    model = django_filters.CharFilter(lookup_expr='icontains')
+    part_number = django_filters.CharFilter(lookup_expr='icontains')
+    brand_code = django_filters.CharFilter(lookup_expr='icontains')
+
+    class Meta:
+        model = Product
+        fields = ('id', 'code', 'description', 'short_description', 'barcode', 'internal_barcode', 'supplier_code',
+                  'model', 'part_number', 'brand_code')
+
+
 class ProductFilter(django_filters.FilterSet):
 
     description = django_filters.CharFilter(lookup_expr='icontains')

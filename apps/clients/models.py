@@ -96,7 +96,6 @@ class Client(models.Model):
         vouchers_serialized = []
         for voucher in vouchers:
             vouchers_serialized.append(Credit_VoucherSerializer(voucher).data)
-        print('here')
         return (client, vouchers_serialized)
 
 
@@ -127,10 +126,7 @@ class Client(models.Model):
                 raise TransactionError({"client_code": ["No se suministro un código de cliente"],
                                         "client_id":["No se suministro un id de cliente"]})
             #generate the old client object
-            client_dict = model_to_dict(client)
-            client_dict['balance'] = str(client_dict['balance'])
-            client_dict['credit_limit'] = str(client_dict['credit_limit'])
-            client_old = json.dumps(client_dict)
+            client_old = dump_object_json(client)
 
             #check if the customer has credit
             if(not client.has_credit):

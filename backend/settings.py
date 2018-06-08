@@ -116,19 +116,30 @@ CHANNEL_LAYERS = {
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'USER': 'root',
-        'PASSWORD': '0688moraB',
-        'NAME': 'django_rj',
-        'HOST': 'localhost',
-        'PORT': '3306',
+        # 'ENGINE': 'django.db.backends.mysql',
+        # 'USER': 'root',
+        # 'PASSWORD': '0688moraB',
+        # 'NAME': 'django_rj',
+        # 'HOST': 'localhost',
+        # 'PORT': '3306',
         #'OPTIONS':{
         #    'read_default_file':'/Program Files/MySQL/MySQL Server 8.0/my.cnf'
         #}
-        #'ENGINE': 'django.db.backends.sqlite3',
-        #'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
+
+# DATABASES = {
+#      'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': 'interdev',
+#         'USER': 'interdev',
+#         'PASSWORD': 'Nodelez0105',
+#         'HOST': 'localhost',
+#         'PORT': '3306',
+#         }
+# }
 
 if not DEBUG:
     DATABASES = {
@@ -181,7 +192,9 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.DjangoModelPermissions',
         ),
-    'DEFAULT_FILTER_BACKENDS': ('django_filters.rest_framework.DjangoFilterBackend',)
+    'DEFAULT_FILTER_BACKENDS': ('django_filters.rest_framework.DjangoFilterBackend',),
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'PAGE_SIZE': 50
     }
 
 

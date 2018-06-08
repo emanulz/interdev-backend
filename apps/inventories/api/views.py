@@ -8,6 +8,11 @@ from ..models import Inventory_Movement, Warehouse
 from .filters import Inventory_MovementFilter, WarehouseFilter
 from .serializers import Inventory_MovementSerializer, WarehouseSerializer
 from .permissions import HasProperPermission, HasProperPermissionWarehouse
+from rest_framework.pagination import LimitOffsetPagination
+
+
+class LimitPaginationClass(LimitOffsetPagination):
+    default_limit = 50
 
 class LimitPaginationClass(LimitOffsetPagination):
     default_limit = 50
