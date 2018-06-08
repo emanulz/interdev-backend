@@ -19,7 +19,6 @@ class ClientViewSet(viewsets.ModelViewSet):
 
     def retrieve(self, request, *args, **kwargs):
 
-        req_data = request.data
         user_id = request.user.id
 
         try:

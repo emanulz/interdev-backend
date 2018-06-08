@@ -88,15 +88,19 @@ class Sale(models.Model):
             next_consecutive = calculate_next_consecutive(self_cls)
 
             #check the payment data and apply credit as needed
-            pay = [
-                {'type':'CASH', 'amount': 3500.01},
-                {'type':'CARD', 'amount': 7500.0, 'digits': '4875', 'authorization': 'authorization_code'},
-            ]
+            # pay = [
+            #     {'type':'CASH', 'amount': 3500.01},
+            #     {'type':'CARD', 'amount': 7500.0, 'digits': '4875', 'authorization': 'authorization_code'},
+            # ]
+            pays = json.loads(pay)
             total_payment = Decimal(0)
             pay_types = ''
-            for item in pay:
-                total_payment += Decimal(item['amount'])
-                pay_types = '{}-'.format(item['type'])
+            for keys in pays.keys():
+                for item in pays[keys]:
+                    if item['type'] != 'CRED' :
+                        total_payment += Decimal(item['amount'])
+                    if Decimal(item['amount']) > 0 or item['type'] == 'CRED' :
+                        pay_types += '{}-'.format(item['type'])
 
             pay_types = pay_types[:-1]
 

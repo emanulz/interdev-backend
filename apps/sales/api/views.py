@@ -48,10 +48,10 @@ class SaleCreateViewSet(viewsets.ViewSet):
 
         client_id = req_data['client_id']
         pay = req_data['pay']
-        pay_type = req_data['pay_type']
+        # pay_type = req_data['pay_type']
         #get user id from request
         user_id = request.user.id
-        warehouse_id =''
+        warehouse_id = req_data['warehouse_id']
         try:
             warehouse_id = request.warehouse_id
         except:
@@ -62,8 +62,8 @@ class SaleCreateViewSet(viewsets.ViewSet):
             sale = Sale.create(req_data['cart'], client_id,
                 pay, user_id, warehouse_id)
             return Response(SaleSerializer(sale).data)
-        except Exception as e:
-            if type(e)=='TransactionError':
+        except TransactionError as e:
+            if type(e)==TransactionError:
                 return Response(data=e.get_errors(), status=status.HTTP_400_BAD_REQUEST)
             else:
                 return Response(data=str(e), status=status.HTTP_400_BAD_REQUEST)
