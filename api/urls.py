@@ -29,6 +29,7 @@ from dynamic_preferences.users.viewsets import UserPreferencesViewSet
 from apps.payables.api.views import Credit_MovementPayableViewSet, Credit_PaymentPayableViewSet
 from apps.presales.api.views import PresaleViewSet
 from apps.sales.api.views import SaleCreateViewSet, SaleViewSetReadOnly
+from apps.money_returns.api.views import Money_ReturnViewSet, Credit_VoucherViewSet
 
 # API COPIED FROM  dynamic_preferences into apps.preferences.api package and modified permissions class
 from apps.preferences.api.viewsets import GlobalPreferencesViewSet
@@ -71,6 +72,9 @@ router.register(r'purchaselist', PurchaseViewSet)
 router.register(r'payablescreditmovement', Credit_MovementPayableViewSet, base_name='payables')
 router.register(r'payablescreditpayment', Credit_PaymentPayableViewSet, base_name='payables')
 router.register(r'presales', PresaleViewSet)
+router.register(r'creditvoucherslist', Credit_VoucherViewSet)
+router.register(r'moneyreturnlist', Money_ReturnViewSet)
+
 
 urlpatterns = [
 
