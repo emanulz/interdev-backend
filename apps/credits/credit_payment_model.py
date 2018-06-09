@@ -11,6 +11,8 @@ from apps.clients.models import Client
 from decimal import Decimal, getcontext
 from apps.sales.models import Sale
 from apps.credits.models import Credit_Movement
+from apps.utils.utils import dump_object_json
+from apps.logs.models import Log
 
 class Credit_Payment(models.Model):
 
@@ -38,7 +40,6 @@ class Credit_Payment(models.Model):
 
     @classmethod
     def create(self_cls, **kwargs):
-        print('create credit payment')
         with transaction.atomic():
             errors = {}
             #check incoming data
@@ -94,6 +95,16 @@ class Credit_Payment(models.Model):
                 amount = amount,
                 description = description
             )
+
+            #log the creation of the payment
+            Log.objects.create(**{
+                'code': 'PAYMENT_CREATED',
+                'model': 'CREDIT_PAYMENT',
+                'prev_object': '',
+                'new_object':  dump_object_json(payment),
+                'description': 'Payment made by client {} {}'.format((client.name, client.last_name)),
+                'user': user_string
+            })
 
             #create a credit movement to each invoice for the subamount
             pay_kwargs = []

@@ -130,6 +130,19 @@ DATABASES = {
     }
 }
 
+if os.environ['DJANGO_BACKEND'] == 'MYSQL':
+    DATABASES = {
+    'default': {
+         'ENGINE': 'django.db.backends.mysql',
+         'USER': 'root',
+         'PASSWORD': '0688moraB',
+         'NAME': 'django_rj',
+         'HOST': 'localhost',
+         'PORT': '3306',
+    }
+}
+
+
 # DATABASES = {
 #      'default': {
 #         'ENGINE': 'django.db.backends.mysql',

@@ -24,6 +24,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.db import IntegrityError
 from django.db import transaction
+from decimal import Decimal, getcontext
 
 from apps.utils.exceptions import TransactionError
 
@@ -467,7 +468,6 @@ class Product(models.Model):
         current_inv['total'] = new_total
         return json.dumps(current_inv)
         
-
     def validate_movement(self, product, amount):
         target_mov = 0
         if(product.fractioned):
@@ -481,6 +481,7 @@ class Product(models.Model):
             except ValueError:
                 raise TransactionError({'amount': ['Amount supplied is not a number']})
         return target_mov
+        
 # @receiver(post_save, sender=Product)
 # def send_message(sender, instance, **kwargs):
 #     async_to_sync(channels.layers.get_channel_layer().group_send)(

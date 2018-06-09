@@ -59,7 +59,7 @@ class SaleCreateViewSet(viewsets.ViewSet):
         #check if I can reach the atomic create class method
         
         try:
-            sale = Sale.create(req_data['cart'], client_id,
+            sale, left_over_vouchers = Sale.create(req_data['cart'], client_id,
                 pay, user_id, warehouse_id)
             return Response(SaleSerializer(sale).data)
         except TransactionError as e:

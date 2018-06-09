@@ -70,9 +70,6 @@ class Sale(models.Model):
     def create(self_cls, cart, client_id, pay, user_id, warehouse_id):
         #set the context precision to 5 decimal places
         getcontext().prec = 20
-        # client_id = uuid.UUID('4ff0aa2f3ad44d439ed2e610cd77e42a')
-        # warehouse_id = uuid.UUID('4a25f16d0f1a4e9e95b0a464c085a20c')
-        # user_id = 1
         
         with transaction.atomic():
             #fetch the client by id
@@ -87,11 +84,6 @@ class Sale(models.Model):
             #get next consecutive
             next_consecutive = calculate_next_consecutive(self_cls)
 
-            #check the payment data and apply credit as needed
-            # pay = [
-            #     {'type':'CASH', 'amount': 3500.01},
-            #     {'type':'CARD', 'amount': 7500.0, 'digits': '4875', 'authorization': 'authorization_code'},
-            # ]
             pays = json.loads(pay)
             total_payment = Decimal(0)
             pay_types = ''
@@ -99,11 +91,25 @@ class Sale(models.Model):
                 for item in pays[keys]:
                     if item['type'] != 'CRED' :
                         total_payment += Decimal(item['amount'])
+                               
                     if Decimal(item['amount']) > 0 or item['type'] == 'CRED' :
                         pay_types += '{}-'.format(item['type'])
 
             pay_types = pay_types[:-1]
 
+            #check if any vouchers were sent, spend them
+            vouchers_to_spend = pays['vouc']
+            left_over_vouchers = [] #store the leftover vouchers
+            for voucher in vouchers_to_spend:
+                spend_kwarg = {
+                    'amount':voucher['amount'],
+                    'user_string': user_string,
+                    'credit_voucher_id': voucher['voucherNumber'],
+                }
+                voucher = Credit_Voucher.spend_voucher(**spend_kwarg)
+                if(voucher != None):
+                    left_over_vouchers.append(voucher)
+                    
             cart_object = json.loads(cart)
             cart_total = Decimal(cart_object['cartTotal'])
             cart_total_rounded = Decimal(round(cart_total, 5))
@@ -184,7 +190,7 @@ class Sale(models.Model):
                 amount = item['qty']
                 mov = Product.inventory_movement(prod['id'], warehouse, 'OUTPUT', amount,
                     user_string, individual_mov_desc, id_generator)
-            return sale
+            return (sale, left_over_vouchers)
 
     @classmethod
     def apply_payment(self_cls, **kwargs):
