@@ -4,6 +4,7 @@ import json
 from decimal import Decimal
 from django.db import models
 import uuid
+from datetime import date, datetime
 
 def calculate_next_consecutive(self_cls):
     next_consecutive = self_cls.objects.all().aggregate(Max('consecutive'))['consecutive__max']
@@ -24,6 +25,8 @@ def dump_object_json(target_object):
             object_dict[key] = str(object_dict[key])
         elif isinstance(val, models.fields.files.ImageFieldFile):
             keys_to_delete.append(key)
+        elif isinstance(val, date):
+            object_dict[key] = str(object_dict[key])
     for key in keys_to_delete:
         del object_dict[key]
     string = json.dumps(object_dict)

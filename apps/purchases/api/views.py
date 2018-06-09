@@ -8,6 +8,7 @@ from apps.utils.exceptions import TransactionError
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework import status
 from rest_framework.response import Response
+from apps.purchases.api.serializers import PurchaseSerializer
 
 
 
@@ -24,6 +25,17 @@ class PurchaseCreateViewSet(viewsets.ViewSet):
             return Response(PurchaseSerializer(new_purchase).data, status=status.HTTP_201_CREATED)
         except TransactionError as e:
             return Response(data=e.get_errors(), status=status.HTTP_400_BAD_REQUEST)
+
+    def partial_update(self, request, pk):
+        req_data = request.data
+        user_id = request.user.id
+
+        try:
+            updated_purchase = Purchase.partial_update(user_id, pk, **req_data)
+            return Response(data=PurchaseSerializer(updated_purchase).data, status=status.HTTP_200_OK)
+        except TransactionError as e:
+            return Response(data=e.get_errors(), status=status.HTTP_400_BAD_REQUEST)
+
 
     
             
