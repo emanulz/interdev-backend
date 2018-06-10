@@ -47,7 +47,7 @@ class Product(models.Model):
     description = models.CharField(max_length=255, verbose_name='Descripción del producto', null=True)
     short_description = models.CharField(max_length=255, verbose_name='Descripción corta del producto', null=True)
     unit = models.CharField(max_length=255, blank=True, null=True, verbose_name='Unidad')
-    fractioned = models.BooleanField(default=False, verbose_name='Se vende Fracionado?', blank=True)
+    fractioned = models.BooleanField(default=True, verbose_name='Se vende Fracionado?', blank=True)
     department = models.CharField(max_length=255, null=True, verbose_name='Familia', default='', blank=True)
     subdepartment = models.CharField(max_length=255, null=True, verbose_name='Sub-Familia', default='', blank=True)
     barcode = models.CharField(max_length=255, verbose_name='Código de Barras', blank=True, null=True)

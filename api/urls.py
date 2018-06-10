@@ -33,6 +33,7 @@ from apps.sales.api.views import SaleCreateViewSet, SaleViewSetReadOnly
 # API COPIED FROM  dynamic_preferences into apps.preferences.api package and modified permissions class
 from apps.preferences.api.viewsets import GlobalPreferencesViewSet
 
+from apps.clients.views import createClientQuick
 
 
 router = routers.DefaultRouter()
@@ -80,5 +81,5 @@ urlpatterns = [
     url(r'^checkpermissions/', checkUserPermissions),
     url(r'^assinguserpermission/', assingUserPermission),
     url(r'^checksingleuserpermissions/', checkSingleUserPermissions),
-    url(r'^getclientdebt/', getClientDebt),
+    url(r'^clientquickcreate/', createClientQuick),
     ]
