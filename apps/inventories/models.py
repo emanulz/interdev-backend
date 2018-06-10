@@ -96,7 +96,7 @@ class Inventory_Movement(models.Model):
         
 
     @classmethod
-    def simple_movement(self_cls, mov_type, user, product, warehouse,
+    def simple_movement(self_cls, mov_type, user_string, product, warehouse,
                         description, id_generator, inv_change):
         prod_string = dump_object_json(product)
 

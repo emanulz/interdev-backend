@@ -11,7 +11,7 @@ from django.contrib.auth.models import User
 from apps.inventories.models import Warehouse
 from apps.suppliers.models import Supplier
 from apps.logs.models import Log
-
+from apps.products.models import Product
 
 class Purchase(models.Model):
 
@@ -109,6 +109,38 @@ class Purchase(models.Model):
                 'description': 'Purchase patched',
                 'user': user_string
             })
+
+
+            #if the purchase is to be applied, generate the invrntory movements
+            if apply:
+                cart_object = json.loads(purchase.cart)
+                #print(cart_object)
+                destination_warehouse = Warehouse.objects.get(id=purchase.warehouse_id)
+                for cart_line in cart_object['cartItems']:
+                    print("Product\n")
+                    print(cart_line)
+                    print('\n')
+                    #load inventory
+                    Product.inventory_movement(
+                        cart_line['product']['id'],
+                        destination_warehouse,
+                        'INPUT',
+                        cart_line['qty'],
+                        user_string,
+                        'Ingreso a inventario por compra con consecutivo {}'.format(purchase.consecutive),
+                        purchase.id
+                    )
+                    #update price
+                    price_update_kwargs = {
+                        'target_utility': cart_line['target_utility'],
+                        'subtotal': cart_line['subtotal'],
+                        'quantity': cart_line['qty']
+                    }
+                    Product.update_product_price(
+                        cart_line['product']['id'],
+                        user.id,
+                        **price_update_kwargs
+                    )
 
             return purchase
 

@@ -66,7 +66,7 @@ class Product(models.Model):
     cost = models.FloatField(default=0, verbose_name='Costo ₡', blank=True, null=True)
     cost_based = models.BooleanField(default=True, verbose_name='Precio basado en Costo?', blank=True)
 
-    utility = models.FloatField(default=0, verbose_name='Utilidad %', blank=True, null=True)
+    utility = models.DecimalField(max_digits=19, decimal_places=5, default=0, verbose_name='Utilidad %', blank=True, null=True)
     price = models.DecimalField(max_digits=19, decimal_places=5, default=0, verbose_name='Precio sin Impuestos ₡', blank=True, null=True)
     sell_price = models.DecimalField(max_digits=19, decimal_places=5, default=0, verbose_name='Precio IVI ₡', blank=True, null=True)
 
@@ -102,6 +102,105 @@ class Product(models.Model):
         verbose_name = 'Producto'
         verbose_name_plural = 'Productos'
         ordering = ['code']
+
+    @classmethod
+    def update_product_price(self_cls, product_id, user_id, **kwargs):
+        user = User.objects.get(id=user_id)
+        user_string = UserSerialiazer(user).data
+        #the coin round to setting should be a system setting, hardcoded for now
+        round_to_coin = 5
+        #the utility calculation method should be set as a setting system wide
+        utility_method = 'price_based'
+
+
+        #check if the necessary parameters where sent
+        target_utility = None
+        subtotal = None
+        quantity = None
+
+        errors = {}
+        try:
+            target_utility = Decimal(kwargs['target_utility'])
+        except (KeyError, ValueError):
+            errors['target_utility'] = ['The target utility parameter was not sent or is not a number']
+
+        try:
+            subtotal = Decimal(kwargs['subtotal'])
+        except (KeyError, ValueError):
+            errors['subtotal'] = ['The subtotal parameter was not sent or is not a number']
+
+        try:
+            quantity = Decimal(kwargs['quantity'])
+        except (KeyError, ValueError):
+            errors['quantity'] = ['The quantity parameter was not sent or is not a number']
+
+        if(len(errors.keys())>0):
+            raise TransactionError(errors)
+
+        with transaction.atomic():
+            product = self_cls.objects.select_for_update().get(id=product_id)
+
+            original_product_string = dump_object_json(product)
+
+            price_data = product.calculatePriceUpdateData(target_utility, subtotal, quantity, utility_method, round_to_coin)
+
+            product.cost = round(price_data['cost'], 5)
+            product.price =  round(price_data['price'], 5)
+            product.sell_price = round(price_data['sell_price'], 5)
+            product.utility = round(price_data['utility'], 15)    
+            product.save()
+            updated_product_string = dump_object_json(product)
+
+            Log.objects.create(**{
+                'code': 'UPDATED_PRODUCT_PRICE_DATA',
+                'model': 'PRODUCT',
+                'prev_object': original_product_string,
+                'new_object': updated_product_string,
+                'description': 'Se actualizó la información de precios del producto',
+                'user': user_string
+            })
+            return product
+
+
+    def calculatePriceUpdateData(self, target_utility, subtotal, quantity, utility_method, round_to_coin):
+        
+        dec_100 = Decimal(100.0)
+        dec_target_utility = Decimal(target_utility)
+        dec_subtotal = Decimal(subtotal)
+        dec_quantity = Decimal(quantity)
+        cost = dec_subtotal/dec_quantity
+
+        total_tax_fraction = Decimal(0)
+        if(self.use_taxes):
+            total_tax_fraction += Decimal(self.taxes)
+        if(self.use_taxes2):
+            total_tax_fraction += Decimal(self.taxes2)
+        
+        total_tax_factor = Decimal(1) + total_tax_fraction / dec_100
+
+        target_price_no_tax = Decimal(0)
+        if utility_method == 'cost_based':
+            target_price_no_tax = cost * (Decimal(1) + Decimal(target_utility/dec_100))
+        else:
+            target_price_no_tax = cost /(Decimal(1)-(dec_target_utility/dec_100))
+
+        default_discount = Decimal(1) - Decimal(self.pred_discount)/dec_100
+
+        target_price_ivi = target_price_no_tax * total_tax_factor * default_discount
+
+        int_ivi_price = int(target_price_ivi)
+
+        coin_round_modulus = int_ivi_price % int(round_to_coin)
+
+        wanted_price = int_ivi_price - coin_round_modulus
+
+        real_utility = Decimal(0)
+        if utility_method == 'cost_based':
+            real_utility = ((wanted_price/total_tax_factor*default_discount)) / cost - 1
+        else:
+            real_utility = 1 - cost/(wanted_price/(total_tax_factor*default_discount))
+        price_no_ivi = wanted_price/(total_tax_factor*default_discount)
+        return {'cost': cost, 'utility': real_utility, 'sell_price': wanted_price, 'price': price_no_ivi}
 
     @classmethod
     def set_absolute_existence(self_cls, product_id, user_id, **kwargs):
