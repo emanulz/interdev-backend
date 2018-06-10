@@ -13,6 +13,7 @@ from apps.suppliers.models import Supplier
 from apps.logs.models import Log
 from apps.products.models import Product
 from decimal import Decimal, getcontext
+from apps.payables.models import Credit_Movement
 
 class Purchase(models.Model):
 
@@ -195,6 +196,8 @@ class Purchase(models.Model):
 
     @classmethod
     def create(self_cls, user_id,  **kwargs):
+        print("Create purchase kwargs sent")
+
         user = User.objects.get(id=user_id)
         user_string = UserSerialiazer(user).data
         validatePurchaseCreateKwargs(**kwargs)
@@ -226,8 +229,11 @@ class Purchase(models.Model):
 
         if(kwargs['invoice_date']=='' and not apply):
             kwargs['invoice_date']='1969-01-01'
-
-        pays = json.loads(kwargs['pay'])
+        pays = None
+        try:
+            pays = json.loads(kwargs['pay'])
+        except KeyError:
+            raise TransactionError({'pay':['The parameter "pay" was not sent']})
         total_payment = Decimal(0)
         pay_types = ''
         for key in pays.keys():
@@ -240,6 +246,17 @@ class Purchase(models.Model):
         pay_types = pay_types[:-1]
 
         #load the cart 
+        cart = None
+        try:
+            cart = kwargs['cart']
+        except KeyError:
+            raise TransactionError({'cart': ['The parameter "cart" was not sent']})
+        cart_object = json.loads(cart)
+        #obtain the total due from the cart total
+        cart_total = Decimal(cart_object['cartTotal'])
+        credit_balance = round((cart_total-total_payment),5)
+        purchase_type = 'CASH'
+        if cart_total > total_payment: purchase_type='CRED'
 
         with transaction.atomic():
             print('Atomic!!')
@@ -256,7 +273,11 @@ class Purchase(models.Model):
                 pay =  kwargs['pay'],
                 invoice_number = kwargs['invoice_number'],
                 invoice_date = kwargs['invoice_date'],
-                credit_days = kwargs['credit_days']
+                credit_days = kwargs['credit_days'],
+                balance = credit_balance,
+                purchase_type = purchase_type,
+                purchase_total = round(cart_total, 5),
+                pay_types = pay_types
             )
 
             #if the purchase was flagged to be closed, check it all the necessary data has been sent
@@ -274,8 +295,49 @@ class Purchase(models.Model):
             
 
             if apply:
-                print("Do price updates and inventory movements")
-            
+                if purchase.purchase_type == "CRED":
+                    print('Doing credit stuff')
+                    #apply credit movement on supplier
+                    supplier_credit_kwargs = {
+                        'supplier_id': supplier.id,
+                        'mov_type': 'CRED',
+                        'amount': credit_balance,
+                        'user': user_string
+                    }
+                    Supplier.apply_credit_movement(**supplier_credit_kwargs)
+                    #create a credit movement for 100% of the purchase
+                    kwargs_full_credit = {
+                        'user': user_string,
+                        'purchase_id': purchase.id,
+                        'supplier_id': supplier.id,
+                        'movement_type': 'CRED',
+                        'amount': round(cart_total, 5),
+                        'description': 'Movimiento de crédito inicial por factura {}'.format(purchase.consecutive)
+                    }
+                    Credit_Movement.create(**kwargs_full_credit)
+                    #apply another credit movement for the amount of the payment entered, if any
+                    if total_payment > 0:
+                        kwargs_debit = {
+                            'user': user_string,
+                            'purchase_id': purchase.id,
+                            'supplier_id': supplier.id,
+                            'movement_type': 'DEBI',
+                            'amount': round(total_payment, 5),
+                            'description': 'Adelanto a crédito en compra por factura {}'.format(purchase.consecutive) 
+                        }
+                        Credit_Movement.create(**kwargs_debit)
+                    
+                
+                #do inventory stuff
+                cart_items = cart_object['cartItems']
+                id_generator = 'pu_' + str(purchase.id)
+                individual_mov_desc =  "Movimiento de ingreso por factura # {}".format(purchase.consecutive)
+                for item in cart_items:
+                    prod = item['product']
+                    amount = item['qty']
+                    Product.inventory_movement(prod['id'], warehouse, 'INPUT', amount,
+                        user_string, individual_mov_desc, id_generator)
+
             return purchase
             
 

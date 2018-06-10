@@ -80,7 +80,7 @@ class Supplier(models.Model):
             except KeyError:
                 pass
 
-            if suppllier_code != None:
+            if supplier_code != None:
                 supplier = self_cls.objects.select_for_update().get(code=suppllier_code)
             elif supplier_id != None:
                 supplier = self_cls.objects.select_for_update().get(id=supplier_id)
