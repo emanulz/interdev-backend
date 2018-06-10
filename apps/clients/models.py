@@ -10,8 +10,7 @@ from django.forms.models import model_to_dict
 from asgiref.sync import async_to_sync
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from django.db import IntegrityError
-from django.db import transaction
+from django.db import IntegrityError, transaction
 from apps.utils.exceptions import TransactionError
 from decimal import Decimal, getcontext
 from apps.logs.models import Log
@@ -97,7 +96,6 @@ class Client(models.Model):
         for voucher in vouchers:
             vouchers_serialized.append(Credit_VoucherSerializer(voucher).data)
         return (client, vouchers_serialized)
-
 
 
     @classmethod

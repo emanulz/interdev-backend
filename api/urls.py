@@ -26,7 +26,7 @@ from apps.inventories.api.views import Inventory_MovementViewSet, WarehouseViewS
 from apps.workshop.api.views import Work_OrderViewSet, LaborViewSet, UsedPartViewSet, PartRequestViewSet
 from apps.purchases.api.views import PurchaseViewSet, PurchaseCreateViewSet
 from dynamic_preferences.users.viewsets import UserPreferencesViewSet
-from apps.payables.api.views import Credit_MovementPayableViewSet, Credit_PaymentPayableViewSet
+from apps.payables.api.views import Credit_MovementPayableViewSet, Credit_PaymentPayableViewSet, CreditPaymentCreateViewSet
 from apps.presales.api.views import PresaleViewSet
 from apps.sales.api.views import SaleCreateViewSet, SaleViewSetReadOnly
 from apps.money_returns.api.views import Money_ReturnViewSet, Credit_VoucherViewSet
@@ -69,8 +69,9 @@ router.register(r'usedparts', UsedPartViewSet)
 router.register(r'partrequest', PartRequestViewSet)
 router.register(r'purchase', PurchaseCreateViewSet, base_name="purchases")
 router.register(r'purchaselist', PurchaseViewSet)
-router.register(r'payablescreditmovement', Credit_MovementPayableViewSet, base_name='payables')
-router.register(r'payablescreditpayment', Credit_PaymentPayableViewSet, base_name='payables')
+router.register(r'payablescreditpaymentcreate', CreditPaymentCreateViewSet, base_name="payales")
+router.register(r'payablescreditmovementlist', Credit_MovementPayableViewSet)
+router.register(r'payablescreditpaymentlist', Credit_PaymentPayableViewSet)
 router.register(r'presales', PresaleViewSet)
 router.register(r'creditvoucherslist', Credit_VoucherViewSet)
 router.register(r'moneyreturnlist', Money_ReturnViewSet)

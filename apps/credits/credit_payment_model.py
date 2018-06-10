@@ -24,11 +24,11 @@ class Credit_Payment(models.Model):
                         )
 
     id = models.UUIDField(default=uuid.uuid4, editable=False)
-    consecutive = models.AutoField(primary_key=True, verbose_name='Número de movimiento', editable=False)
+    consecutive = models.IntegerField(primary_key=True, verbose_name='Número de movimiento', editable=False)
     sales = models.TextField(verbose_name='Objeto Array de Facturas', default='')
     user = models.TextField(verbose_name='Objeto Usuario', default='')
     client = models.TextField(verbose_name='Objeto Cliente', default='')
-    client_id = models.CharField(max_length=255, blank=True, null=True, verbose_name='ID Objeto Cliente', default='')
+    client_id = models.CharField(max_length=80, blank=True, null=True, verbose_name='ID Objeto Cliente', default='')
     amount = models.DecimalField(max_digits=19, decimal_places=5, verbose_name='Monto',
                                  blank=True, default=0)
     description = models.CharField(max_length=255, blank=True, verbose_name='Descripción del movimiento')
