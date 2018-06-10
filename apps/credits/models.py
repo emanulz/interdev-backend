@@ -56,10 +56,8 @@ class Credit_Movement(models.Model):
             if kwargs['movement_type']=='CRED':
                 kwargs['amount'] = abs(kwargs['amount'])*-1
             Credit_Movement(**kwargs).full_clean()
-            #obtain the next consecutive
-            next_consecutive = calculate_next_consecutive(self_cls)
             #inject the consecutive in the incoming kwargs
-            kwargs['consecutive'] = next_consecutive
+            kwargs['consecutive'] = calculate_next_consecutive(self_cls)
             #create the Creditmovement object
             mov = self_cls.objects.create(**kwargs)
             mov.save()

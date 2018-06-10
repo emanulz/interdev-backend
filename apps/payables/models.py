@@ -2,8 +2,13 @@ from django.db import models
 import uuid
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
-from django.db import IntegrityError
-
+from django.db import IntegrityError, transaction
+from django.contrib.auth.models import User
+from apps.logs.models import Log
+from apps.utils.utils import calculate_next_consecutive, dump_object_json
+from apps.utils.exceptions import TransactionError
+from apps.suppliers.models import Supplier
+from decimal import Decimal, getcontext
 
 class Credit_Movement(models.Model):
 
@@ -15,15 +20,15 @@ class Credit_Movement(models.Model):
                         )
 
     id = models.UUIDField(default=uuid.uuid4, editable=False)
-    consecutive = models.AutoField(primary_key=True, verbose_name='Número de movimiento', editable=False)
-    supplier_id = models.CharField(max_length=255, blank=True, null=True, verbose_name='ID Objeto Proveedor',
+    consecutive = models.IntegerField(primary_key=True, verbose_name='Número de movimiento', editable=False)
+    supplier_id = models.CharField(max_length=80, blank=True, null=True, verbose_name='ID Objeto Proveedor',
                                    default='')
-    purchase_id = models.CharField(max_length=255, blank=True, null=True, verbose_name='ID Objeto Factura', default='')
-    credit_note_id = models.CharField(max_length=255, blank=True, null=True,
+    purchase_id = models.CharField(max_length=80, blank=True, null=True, verbose_name='ID Objeto Factura', default='')
+    credit_note_id = models.CharField(max_length=80, blank=True, null=True,
                                       verbose_name='ID Objeto nota de crédito', default='')
-    debit_note_id = models.CharField(max_length=255, blank=True, null=True,
+    debit_note_id = models.CharField(max_length=80, blank=True, null=True,
                                      verbose_name='ID Objeto nota de débito', default='')
-    payment_id = models.CharField(max_length=255, blank=True, null=True, verbose_name='ID Objeto Pago', default='')
+    payment_id = models.CharField(max_length=80, blank=True, null=True, verbose_name='ID Objeto Pago', default='')
     movement_type = models.CharField(max_length=4, choices=MOVEMENT_CHOICES, default=credit,
                                      verbose_name='Tipo de Movimiento')
     amount = models.DecimalField(max_digits=19, decimal_places=5, verbose_name='Monto', blank=True, null=True, default=0)
@@ -33,6 +38,29 @@ class Credit_Movement(models.Model):
     updated = models.DateTimeField(auto_now=True, auto_now_add=False, blank=True, null=True,
                                    verbose_name='Fecha de modificación')
 
+    @classmethod
+    def create(self_cls, **kwargs):
+        print('Create payables credit movement')
+        with transaction.atomic():
+            if kwargs['movement_type'] =='CRED':
+                kwargs['amount'] = abs(kwargs['amount'])*-1
+            Credit_Movement(**kwargs).full_clean()
+            #calculate next consecutive
+            kwargs['consecutive'] = calculate_next_consecutive(self_cls)
+            mov = self_cls.objects.create(**kwargs)
+            mov.save()
+
+            mov_new_string = dump_object_json(mov)
+            Log.objects.create(**{
+                'code': 'PAYABLE_CREDTI_MOVEMENT_CREATED',
+                'model': 'PAYABLE_CREDIT_MOVEMENT',
+                'prev_object': '',
+                'new_object': mov_new_string,
+                'description': 'Credit movement initial creation',
+                'user': kwargs['user']
+            })
+            return mov
+
     def __str__(self):
         return self.consecutive
 
@@ -40,6 +68,23 @@ class Credit_Movement(models.Model):
         verbose_name = 'Movimiento de Crédito'
         verbose_name_plural = 'Movimientos de Crédito'
         ordering = ['consecutive']
+
+class Credit_Note(models.Model):
+    id = models.UUIDField(default=uuid.uuid4, editable=False)
+    consecutive = models.AutoField(primary_key=True, verbose_name='Número de movimiento', editable=False)
+    purchase_id = models.CharField(max_length=80, verbose_name='ID de la venta asociada', default='')
+    submited_to_hacienda = models.BooleanField(verbose_name="Enviada al sistema de Hacienda?")
+    user = models.TextField(verbose_name='Objeto Usuario', default='')
+    user_id =  models.CharField(max_length=80, verbose_name="ID Objeto Usuario")
+    supplier = models.TextField(verbose_name='Objeto Proveedor', default='')
+    supplier_id = models.CharField(max_length=255, blank=True, null=True, verbose_name='ID Objeto Cliente', default='')
+    description = models.CharField(max_length=255, blank=True, verbose_name='Descripción del movimiento')
+    amount = models.DecimalField(max_digits=19, decimal_places=5, verbose_name='Monto',
+                                 blank=True, default=0) 
+    created = models.DateTimeField(auto_now=False, auto_now_add=True, blank=True, null=True,
+                                   verbose_name='Fecha de creación')
+    updated = models.DateTimeField(auto_now=True, auto_now_add=False, blank=True, null=True,
+                                   verbose_name='Fecha de modificación')
 
 
 class Credit_Payment(models.Model):
@@ -52,20 +97,107 @@ class Credit_Payment(models.Model):
                         )
 
     id = models.UUIDField(default=uuid.uuid4, editable=False)
-    consecutive = models.AutoField(primary_key=True, verbose_name='Número de movimiento', editable=False)
-    purchase = models.TextField(verbose_name='Objeto Compra', default='')
+    consecutive = models.IntegerField(primary_key=True, verbose_name='Número de movimiento', editable=False)
+    purchases = models.TextField(verbose_name='Objeto Compras', default='')
     user = models.TextField(verbose_name='Objeto Usuario', default='')
     supplier = models.TextField(verbose_name='Objeto Proveedor', default='')
-    supplier_id = models.CharField(max_length=256, blank=True, null=True, verbose_name='ID Objeto Proveedor',
+    supplier_id = models.CharField(max_length=80, blank=True, null=True, verbose_name='ID Objeto Proveedor',
                                    default='')
     amount = models.DecimalField(max_digits=19, decimal_places=5, verbose_name='Monto Pago',
                                  blank=True, default=0)
     description = models.CharField(max_length=255, blank=True, verbose_name='Descripción del movimiento')
-    is_null = models.BooleanField(default=False, blank=True, verbose_name='Anulado?')
     created = models.DateTimeField(auto_now=False, auto_now_add=True, blank=True, null=True,
                                    verbose_name='Fecha de creación')
     updated = models.DateTimeField(auto_now=True, auto_now_add=False, blank=True, null=True,
                                    verbose_name='Fecha de modificación')
+
+
+    @classmethod
+    def create(self_cls, user_id, **kwargs):
+        errors = {}
+        purchases = None
+        supplier_id = None
+        supplier = None
+        supplier_string = None
+        amount = None
+        description = None
+        user_id = None
+        user = None
+        user_string = None
+
+        try:
+            sales = kwargs['sales']
+        except KeyError:
+            errors['sales'] = ['The "sales" parameter was not sent']
+
+        try:
+            supplier_id = kwargs["supplier_id"]
+            supplier = Supplier.objects.get(id=kwargs["supplier_id"])
+            supplier_string = dump_object_json(supplier)
+        except KeyError:
+            errors['supplier_id'] = ['The parameter "supplier_id" was not sent']
+        
+        try:
+            amount = Decimal(round(kwargs['amount'], 5))
+        except (KeyError, ValueError):
+            errors['amount'] = ['The parameter "amount" was not sent or is not a number']
+
+        try:
+            description = kwargs['description']
+        except KeyError:
+            errors["description"] = ['The parameter "description" was not sent']     
+
+        try:
+            user_id = kwargs['user_id']
+            user = User.objects.get(id=user_id)
+            user_string = dump_object_json(user)
+        except KeyError:
+            errors['user'] = ['The parameter "user_id" was not sent or does not match an actual user']
+        
+        if len(errors.keys()) > 0:
+            raise TransactionError(errors)
+
+        payment = self_cls.objects.create(
+            consecutive = calculate_next_consecutive,
+            purchases = purchases,
+            user = user_string,
+            supplier = supplier_string,
+            supplier_id = supplier_id,
+            amount = amount,
+            description = description
+        )
+
+        #log the creation
+        Log.objects.create(**{
+            'code': 'PAYABLE_PAYMENT_CREATED',
+            'model': 'PAYABLE_CREDIT_PAYMENT',
+            'prev_object': '',
+            'new_object': dump_object_json(payment),
+            'decription': 'Payment made to supplier {}'.format(supplier.name),
+            'user': user_string
+        })
+
+        #create a credit movement, update the supplier balance and update the purchase
+        #for each subamount in the purchases payed
+        mov_kwargs = []
+        supplier_kwargs = []
+        purchase_kwargs = []
+
+        for pay_data in purchases:
+            #prepare all the kwargs
+            mov_kwargs.append({
+
+            })
+
+            supplier_kwargs.append({
+
+            })
+
+            purchase_kwargs.append({
+
+            })
+
+
 
     def __str__(self):
         return self.consecutive

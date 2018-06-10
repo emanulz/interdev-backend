@@ -13,5 +13,5 @@ class Credit_PaymentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Credit_Payment
-        fields = ('id', 'consecutive', 'purchase', 'user', 'supplier', 'supplier_id',
+        fields = ('id', 'consecutive', 'purchases', 'user', 'supplier', 'supplier_id',
                     'amount', 'description', 'created', 'updated')     

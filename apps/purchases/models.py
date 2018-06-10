@@ -12,6 +12,7 @@ from apps.inventories.models import Warehouse
 from apps.suppliers.models import Supplier
 from apps.logs.models import Log
 from apps.products.models import Product
+from decimal import Decimal, getcontext
 
 class Purchase(models.Model):
 
@@ -43,7 +44,12 @@ class Purchase(models.Model):
     is_closed = models.BooleanField(verbose_name="Factura Cerrada", default=False)
 
     pay = models.TextField(verbose_name='Objeto Pago', default='')
-    
+
+    purchase_total = models.DecimalField(verbose_name="Monto total facturado", max_digits=19, decimal_places=5)
+    balance = models.DecimalField(verbose_name="Saldo de factura", max_digits=19, decimal_places=5)
+    purchase_type = models.CharField(max_length=4, verbose_name="Tipo  de factura, Crédito o Débito", default='')
+    pay_types = models.CharField(max_length=255, default='', verbose_name='Tipos de Pago')
+
     invoice_number = models.CharField(max_length=255, verbose_name='Número de Factura')
     invoice_date = models.DateField(blank=True, null=True)
     credit_days =  models.IntegerField(default=0, verbose_name='Plazo Crédito')
@@ -52,6 +58,19 @@ class Purchase(models.Model):
                                    verbose_name='Fecha de creación')
     updated = models.DateTimeField(auto_now=True, auto_now_add=False, blank=True, null=True,
                                    verbose_name='Fecha de modificación')
+
+    @classmethod
+    def apply_payment(self_cls, **kwargs):
+        amount = None
+        try:
+            amount = Decimal(abs(round(kwargs['amount'], 5)))
+        except  (KeyError, ValueError):
+            raise TransactionError({'amount_purchase_payment': ['The "amount" of the payment was not sent or is not a number']})
+
+        with transaction.atomic():
+            purchase = self_cls.objects.select_for_update().get(id=kwargs['purchase_id'])
+            
+
 
     @classmethod 
     def partial_update(self_cls, user_id, purchase_id, **kwargs):
@@ -180,7 +199,6 @@ class Purchase(models.Model):
         user_string = UserSerialiazer(user).data
         validatePurchaseCreateKwargs(**kwargs)
         apply = bool(kwargs['apply'])
-        print('Apply: ' + str(apply))
 
         warehouse = ''
         warehouse_string = ''
@@ -209,6 +227,19 @@ class Purchase(models.Model):
         if(kwargs['invoice_date']=='' and not apply):
             kwargs['invoice_date']='1969-01-01'
 
+        pays = json.loads(kwargs['pay'])
+        total_payment = Decimal(0)
+        pay_types = ''
+        for key in pays.keys():
+            for item in pays[key]:
+                if item['type'] != 'CRED':
+                    total_payment += abs(Decimal(item['amount']))
+
+                if Decimal(item['amount']) > 0 or item['type'] == 'CRED':
+                    pay_types += '{}-'.format(item['type'])
+        pay_types = pay_types[:-1]
+
+        #load the cart 
 
         with transaction.atomic():
             print('Atomic!!')
