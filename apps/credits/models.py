@@ -121,23 +121,24 @@ class Credit_Note(models.Model):
                 'model':'CREDIT_NOTE',
                 'prev_object': '',
                 'new_object': credit_note_string,
-                'description': description
+                'description': description,
+                'user': kwargs['user']
             })
+
             #apply credit movement
-            kwargs_debit = {
-                'client_id': kwargs['client_id'],
-                'user': kwargs['user'],
-                'bill_id': kwargs['sale_id'],
-                'credit_note_id': credit_note.id,
-                'debit_note_id': '',
-                'payment_id': '',
-                'movement_type': 'DEBI',
-                'amount': kwargs['amount'],
-                'description': 'Movimiento de Débito por Nota Crédito {}'.format(credit_note.id)
-            }
+            #kwargs_debit = {
+            #    'client_id': kwargs['client_id'],
+            #    'user': kwargs['user'],
+            #    'bill_id': kwargs['sale_id'],
+            #    'credit_note_id': credit_note.id,
+            #    'debit_note_id': '',
+            #    'payment_id': '',
+            #    'movement_type': 'DEBI',
+            #    'amount': kwargs['amount'],
+            #    'description': 'Movimiento de Débito por Nota Crédito {}'.format(credit_note.consecutive)
+            #}
             #it will log its creation itself
-            print('Credit note created')
-            Credit_Movement.create(**kwargs_debit)
+            #Credit_Movement.create(**kwargs_debit)
             return credit_note
 
 

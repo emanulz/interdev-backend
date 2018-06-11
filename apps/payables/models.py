@@ -8,6 +8,7 @@ from apps.logs.models import Log
 from apps.utils.utils import calculate_next_consecutive, dump_object_json
 from apps.utils.exceptions import TransactionError
 from apps.suppliers.models import Supplier
+from apps.purchases.models import Purchase
 from decimal import Decimal, getcontext
 
 class Credit_Movement(models.Model):
@@ -86,6 +87,45 @@ class Credit_Note(models.Model):
     updated = models.DateTimeField(auto_now=True, auto_now_add=False, blank=True, null=True,
                                    verbose_name='Fecha de modificación')
 
+    @classmethod
+    def create(self_cls, **kwargs):
+        next_consecutive = calculate_next_consecutive(self_cls)
+        kwargs['consecutive'] = next_consecutive
+        kwargs['submited_to_hacienda'] = False
+        with transaction.atomic():
+            credit_note = self_cls.create(**kwargs)
+            credit_note_string = dump_object_json(credit_note)
+            description = None
+            try:
+                description = kwargs['description']
+            except KeyError:
+                description = 'Nota de Crédito'
+
+            Log.objects.create(**{
+                'code': 'PAYABLE_CREDIT_NOTE_CREATED',
+                'model': 'PAYABLE_CREDIT_NOTE',
+                'prev_object': '',
+                'new_object': credit_note_string,
+                'description': description,
+                'user':kwargs['user']
+
+            })
+
+            #apply credit movement
+            #kwargs_debit = {
+            #    'supplier_id':kwargs['supplier_id'],
+            #    'user': kwargs['user'],
+            #    'purchase_id': kwargs['purchase_id'],
+            #    'credit_note_id': credit_note.id,
+            #    'debit_note_id': '',
+            #    'payment_id': '',
+            #    'mov_type': 'DEBI',
+            #    'amount': kwargs['amount'],
+            #    'description': 'Movimiento de Débito por Nota Crédito {}'.format(credit_note.consecutive)
+            #}
+            #Credit_Movement.create(**kwargs_debit)
+            return credit_note
+
 
 class Credit_Payment(models.Model):
 
@@ -126,7 +166,7 @@ class Credit_Payment(models.Model):
         user_string = None
 
         try:
-            sales = kwargs['sales']
+            purchases = kwargs['sales']
         except KeyError:
             errors['sales'] = ['The "sales" parameter was not sent']
 
@@ -186,16 +226,32 @@ class Credit_Payment(models.Model):
         for pay_data in purchases:
             #prepare all the kwargs
             mov_kwargs.append({
-
+                'user': user_string,
+                'supplier_id': supplier_id,
+                'purchase_id': pay_data['purchase_id'],
+                'payment_id': payment.id,
+                'movement_type': 'DEBI',
+                'amount': round(Decimal(pay_data['amount']),5),
+                'description': 'Movimiento débito por pago {}'.format(payment.consecutive)
             })
 
             supplier_kwargs.append({
-
+                'supplier_id': supplier_id,
+                'mov_type': 'DEBI',
+                'amount': pay_data['amount'],
+                'user': user_string
             })
 
             purchase_kwargs.append({
-
+                'purchase_id': pay_data['purchase_id'],
+                'user': user_string,
+                'amount': pay_data['amount']
             })
+
+            for mov_kwarg, supplier_kwarg, purchase_kwarg in zip(mov_kwargs, supplier_kwargs, purchase_kwargs):
+                Credit_Movement.create(**mov_kwarg)
+                Supplier.apply_credit_movement(**supplier_kwarg)
+                Purchase.apply_payment(**purchase_kwarg)
 
 
 

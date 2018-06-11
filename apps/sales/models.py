@@ -212,7 +212,7 @@ class Sale(models.Model):
             #create a json of the new sale, re using the model_dict
             sale_new = dump_object_json(sale)
             #create the log of the change
-            log = Log.objects.create(**{
+            Log.objects.create(**{
                 'code': 'SALE_CREDIT_BALANCE_UDPATE',
                 'model': 'SALE',
                 'prev_object': sale_old,
@@ -220,6 +220,8 @@ class Sale(models.Model):
                 'description': 'Credit payment applied',
                 'user': kwargs['user'],  
             })
+
+            return sale
 
             
     @classmethod
@@ -268,43 +270,41 @@ class Sale(models.Model):
             client_id =  sale.client_id
             client_string = sale.client
 
-            with transaction.atomic():
-                sale = self_cls.objects.get(id=pk)
-                sale_cart_object = json.loads(sale.cart)
-                merchandise_total_value = Decimal(0)
-                sale_cart_items = sale_cart_object['cartItems']
-                return_list = []
-                prev_returns = []
-                #load previous returns
-                if sale.returns_collection != '':
-                    prev_returns = json.loads(sale.returns_collection)
-                #create a return list that matches the sale original sale minus previous returns
-                for item in sale_cart_items:
-                    #calculate item previous returns
-                    item_prev_returns = 0
-                    for prev_ret in prev_returns:
-                        if prev_ret['id'] == item['product']['id']:
-                            item_prev_returns += prev_ret['ret_qty']
-                    if item['qty'] - item_prev_returns <1:
-                        continue
-                    return_list.append({
-                        'id': item['product']['id'],
-                        'ret_qty': item['qty'] - item_prev_returns
-                    })
-                if len(return_list) <1:
-                    raise TransactionError({'nothing_to_return':['Ningua de las líneas de la factura tiene pendientes de devolución']})
-                return_kwargs = {
-                    'sale_id': pk,
-                    'user': user_string,
-                    'user_id': user_id,
-                    'client': client_string,
-                    'client_id': client_id,
-                    'return_list': json.dumps(return_list),
-                    'sale': sale,
-                    'destination_warehouse_id': '9d85cecc-feb1-4710-9a19-0a187580e15e'
-                }
+            sale_cart_object = json.loads(sale.cart)
+            merchandise_total_value = Decimal(0)
+            sale_cart_items = sale_cart_object['cartItems']
+            return_list = []
+            prev_returns = []
+            #load previous returns
+            if sale.returns_collection != '':
+                prev_returns = json.loads(sale.returns_collection)
+            #create a return list that matches the sale original sale minus previous returns
+            for item in sale_cart_items:
+                #calculate item previous returns
+                item_prev_returns = 0
+                for prev_ret in prev_returns:
+                    if prev_ret['id'] == item['product']['id']:
+                        item_prev_returns += prev_ret['ret_qty']
+                if item['qty'] - item_prev_returns <1:
+                    continue
+                return_list.append({
+                    'id': item['product']['id'],
+                    'ret_qty': item['qty'] - item_prev_returns
+                })
+            if len(return_list) <1:
+                raise TransactionError({'nothing_to_return':['Ningua de las líneas de la factura tiene pendientes de devolución']})
+            return_kwargs = {
+                'sale_id': pk,
+                'user': user_string,
+                'user_id': user_id,
+                'client': client_string,
+                'client_id': client_id,
+                'return_list': json.dumps(return_list),
+                'sale': sale,
+                'destination_warehouse_id': '9d85cecc-feb1-4710-9a19-0a187580e15e'
+            }
 
-                return Return.create(**return_kwargs)
+            return Return.create(**return_kwargs)
 
 
 class Return(models.Model):
@@ -355,8 +355,7 @@ class Return(models.Model):
                 raise TransactionError({'return_list': [
                     'Para producto {} la cantidad a retornar {} es mayor a la vendida {} menos los retornos previos {}'.format(item['id'], item['ret_qty'], original_sale_qty, item_previous_returns)]})
             merchandise_total_value += Decimal(original_sale_line['product']['sell_price'])*item['ret_qty']
-            print('Merchandise total value')
-            print(merchandise_total_value)
+
             original_sale_string = dump_object_json(sale)
             sale.returns_collection = json.dumps(old_return_list + return_list)
             sale.save()
@@ -382,9 +381,6 @@ class Return(models.Model):
             'amount': merchandise_total_value
 
         })
-        #check the balance of the sale, if the balance of the sale its larger than the
-        #credit note value, nothing must be returned, just the balance adjsuted
-        #by the value of the credit note
         #log the creation of the object
 
         return_string = dump_object_json(return_object)

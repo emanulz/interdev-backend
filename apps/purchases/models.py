@@ -70,8 +70,23 @@ class Purchase(models.Model):
 
         with transaction.atomic():
             purchase = self_cls.objects.select_for_update().get(id=kwargs['purchase_id'])
-            
-
+            if amount > purchase.balance:
+                raise TransactionError({'amount_purchase_payment':['The payment amount is larger than the existent balance. It can be equal at most ']})
+            original_purchase_string = dump_object_json(purchase)
+            new_balance = purchase.balance - amount
+            if new_balance<0.1: new_balance = Decimal(0)
+            purchase.balance = new_balance
+            purchase.save()
+            updated_purchase_string = dump_object_json(purchase)
+            Log.objects.create(**{
+                'code': 'PURCHASE_CREDIT_BALANCE_UPDATE',
+                'model': 'PURCHASE',
+                'prev_object': original_purchase_string,
+                'new_object': updated_purchase_string,
+                'description': 'Credit payment applied',
+                'user':kwargs['user']
+            })
+            return purchase
 
     @classmethod 
     def partial_update(self_cls, user_id, purchase_id, **kwargs):
