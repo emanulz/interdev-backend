@@ -23,7 +23,7 @@ from apps.taxes.api.views import TaxViewSet
 from apps.senders.api.views import SenderViewSet
 from apps.addresses.api.views import ProvinceViewSet, CantonViewSet, DistrictViewSet, TownViewSet
 from apps.inventories.api.views import Inventory_MovementViewSet, WarehouseViewSet
-from apps.workshop.api.views import Work_OrderViewSet, LaborViewSet, UsedPartViewSet, PartRequestViewSet
+from apps.workshop.api.views import Work_OrderViewSet
 from apps.purchases.api.views import PurchaseViewSet, PurchaseCreateViewSet
 from dynamic_preferences.users.viewsets import UserPreferencesViewSet
 from apps.payables.api.views import Credit_MovementPayableViewSet, Credit_PaymentPayableViewSet, CreditPaymentCreateViewSet
@@ -65,9 +65,6 @@ router.register(r'towns', TownViewSet)
 router.register(r'inventorymovementslist', Inventory_MovementViewSet)
 router.register(r'warehouses', WarehouseViewSet)
 router.register(r'workorders', Work_OrderViewSet)
-router.register(r'labor', LaborViewSet)
-router.register(r'usedparts', UsedPartViewSet)
-router.register(r'partrequest', PartRequestViewSet)
 router.register(r'purchase', PurchaseCreateViewSet, base_name="purchases")
 router.register(r'purchaselist', PurchaseViewSet)
 router.register(r'payablescreditpaymentcreate', CreditPaymentCreateViewSet, base_name="payales")

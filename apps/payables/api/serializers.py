@@ -1,5 +1,6 @@
 from rest_framework import serializers
-from ..models import Credit_Movement, Credit_Payment
+from ..models import Credit_Movement
+from ..credit_payment_model import Credit_Payment
 
 class Credit_MovementSerializer(serializers.ModelSerializer):
 

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.db import models
 import uuid
+from decimal import Decimal, getcontext
 
 
 from django.contrib.auth.models import Permission
@@ -52,9 +53,9 @@ class Work_Order(models.Model):
 class Labor(models.Model):
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    work_order_id = models.CharField(verbose_name="ID Orden de Trabajo", max_length=40, default='')
+    work_order_id = models.CharField(verbose_name="ID Orden de Trabajo", max_length=80, default='')
     employee = models.TextField(verbose_name="Empleado", default='')
-    amount = models.FloatField(default=0, verbose_name="Costo Mano de Obra ₡")
+    amount = models.DecimalField(max_digits=19, decimal_places=5, default=0, verbose_name="Costo Mano de Obra ₡")
     description = models.CharField(max_length=255, verbose_name= "Descripción Reparación", default='')
     created = models.DateTimeField(auto_now=False, auto_now_add=True, blank=True, null=True,
                                    verbose_name='Fecha de creación')
@@ -71,9 +72,9 @@ class Labor(models.Model):
 class UsedPart(models.Model):
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    work_order_id = models.CharField(verbose_name="ID Orden de Trabajo", max_length=40, default='')
+    work_order_id = models.CharField(verbose_name="ID Orden de Trabajo", max_length=80, default='')
     employee = models.TextField(verbose_name="Empleado", default='')
-    amount = models.FloatField(default=0, verbose_name="Costo Respuesto ₡")
+    amount = models.DecimalField(max_digits=19, decimal_places=5, default=0, verbose_name="Costo Respuesto ₡")
     description = models.CharField(max_length=255, verbose_name= "Descripción parte", default='')
     created = models.DateTimeField(auto_now=False, auto_now_add=True, blank=True, null=True,
                                    verbose_name='Fecha de creación')
@@ -91,7 +92,7 @@ class PartRequest(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     work_order_id = models.CharField(verbose_name="ID Orden de Trabajo", max_length=40, default='')
     employee = models.TextField(verbose_name="Empleado", default='')
-    amount = models.FloatField(default=0, verbose_name="Cantidad")
+    amount = models.DecimalField(max_digits=19, decimal_places=5, default=0, verbose_name="Cantidad")
     product = models.TextField(verbose_name= "Producto", default='')
 
     id_movement_workshop = models.UUIDField(verbose_name="ID movimiento Bodega de Taller")

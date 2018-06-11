@@ -212,7 +212,7 @@ class Purchase(models.Model):
     @classmethod
     def create(self_cls, user_id,  **kwargs):
         print("Create purchase kwargs sent")
-
+        print(kwargs)
         user = User.objects.get(id=user_id)
         user_string = UserSerialiazer(user).data
         validatePurchaseCreateKwargs(**kwargs)

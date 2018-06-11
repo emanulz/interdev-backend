@@ -1,5 +1,6 @@
 import django_filters
-from ..models import Credit_Movement, Credit_Payment
+from ..models import Credit_Movement
+from ..credit_payment_model import Credit_Payment
 
 class Credit_MovementFilter(django_filters.FilterSet):
     
