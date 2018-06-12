@@ -13,7 +13,7 @@ from apps.credits.views import getClientDebt
 from rest_framework import routers
 from apps.clients.api.views import ClientViewSet
 from apps.products.api.views import ProductViewSet, ProductDepartmentViewSet, ProductSubDepartmentViewSet, ProductInventoryViewSet
-from apps.suppliers.api.views import SupplierViewSet
+from apps.suppliers.api.views import SupplierViewSet, SupplierCustomViewSet
 from apps.profiles.api.views import ProfileViewSet
 from apps.profiles.api.views import UserViewSet, PermissionsViewSet
 from apps.sales.api.views import SaleViewSet, Cash_AdvanceViewSet
@@ -49,6 +49,7 @@ router.register(r'cashadvances', Cash_AdvanceViewSet)
 router.register(r'productdepartments', ProductDepartmentViewSet)
 router.register(r'productsubdepartments', ProductSubDepartmentViewSet)
 router.register(r'suppliers', SupplierViewSet)
+router.register(r'supplierscustom', SupplierCustomViewSet, base_name='supplierscustom')
 router.register(r'userprofiles', ProfileViewSet)
 router.register(r'users', UserViewSet)
 router.register(r'permissions', PermissionsViewSet)

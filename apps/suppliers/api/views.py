@@ -7,6 +7,10 @@ from .filters import SupplierFilter
 from .serializers import SupplierSerializer
 from .permissions import HasProperPermission
 from rest_framework.pagination import LimitOffsetPagination
+from rest_framework.decorators import detail_route, list_route
+from rest_framework.response import Response
+from rest_framework import status
+from apps.utils.exceptions import TransactionError
 
 class LimitPaginationClass(LimitOffsetPagination):
     default_limit = 50
@@ -22,3 +26,46 @@ class SupplierViewSet(viewsets.ModelViewSet):
     def get_permissions(self):
         # allow non-authenticated user to create via POST
         return [HasProperPermission(), ]
+
+class SupplierCustomViewSet(viewsets.ReadOnlyModelViewSet):
+
+    queryset = Supplier.objects.all()
+    serializer_class = SupplierSerializer
+    lookup_field = 'id'
+    filter_class = SupplierFilter
+
+    def retrieve(self, request, *args, **kwargs):
+         try:
+             supplier, purchases = Supplier.get_supplier_with_purchases(kwargs['id'])
+             return Response(data={'supplier': SupplierSerializer(supplier).data, 'purchases': purchases},
+                         status=status.HTTP_200_OK)
+         except TransactionError as e:
+             return Response(data=e.get_errors(), status=status.HTTP_400_BAD_REQUEST)
+
+    def list(self, request):
+         try:
+             suppliers = Supplier.get_suppliers_with_balance()
+             return Response(SupplierSerializer(suppliers, many=True).data, status=status.HTTP_200_OK)
+         except Exception as e:
+             return Response(data= str(e), status=status.HTTP_400_BAD_REQUEST)
+
+
+    # @detail_route(methods=('get',))
+    # def supplier_purchases(self, request, pk):
+    #     try:
+    #         supplier, purchases = Supplier.get_supplier_with_purchases(pk)
+    #         return Response(data={'supplier': SupplierSerializer(supplier).data, 'purchases': purchases},
+    #                     status=status.HTTP_200_OK)
+    #     except TransactionError as e:
+    #         return Response(data=e.get_errors(), status=status.HTTP_400_BAD_REQUEST)
+
+
+    # @list_route(methods=('get',))
+    # def suppliers_with_balance(self, request):
+        
+    #     user_id = request.user.id
+    #     try:
+    #         suppliers = Supplier.get_suppliers_with_balance()
+    #         return Response(SupplierSerializer(suppliers, many=True).data, status=status.HTTP_200_OK)
+    #     except Exception as e:
+    #         return Response(data= str(e), status=status.HTTP_400_BAD_REQUEST)

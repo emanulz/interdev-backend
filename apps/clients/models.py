@@ -87,7 +87,7 @@ class Client(models.Model):
 
     @classmethod
     def getClientAndRelated(self_cls, user_id, client_id):
-
+        
         client = self_cls.objects.get(id= client_id)
         client_dict = model_to_dict(client)
         #check if the object has any active credit vouchers
