@@ -10,7 +10,7 @@ class SaleFilter(django_filters.FilterSet):
     class Meta:
         model = Sale
         fields = ('id', 'consecutive', 'cart', 'client', 'client_id', 'user', 'pay', 'pay_types', 'sale_type', 'sale_type','sale_total', 'balance', 'created',
-                  'updated')
+                  'updated', 'presale_id')
 
 
 class Cash_AdvanceFilter(django_filters.FilterSet):

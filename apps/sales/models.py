@@ -21,6 +21,7 @@ from apps.logs.models import Log
 from apps.utils.exceptions import TransactionError
 from apps.utils.utils import calculate_next_consecutive, dump_object_json
 from apps.money_returns.models import Money_Return, Credit_Voucher
+from apps.presales.models import Presale
 
 from apps.utils.serializers import UserSerialiazer
 from decimal import Decimal, getcontext
@@ -52,6 +53,7 @@ class Sale(models.Model):
     balance = models.DecimalField(verbose_name="Saldo de factura", max_digits=19, decimal_places=5)
     returns_collection = models.TextField(verbose_name='Listado de devoluciones', default='', blank=True)
     user = models.TextField(verbose_name='Objeto Usuario', default='')
+    presale_id = models.CharField(max_length=255, verbose_name='Id de Preventa', default='', blank=True)
     created = models.DateTimeField(auto_now=False, auto_now_add=True, blank=True, null=True,
                                    verbose_name='Fecha de creación')
     updated = models.DateTimeField(auto_now=True, auto_now_add=False, blank=True, null=True,
@@ -67,17 +69,17 @@ class Sale(models.Model):
 
 
     @classmethod
-    def create(self_cls, cart, client_id, pay, user_id, warehouse_id):
+    def create(self_cls, cart, client_id, pay, user_id, warehouse_id, presale_id):
         #set the context precision to 5 decimal places
         getcontext().prec = 20
         
         with transaction.atomic():
             #fetch the client by id
             client = Client.objects.get(id=client_id)
-            client_string =  dump_object_json(client)
+            client_string = dump_object_json(client)
             #fetch user object
             user = User.objects.get(id=user_id)
-            user_string = UserSerialiazer(user).data
+            user_string = dump_object_json(user)
             #fetch Warehouse data
             warehouse = Warehouse.objects.get(id = warehouse_id)
 
@@ -131,12 +133,20 @@ class Sale(models.Model):
                 'pay': pay, 
                 'sale_type': sale_type,
                 'pay_types': pay_types,
-                'user': user_string
+                'user': user_string,
+                'presale_id': presale_id
             }
 
             validation_sale = Sale(**sale_kwargs).full_clean()
             sale = self_cls.objects.create(**sale_kwargs)
             sale_string = dump_object_json(sale)
+            if sale.presale_id:
+                presale_kwargs = {
+                    'presale_id': presale_id,
+                    'sale_id': sale.id,
+                    'user': user_string
+                }
+                Presale.mark_as_complete(**presale_kwargs)
             #log the sale creation
             Log.objects.create(**{
                 'code':'SALE_CREATED',
