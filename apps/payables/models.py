@@ -44,6 +44,8 @@ class Credit_Movement(models.Model):
         with transaction.atomic():
             if kwargs['movement_type'] =='CRED':
                 kwargs['amount'] = abs(kwargs['amount'])*-1
+            user = kwargs['user']
+            del kwargs['user']
             Credit_Movement(**kwargs).full_clean()
             #calculate next consecutive
             kwargs['consecutive'] = calculate_next_consecutive(self_cls)
@@ -57,7 +59,7 @@ class Credit_Movement(models.Model):
                 'prev_object': '',
                 'new_object': mov_new_string,
                 'description': 'Credit movement initial creation',
-                'user': kwargs['user']
+                'user': user
             })
             return mov
 

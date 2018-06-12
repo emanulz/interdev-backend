@@ -84,7 +84,7 @@ class Sale(models.Model):
             #get next consecutive
             next_consecutive = calculate_next_consecutive(self_cls)
 
-            pays = json.loads(pay)
+            pays = json.loads(kwargs['pay_string'])
             total_payment = Decimal(0)
             pay_types = ''
             for keys in pays.keys():
@@ -237,7 +237,6 @@ class Sale(models.Model):
             client_id =  sale.client_id
             client_string = sale.client
             #update the sale with the return list
-
 
             return_method = kwargs['return_method']
             return_options = ['CASH', 'CREDIT', 'VOUCHER']
