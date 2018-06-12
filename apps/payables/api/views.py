@@ -7,7 +7,7 @@ from .permissions import HasProperPermission, HasProperPermissionCreditPayment
 from rest_framework.pagination import LimitOffsetPagination
 
 
-class CreditPaymentCreateViewSet(viewsets.ViewSet):
+class CreditPaymentCreateViewSetPayables(viewsets.ViewSet):
 
     queryset = Credit_Payment.objects.all()
 

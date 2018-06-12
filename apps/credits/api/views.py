@@ -10,6 +10,7 @@ from .permissions import HasProperPermission, HasProperPermissionCreditPayment
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.pagination import LimitOffsetPagination
+from apps.utils.exceptions import TransactionError
 
 class LimitPaginationClass(LimitOffsetPagination):
     default_limit = 50
@@ -21,15 +22,15 @@ class CreditPaymentCreateViewSet(viewsets.ViewSet):
     def create(self, request):
         req_data = request.data
         user_id = request.user.id
-
+        print(request.user.id)
         try:
-            new_payment, errors = Credit_Payment.create(user_id, **req_data)
-            return Response(data=Credit_MovementSerializer(new_payment).data, status=status.HTTP_201_CREATED)
-        except Exception as e:
+            new_payment = Credit_Payment.create(user_id, **req_data)
+            return Response(data=Credit_PaymentSerializer(new_payment).data, status=status.HTTP_201_CREATED)
+        except TransactionError as e:
             if type(e)=='TransactionError':
                 return Response(data=e.get_errors(), status=status.HTTP_400_BAD_REQUEST)
             else:
-                return Response(data=str(e))
+                return Response(data=str(e), status=status.HTTP_400_BAD_REQUEST)
 
 class Credit_MovementViewSet(viewsets.ReadOnlyModelViewSet):
 

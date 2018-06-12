@@ -26,7 +26,7 @@ from apps.inventories.api.views import Inventory_MovementViewSet, WarehouseViewS
 from apps.workshop.api.views import Work_OrderViewSet
 from apps.purchases.api.views import PurchaseViewSet, PurchaseCreateViewSet
 from dynamic_preferences.users.viewsets import UserPreferencesViewSet
-from apps.payables.api.views import Credit_MovementPayableViewSet, Credit_PaymentPayableViewSet, CreditPaymentCreateViewSet
+from apps.payables.api.views import Credit_MovementPayableViewSet, Credit_PaymentPayableViewSet, CreditPaymentCreateViewSetPayables
 from apps.presales.api.views import PresaleViewSet
 from apps.sales.api.views import SaleCreateViewSet, SaleViewSetReadOnly
 from apps.money_returns.api.views import Money_ReturnViewSet, Credit_VoucherViewSet
@@ -54,8 +54,8 @@ router.register(r'permissions', PermissionsViewSet)
 router.register(r'userprefs', UserPreferencesViewSet, base_name='userprefs')
 router.register(r'globalprefs', GlobalPreferencesViewSet, base_name='globalprefs')
 router.register(r'creditpaymentscreate', CreditPaymentCreateViewSet, base_name='credits')
-router.register(r'creditmovementslist', Credit_MovementViewSet)
-router.register(r'creditpaymentslist', Credit_PaymentViewSet)
+router.register(r'creditmovementslist', Credit_MovementViewSet, base_name='creditmovementslist')
+router.register(r'creditpaymentslist', Credit_PaymentViewSet, base_name='creditpaymentslist')
 router.register(r'taxes', TaxViewSet)
 router.register(r'senders', SenderViewSet)
 router.register(r'provinces', ProvinceViewSet)
@@ -67,7 +67,7 @@ router.register(r'warehouses', WarehouseViewSet)
 router.register(r'workorders', Work_OrderViewSet)
 router.register(r'purchase', PurchaseCreateViewSet, base_name="purchases")
 router.register(r'purchaselist', PurchaseViewSet)
-router.register(r'payablescreditpaymentcreate', CreditPaymentCreateViewSet, base_name="payales")
+router.register(r'payablescreditpaymentcreate', CreditPaymentCreateViewSetPayables, base_name="payales")
 router.register(r'payablescreditmovementlist', Credit_MovementPayableViewSet)
 router.register(r'payablescreditpaymentlist', Credit_PaymentPayableViewSet)
 router.register(r'presales', PresaleViewSet)

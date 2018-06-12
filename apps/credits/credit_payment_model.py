@@ -13,6 +13,7 @@ from apps.sales.models import Sale
 from apps.credits.models import Credit_Movement
 from apps.utils.utils import dump_object_json
 from apps.logs.models import Log
+import json
 
 class Credit_Payment(models.Model):
 
@@ -31,6 +32,7 @@ class Credit_Payment(models.Model):
     client_id = models.CharField(max_length=80, blank=True, null=True, verbose_name='ID Objeto Cliente', default='')
     amount = models.DecimalField(max_digits=19, decimal_places=5, verbose_name='Monto',
                                  blank=True, default=0)
+    is_null = models.BooleanField(default=False, verbose_name='Anulado?')
     description = models.CharField(max_length=255, blank=True, verbose_name='Descripción del movimiento')
     created = models.DateTimeField(auto_now=False, auto_now_add=True, blank=True, null=True,
                                    verbose_name='Fecha de creación')
@@ -39,7 +41,7 @@ class Credit_Payment(models.Model):
 
 
     @classmethod
-    def create(self_cls, **kwargs):
+    def create(self_cls, user_id, **kwargs):
         with transaction.atomic():
             errors = {}
             #check incoming data
@@ -48,7 +50,6 @@ class Credit_Payment(models.Model):
             client_string = None
             amount = None
             description = None
-            user_id = None
             user = None
             user_string = None
 
@@ -59,10 +60,7 @@ class Credit_Payment(models.Model):
             try:
                 client_id = kwargs['client_id']
                 client = Client.objects.get(id=client_id)
-                client_dict = model_to_dict(client)
-                client_dict['balance'] = str(client_dict['balance'])
-                client_dict['credit_limit'] = str(client_dict['credit_limit'])
-                client_string =  json.dumps(client_dict)
+                client_string = dump_object_json(client)
             except KeyError:
                 errors['client_id'] = ['client_id not sent or does not correspond to a client']
 
@@ -74,10 +72,10 @@ class Credit_Payment(models.Model):
             try:
                 description = kwargs['description']
             except KeyError:
-                errors["description"] = ["Description not sent"]
+                # errors["description"] = ["Description not sent"]
+                description = 'Pago a facturas desde el app de crédito'
 
             try:
-                user_id = kwargs['user_id']
                 user = User.objects.get(id=user_id)
                 user_string = UserSerialiazer(user).data
             except KeyError:
@@ -102,7 +100,7 @@ class Credit_Payment(models.Model):
                 'model': 'CREDIT_PAYMENT',
                 'prev_object': '',
                 'new_object':  dump_object_json(payment),
-                'description': 'Payment made by client {} {}'.format((client.name, client.last_name)),
+                'description': 'Payment made by client {} {}'.format(client.name, client.last_name),
                 'user': user_string
             })
 
@@ -110,6 +108,8 @@ class Credit_Payment(models.Model):
             pay_kwargs = []
             client_update_kwargs = []
             sale_update_kwargs = []
+            sales = json.loads(sales)
+            print(sales)
             for pay_data in sales:
                 #prepare kwargs
                 pay_kwargs.append({
@@ -141,7 +141,8 @@ class Credit_Payment(models.Model):
                 Credit_Movement.create(**mov_kwargs)
                 Client.apply_credit_movement(**client_kwargs)
                 Sale.apply_payment(**sale_kwargs)
-            
+
+            return payment
 
     def __str__(self):
         return self.consecutive

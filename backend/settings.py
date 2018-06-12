@@ -129,19 +129,20 @@ DATABASES = {
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
-
-if os.environ['DJANGO_BACKEND'] == 'MYSQL':
-    DATABASES = {
-    'default': {
-         'ENGINE': 'django.db.backends.mysql',
-         'USER': 'root',
-         'PASSWORD': '0688moraB',
-         'NAME': 'django_rj',
-         'HOST': 'localhost',
-         'PORT': '3306',
+try:
+    if os.environ['DJANGO_BACKEND'] == 'MYSQL':
+        DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'USER': 'root',
+            'PASSWORD': '0688moraB',
+            'NAME': 'django_rj',
+            'HOST': 'localhost',
+            'PORT': '3306',
+        }
     }
-}
-
+except KeyError:
+    pass
 
 # DATABASES = {
 #      'default': {

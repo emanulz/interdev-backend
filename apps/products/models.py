@@ -511,7 +511,7 @@ class Product(models.Model):
         return data
 
     def transfer_inv(self, data, prod):
-        #get the origin warehouse existence
+        # get the origin warehouse existence
         errs = {}
         current_inv = json.loads(self.inventory_existent)
         total_origin = 0
@@ -521,18 +521,20 @@ class Product(models.Model):
         except KeyError:
             errs['origin_warehouse_id'] = ['Product does not have existences on origin warehouse']
         if not self.inventory_negative:
+            print(total_origin)
+            print(data['amount'])
             if(total_origin < data['amount']):
-                errs['amount']=['Transfer requested {} is larger than avaialble inventory at origin {}'.format(data['amount'], total_origin)]
-        #obtain the total at the destination warehouse
+                errs['amount'] = ['Transfer requested {} is larger than available inventory at origin {}'.format(data['amount'], total_origin)]
+        # obtain the total at the destination warehouse
         try:
             total_destination = float(current_inv[data['destination_warehouse_id']])
         except KeyError:
-            pass # the destination might not have inventory so far
+            pass  # the destination might not have inventory so far
 
-        current_inv[data['origin_warehouse_id']] =  total_origin - float(data['amount'])
+        current_inv[data['origin_warehouse_id']] = total_origin - float(data['amount'])
         current_inv[data['destination_warehouse_id']] = total_destination + float(data['amount'])
         #total remains untouched, it is only a transfer
-        if(len(errs.keys())>1): 
+        if(len(errs.keys()) > 0):
             raise TransactionError(errs)
         return json.dumps(current_inv)
 
@@ -548,30 +550,34 @@ class Product(models.Model):
 
         current_inv[warehouse_id] = real_existence
         current_inv['total'] = current_total + mov_size
+        for key in current_inv.keys():
+            current_inv[key] = str(current_inv[key])
         return (json.dumps(current_inv), mov_size)
 
 
     def update_inventory(self, amount, warehouse_id, mov_type, allow_negative):
         warehouse_id = str(warehouse_id)
         current_inv = json.loads(self.inventory_existent)
-        change = amount
+        change = Decimal(abs(amount))
         if(mov_type == 'OUTPUT'): change = change*-1
-        new_total = float(current_inv['total']) + change
+        new_total = Decimal(current_inv['total']) + change
         try:
-            current_inv[warehouse_id] = float(current_inv[warehouse_id]) + change
+            current_inv[warehouse_id] = Decimal(current_inv[warehouse_id]) + change
             if not allow_negative and current_inv[warehouse_id]<0:
                 raise TransactionError({'amount': ['The product does not allow negative inventories - {}'.format(str(self))]})
         except KeyError:
             current_inv[warehouse_id] = amount
 
         current_inv['total'] = new_total
+        for key in current_inv.keys():
+            current_inv[key] = str(current_inv[key])
         return json.dumps(current_inv)
         
     def validate_movement(self, product, amount):
         target_mov = 0
         if(product.fractioned):
             try:
-                target_mov = float(amount)
+                target_mov = Decimal(amount)
             except ValueError:
                 raise TransactionError({'amount': ['Amount supplied is not a number']})
         else:
