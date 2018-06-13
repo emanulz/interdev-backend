@@ -11,6 +11,7 @@ from rest_framework.decorators import detail_route, list_route
 from rest_framework.response import Response
 from rest_framework import status
 from apps.utils.exceptions import TransactionError
+from decimal import Decimal
 
 class LimitPaginationClass(LimitOffsetPagination):
     default_limit = 50
@@ -29,7 +30,7 @@ class SupplierViewSet(viewsets.ModelViewSet):
 
 class SupplierCustomViewSet(viewsets.ReadOnlyModelViewSet):
 
-    queryset = Supplier.objects.all()
+    queryset = Supplier.objects.filter(balance__lt=Decimal(0))
     serializer_class = SupplierSerializer
     lookup_field = 'id'
     filter_class = SupplierFilter
@@ -42,30 +43,4 @@ class SupplierCustomViewSet(viewsets.ReadOnlyModelViewSet):
          except TransactionError as e:
              return Response(data=e.get_errors(), status=status.HTTP_400_BAD_REQUEST)
 
-    def list(self, request):
-         try:
-             suppliers = Supplier.get_suppliers_with_balance()
-             return Response(SupplierSerializer(suppliers, many=True).data, status=status.HTTP_200_OK)
-         except Exception as e:
-             return Response(data= str(e), status=status.HTTP_400_BAD_REQUEST)
 
-
-    # @detail_route(methods=('get',))
-    # def supplier_purchases(self, request, pk):
-    #     try:
-    #         supplier, purchases = Supplier.get_supplier_with_purchases(pk)
-    #         return Response(data={'supplier': SupplierSerializer(supplier).data, 'purchases': purchases},
-    #                     status=status.HTTP_200_OK)
-    #     except TransactionError as e:
-    #         return Response(data=e.get_errors(), status=status.HTTP_400_BAD_REQUEST)
-
-
-    # @list_route(methods=('get',))
-    # def suppliers_with_balance(self, request):
-        
-    #     user_id = request.user.id
-    #     try:
-    #         suppliers = Supplier.get_suppliers_with_balance()
-    #         return Response(SupplierSerializer(suppliers, many=True).data, status=status.HTTP_200_OK)
-    #     except Exception as e:
-    #         return Response(data= str(e), status=status.HTTP_400_BAD_REQUEST)

@@ -86,7 +86,7 @@ class Sale(models.Model):
             #get next consecutive
             next_consecutive = calculate_next_consecutive(self_cls)
 
-            pays = json.loads(kwargs['pay_string'])
+            pays = json.loads(pay)
             total_payment = Decimal(0)
             pay_types = ''
             for keys in pays.keys():
