@@ -6,21 +6,21 @@ from apps.clients.models import Client
 import json
 from django.db import IntegrityError
 from ..utils.utils import dump_object_json
+from django.shortcuts import redirect
 
 
 # Create your views here.
 @login_required
 def createClientQuick(request):
-
-    body_unicode = request.body.decode('utf-8')
-    body = json.loads(body_unicode)
-    auto_code = body['autoCode']
-    code = body['code']
-    if auto_code:
-        code = str(getNextNumericCode())
-    client = Client(code=code, name=body['name'], last_name=body['last_name'], email=body['email'], id_num='',
-                    phone_number=body['phone_number'], cellphone_number='')
     if request.method == 'POST':
+        body_unicode = request.body.decode('utf-8')
+        body = json.loads(body_unicode)
+        auto_code = body['autoCode']
+        code = body['code']
+        if auto_code:
+            code = str(getNextNumericCode())
+        client = Client(code=code, name=body['name'], last_name=body['last_name'], email=body['email'], id_num='',
+                        phone_number=body['phone_number'], cellphone_number='')
         try:
             client.full_clean()
             client.save()
@@ -31,6 +31,7 @@ def createClientQuick(request):
             if type(e) == IntegrityError:
                 return HttpResponse('El código de cliente ya existe', status=400)
             return HttpResponse(str(e), status=400)
+    return redirect('https://www.youtube.com/watch?v=dQw4w9WgXcQ')
 
 
 def getNextNumericCode():

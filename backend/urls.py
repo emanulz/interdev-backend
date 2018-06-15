@@ -24,6 +24,7 @@ urlpatterns = [
     url(r'^$', login_required(TemplateView.as_view(template_name='home.html'))),
     url(r'^reports/', login_required(TemplateView.as_view(template_name='reports.html'))),
     url(r'^sales/', login_required(TemplateView.as_view(template_name='sales.html'))),
+    url(r'^returns/', login_required(TemplateView.as_view(template_name='returns.html'))),
     url(r'^seller/', login_required(TemplateView.as_view(template_name='seller.html'))),
     url(r'^credits/', login_required(TemplateView.as_view(template_name='credits.html'))),
     url(r'^inventories/', login_required(TemplateView.as_view(template_name='inventories.html'))),

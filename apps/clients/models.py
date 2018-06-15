@@ -25,19 +25,10 @@ class Client(models.Model):
     juridic = '02'
     passport = '03'
 
-    general = 'GENERAL'
-    distrib = 'DISTRIB'
-    mayoris = 'WHOLESA'
-
     ID_TYPE_CHOICES = ((person, 'Cédula Física'),
                        (juridic, 'Cédula Jurídica'),
                        (passport, 'Pasaporte'),
                        )
-
-    CLIENT_TYPE_CHOICES = ((general, 'Cliente General'),
-                           (distrib, 'Distribuidor'),
-                           (mayoris, 'Mayorista')
-                           )
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     code = models.CharField(max_length=10, null=True, verbose_name='Código', unique=True)
@@ -57,10 +48,7 @@ class Client(models.Model):
     phone_number = models.CharField(max_length=255, null=True, blank=True, verbose_name='Teléfono')
     cellphone_number = models.CharField(max_length=255, null=True, blank=True, verbose_name='Celular')
     email = models.EmailField(max_length=255, null=True, blank=True, verbose_name='Email')
-
-    client_type = models.CharField(max_length=7, choices=CLIENT_TYPE_CHOICES, default=general,
-                                   verbose_name='Tipo de Cliente')
-
+    category_code = models.CharField(max_length=255, null=True, blank=True, verbose_name='Categoría Cliente')
     pred_discount = models.FloatField(verbose_name='Descuento Predeterminado', default=0)
     max_discount = models.FloatField(verbose_name='Descuento Máximo', default=0)
     max_line_discount = models.FloatField(verbose_name='Descuento Máximo por línea', default=0)
@@ -88,14 +76,21 @@ class Client(models.Model):
     @classmethod
     def getClientAndRelated(self_cls, user_id, client_id):
 
-        client = self_cls.objects.get(id= client_id)
-        client_dict = model_to_dict(client)
-        #check if the object has any active credit vouchers
+        client = self_cls.objects.get(id=client_id)
+        # client_dict = model_to_dict(client)
+
+        try:
+            category = ClientCategory.objects.get(code__exact=client.category_code)
+            category = dump_object_json(category)
+        except Exception as e:
+            print(e)
+            category = {}
+        # check if the object has any active credit vouchers
         vouchers = Credit_Voucher.objects.filter(client_id__exact=client_id).filter(voucher_applied=False)
         vouchers_serialized = []
         for voucher in vouchers:
             vouchers_serialized.append(Credit_VoucherSerializer(voucher).data)
-        return (client, vouchers_serialized)
+        return (client, vouchers_serialized, category)
 
 
     @classmethod
@@ -161,19 +156,14 @@ class Client(models.Model):
                 'user': kwargs['user']
             })
 
-                
+    @classmethod
+    def update_credit_conditions(self_cls, **kwargs):
+        print("Updated credit conditions")
+        with transaction.atomic():
+            pass
 
-
-@classmethod
-def update_credit_conditions(self_cls, **kwargs):
-    print("Updated credit conditions")
-    with transaction.atomic():
-        pass
-
-
-
-#@receiver(post_save, sender=Client)
-#def send_message(sender, instance, **kwargs):
+# @receiver(post_save, sender=Client)
+# def send_message(sender, instance, **kwargs):
 #    async_to_sync(channels.layers.get_channel_layer().group_send)(
 #        'global_broadcaster',
 #        {
@@ -181,6 +171,22 @@ def update_credit_conditions(self_cls, **kwargs):
 #            'message': 'CLIENT_UPDATED'
 #        }
 #    )
+
+
+class ClientCategory(models.Model):
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    code = models.CharField(max_length=10, null=True, verbose_name='Código', unique=True)
+    name = models.CharField(max_length=255, verbose_name='Nombre')
+    discount = models.FloatField(verbose_name='Descuento de la categoria', default=0)
+
+    def __str__(self):
+        return '%s - %s' % (self.code, self.name)
+
+    class Meta:
+        verbose_name = 'Categoría de cliente'
+        verbose_name_plural = 'Categorias de clientes'
+        ordering = ['code']
 
 
 try:
@@ -192,5 +198,5 @@ try:
         )
 except Exception as e:
     if type(e) != IntegrityError:
-        print (type(e))
+        print(type(e))
     pass

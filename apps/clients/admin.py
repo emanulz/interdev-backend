@@ -3,8 +3,16 @@
 from __future__ import unicode_literals
 
 from django.contrib import admin
-from .models import Client
+from .models import Client, ClientCategory
 # from general.models.companies import Company
+
+
+@admin.register(ClientCategory)
+class ClientCategoryAdmin(admin.ModelAdmin):
+
+    list_display = ('code', 'name', 'discount')
+
+    search_fields = ('code', 'name', 'discount')
 
 
 @admin.register(Client)
