@@ -13,7 +13,7 @@ from apps.credits.views import getClientDebt
 from rest_framework import routers
 from apps.clients.api.views import ClientViewSet
 from apps.products.api.views import ProductViewSet, ProductDepartmentViewSet, ProductSubDepartmentViewSet, ProductInventoryViewSet
-from apps.suppliers.api.views import SupplierViewSet, SupplierCustomViewSet
+from apps.suppliers.api.views import SupplierViewSet, SupplierCustomViewSet, SupplierSearchViewSet
 from apps.profiles.api.views import ProfileViewSet
 from apps.profiles.api.views import UserViewSet, PermissionsViewSet
 from apps.sales.api.views import SaleViewSet, Cash_AdvanceViewSet
@@ -31,6 +31,7 @@ from apps.presales.api.views import PresaleViewSet
 from apps.sales.api.views import SaleCreateViewSet, SaleViewSetReadOnly
 from apps.money_returns.api.views import Money_ReturnViewSet, Credit_VoucherViewSet
 from apps.payables_money_returns.api.views import Credit_VoucherViewSetPayable
+from apps.utils.searchView import SearchViewSet
 
 # API COPIED FROM  dynamic_preferences into apps.preferences.api package and modified permissions class
 from apps.preferences.api.viewsets import GlobalPreferencesViewSet
@@ -50,6 +51,7 @@ router.register(r'productdepartments', ProductDepartmentViewSet)
 router.register(r'productsubdepartments', ProductSubDepartmentViewSet)
 router.register(r'suppliers', SupplierViewSet)
 router.register(r'supplierscustom', SupplierCustomViewSet, base_name='supplierscustom')
+router.register(r'search', SearchViewSet, base_name='search')
 router.register(r'userprofiles', ProfileViewSet)
 router.register(r'users', UserViewSet)
 router.register(r'permissions', PermissionsViewSet)

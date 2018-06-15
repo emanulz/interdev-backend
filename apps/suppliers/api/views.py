@@ -16,6 +16,19 @@ from decimal import Decimal
 class LimitPaginationClass(LimitOffsetPagination):
     default_limit = 50
 
+class SupplierSearchViewSet(viewsets.ViewSet):
+    queryset = Supplier.objects.all()
+
+    @detail_route(methods=('get',))
+    def search_supplier(self, request, pk):
+        print('Custom route at supplier get search')
+        return Response(data='yay', status=status.HTTP_200_OK)
+
+    @list_route(methods=('get',))
+    def search(self, request, *args, **kwargs):
+
+        return Response(data='YAY SEARCH', status=status.HTTP_200_OK)
+
 class SupplierViewSet(viewsets.ModelViewSet):
 
     serializer_class = SupplierSerializer
@@ -36,11 +49,12 @@ class SupplierCustomViewSet(viewsets.ReadOnlyModelViewSet):
     filter_class = SupplierFilter
 
     def retrieve(self, request, *args, **kwargs):
-         try:
+
+        try:
              supplier, purchases = Supplier.get_supplier_with_purchases(kwargs['id'])
              return Response(data={'supplier': SupplierSerializer(supplier).data, 'purchases': purchases},
                          status=status.HTTP_200_OK)
-         except TransactionError as e:
+        except TransactionError as e:
              return Response(data=e.get_errors(), status=status.HTTP_400_BAD_REQUEST)
 
 
