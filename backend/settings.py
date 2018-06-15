@@ -28,7 +28,7 @@ DEBUG = True
 try:
     if os.environ['SERVER_NAME'] == 'APP_SERVER':
         DEBUG = False
-except KeyError:
+except Exception as e:
     pass
 
 ALLOWED_HOSTS = ['localhost', '192.168.9.254', '192.168.1.254', '192.168.9.56', '192.168.9.107', '192.168.1.144',
@@ -219,19 +219,17 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = (os.path.join(BASE_DIR, 'media'))
 
 # WEBPACK LOADER
-
 WEBPACK_LOADER = {
     'DEFAULT': {
-        'BUNDLE_DIR_NAME': 'bundles/local/',  # end with slash
-        'STATS_FILE': os.path.join(BASE_DIR, 'webpack-stats-local.json'),
+        'BUNDLE_DIR_NAME': 'bundles/production/',  # end with slash
+        'STATS_FILE': os.path.join(BASE_DIR, 'webpack-stats-production.json'),
         }
     }
-print('DEBUG STAUSSSSSS')
-print(DEBUG)
-if not DEBUG:
+
+if DEBUG:
     WEBPACK_LOADER = {
         'DEFAULT': {
-            'BUNDLE_DIR_NAME': 'bundles/production/',  # end with slash
-            'STATS_FILE': os.path.join(BASE_DIR, 'webpack-stats-production.json'),
+            'BUNDLE_DIR_NAME': 'bundles/local/',  # end with slash
+            'STATS_FILE': os.path.join(BASE_DIR, 'webpack-stats-local.json'),
             }
         }
