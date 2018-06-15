@@ -25,8 +25,14 @@ SECRET_KEY = 'pq0v9v3y@4dnny%jgrod5*_%snma=t(q6-h&@sf)+uptk54z82'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '192.168.9.254', '192.168.1.254', '192.168.9.56', 
-'192.168.9.107', '192.168.1.144', 'DANTE']
+try:
+    if os.environ['SERVER_NAME'] == 'APP_SERVER':
+        DEBUG = False
+except KeyError:
+    pass
+
+ALLOWED_HOSTS = ['localhost', '192.168.9.254', '192.168.1.254', '192.168.9.56', '192.168.9.107', '192.168.1.144',
+                 'DANTE']
 
 
 # Application definition
@@ -115,48 +121,30 @@ CHANNEL_LAYERS = {
 
 # Database
 # https://docs.djangoproject.com/en/2.0/ref/settings/#databases
-
+# Default Emanuel Dev
 DATABASES = {
     'default': {
-        # 'ENGINE': 'django.db.backends.mysql',
-        # 'USER': 'root',
-        # 'PASSWORD': '0688moraB',
-        # 'NAME': 'django_rj',
-        # 'HOST': 'localhost',
-        # 'PORT': '3306',
-        #'OPTIONS':{
-        #    'read_default_file':'/Program Files/MySQL/MySQL Server 8.0/my.cnf'
-        #}
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
+# Try Victor Dev
 try:
     if os.environ['DJANGO_BACKEND'] == 'MYSQL':
         DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.mysql',
-            'USER': 'root',
-            'PASSWORD': '0688moraB',
-            'NAME': 'django_rj',
-            'HOST': 'localhost',
-            'PORT': '3306',
+            'default': {
+                'ENGINE': 'django.db.backends.mysql',
+                'USER': 'root',
+                'PASSWORD': '0688moraB',
+                'NAME': 'django_rj',
+                'HOST': 'localhost',
+                'PORT': '3306',
+            }
         }
-    }
 except KeyError:
     pass
 
-# DATABASES = {
-#      'default': {
-#         'ENGINE': 'django.db.backends.mysql',
-#         'NAME': 'interdev',
-#         'USER': 'interdev',
-#         'PASSWORD': 'Nodelez0105',
-#         'HOST': 'localhost',
-#         'PORT': '3306',
-#         }
-# }
-
+# Server DB
 if not DEBUG:
     DATABASES = {
         'default': {

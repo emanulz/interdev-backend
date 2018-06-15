@@ -225,7 +225,7 @@ def build_smart_like_search(value, model):
         result += '{}={} '.format(field, value)
     print('Smart like search query')
     print(result)
-    return result
+    return result.strip()
 
 def build_code_like_search(value, model):
     result = ''
@@ -233,7 +233,7 @@ def build_code_like_search(value, model):
         result += '{}={} '.format(field, value)
     print('Code like search query')
     print(result)
-    return result
+    return result.strip()
 
 def build_custom_search_request(raw_string, custom_type, model):
     print('Raw search string')
@@ -407,18 +407,26 @@ def smart_supplier_search(queryset, max_results, kwargs):
             if needed_hits <= 0:
                 return current_matches
         return results
+      
 
-
-        
-
-    #try an exact match on code
-
+# try an exact match on code
 def find_table_name(model):
     db_name =  connection.settings_dict['NAME']
+
     if model == 'product':
+        if connection.vendor == 'sqlite':
+            return '{}'.format(Product._meta.db_table)
         return '{}.{}'.format(db_name, Product._meta.db_table)
+    if model == 'client':
+        if connection.vendor == 'sqlite':
+            return '{}'.format(Client._meta.db_table) 
+        return '{}.{}'.format(db_name, Client._meta.db_table)
     if model == 'supplier':
+        if connection.vendor == 'sqlite':
+            return '{}'.format(Supplier._meta.db_table) 
         return '{}.{}'.format(db_name, Supplier._meta.db_table)
     if model == 'purchase':
+        if connection.vendor == 'sqlite':
+            return '{}'.format(Purchase._meta.db_table) 
         return '{}.{}'.format(db_name, Purchase._meta.db_table)
     
