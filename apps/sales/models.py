@@ -248,7 +248,6 @@ class Sale(models.Model):
             client_string = sale.client
             #update the sale with the return list
 
-
             return_method = kwargs['return_method']
             return_options = ['CASH', 'CREDIT', 'VOUCHER']
             if return_method not in return_options: 

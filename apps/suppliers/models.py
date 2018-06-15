@@ -9,6 +9,11 @@ from apps.utils.exceptions import TransactionError
 from apps.utils.utils import dump_object_json, calculate_next_consecutive
 from decimal import Decimal, getcontext
 from apps.logs.models import Log
+from decimal import Decimal
+
+#from apps.purchases.models import Purchase
+
+#from apps.purchases.api.serializers import PurchaseSerializer
 from django.db import IntegrityError, transaction
 
 
@@ -55,7 +60,7 @@ class Supplier(models.Model):
                                    verbose_name='Fecha de modificación')
 
     def __str__(self):
-        return '%s %s' % (self.name, self.last_name)
+        return '%s %s' % (self.code, self.name)
 
     class Meta:
         verbose_name = 'Proveedor'
@@ -122,6 +127,41 @@ class Supplier(models.Model):
                 'user': kwargs['user']
             })
 
+    @classmethod
+    def get_suppliers_with_balance(self_cls, balance_sign = 'negative'):
+        
+        suppliers = None
+        if balance_sign == 'negative':
+            suppliers = self_cls.objects.filter(balance__lt=Decimal(0))
+        else:
+            suppliers = self_cls.objects.filter(balance__gt=Decimal(0))
+        return suppliers
+
+    @classmethod
+    def get_supplier_with_purchases(self_cls, pk):
+        from apps.purchases.models import Purchase
+        from apps.purchases.api.serializers import PurchaseSerializer
+
+        supplier = None
+        #check if the incoming parameter is an uuid or an code
+        try:
+            supplier = self_cls.objects.get(id=pk)
+        except Exception:
+            pass
+        
+        if supplier == None:
+            try:
+                supplier = self_cls.objects.get(code=pk)
+            except Exception:
+                raise TransactionError({'lookup':['pk is not a valid id or code for a purchase']})
+
+        #get purchases with an active balance
+        purchases = Purchase.objects.filter(supplier_id__exact=supplier.id).filter(balance__gt=Decimal("0"))
+        purchases_serialized = []
+        for purchase in purchases:
+            purchases_serialized.append(PurchaseSerializer(purchase).data)
+        return (supplier, purchases_serialized)
+
 # CUSTOM PERMISSION
 try:
     content_type = ContentType.objects.get_for_model(Supplier)
@@ -134,3 +174,6 @@ except Exception as e:
     if type(e) != IntegrityError:
         print (type(e))
     pass
+
+
+

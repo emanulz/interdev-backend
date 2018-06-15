@@ -116,7 +116,7 @@ class Purchase(models.Model):
             #sanity check on a patch attempt on a closed purchase
             if purchase.is_closed:
                 raise TransactionError({'patch_denied':['Cannot patch an already closed purchase']})
-
+                
             for key in patch_kwargs.keys():
                 setattr(purchase, key, patch_kwargs[key])
                 if key == 'supplier_id':
@@ -145,6 +145,64 @@ class Purchase(models.Model):
                 'user': user_string
             })
 
+            cart_object = json.loads(purchase.cart)
+            warehouse = Warehouse.objects.get(id=purchase.warehouse_id)
+            try:
+                pays = json.loads(kwargs['pay_data'])
+            except KeyError:
+                raise TransactionError({'pay':['The parameter "pay" was not sent']})
+            total_payment = Decimal(0)
+            pay_types = ''
+            for key in pays.keys():
+                for item in pays[key]:
+                    if item['type'] != 'CRED':
+                        total_payment += abs(Decimal(item['amount']))
+
+                    if Decimal(item['amount']) > 0 or item['type'] == 'CRED':
+                        pay_types += '{}-'.format(item['type'])
+            pay_types = pay_types[:-1]
+            if apply:
+                if purchase.purchase_type == "CRED":
+                    #apply credit movement on supplier
+                    supplier_credit_kwargs = {
+                        'supplier_id': supplier.id,
+                        'mov_type': 'CRED',
+                        'amount': purchase.balance,
+                        'user': user_string
+                    }
+                    Supplier.apply_credit_movement(**supplier_credit_kwargs)
+                    #create a credit movement for 100% of the purchase
+                    kwargs_full_credit = {
+                        'user': user_string,
+                        'purchase_id': purchase.id,
+                        'supplier_id': supplier.id,
+                        'movement_type': 'CRED',
+                        'amount': purchase.purchase_total,
+                        'description': 'Movimiento de crédito inicial por factura {}'.format(purchase.consecutive)
+                    }
+                    Credit_Movement.create(**kwargs_full_credit)
+                    #apply another credit movement for the amount of the payment entered, if any
+                    if total_payment > 0:
+                        kwargs_debit = {
+                            'user': user_string,
+                            'purchase_id': purchase.id,
+                            'supplier_id': supplier.id,
+                            'movement_type': 'DEBI',
+                            'amount': round(total_payment, 5),
+                            'description': 'Adelanto a crédito en compra por factura {}'.format(purchase.consecutive) 
+                        }
+                        Credit_Movement.create(**kwargs_debit)
+                    
+                
+                #do inventory stuff
+                cart_items = cart_object['cartItems']
+                id_generator = 'pu_' + str(purchase.id)
+                individual_mov_desc =  "Movimiento de ingreso por factura # {}".format(purchase.consecutive)
+                for item in cart_items:
+                    prod = item['product']
+                    amount = item['qty']
+                    Product.inventory_movement(prod['id'], warehouse, 'INPUT', amount,
+                        user_string, individual_mov_desc, id_generator)
 
             #if the purchase is to be applied, generate the invrntory movements
             if apply:
@@ -211,8 +269,7 @@ class Purchase(models.Model):
 
     @classmethod
     def create(self_cls, user_id,  **kwargs):
-        print("Create purchase kwargs sent")
-        print(kwargs)
+
         user = User.objects.get(id=user_id)
         user_string = UserSerialiazer(user).data
         validatePurchaseCreateKwargs(**kwargs)
@@ -246,7 +303,7 @@ class Purchase(models.Model):
             kwargs['invoice_date']='1969-01-01'
         pays = None
         try:
-            pays = json.loads(kwargs['pay'])
+            pays = json.loads(kwargs['pay_data'])
         except KeyError:
             raise TransactionError({'pay':['The parameter "pay" was not sent']})
         total_payment = Decimal(0)
@@ -274,7 +331,6 @@ class Purchase(models.Model):
         if cart_total > total_payment: purchase_type='CRED'
 
         with transaction.atomic():
-            print('Atomic!!')
             next_consecutive = calculate_next_consecutive(self_cls)
             purchase = self_cls.objects.create(
                 consecutive = next_consecutive,
