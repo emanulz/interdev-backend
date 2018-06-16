@@ -429,4 +429,6 @@ def find_table_name(model):
         if connection.vendor == 'sqlite':
             return '{}'.format(Purchase._meta.db_table) 
         return '{}.{}'.format(db_name, Purchase._meta.db_table)
+    if model == 'client':
+        return '{}.{}'.format(db_name, Client._meta.db_table)
     

@@ -32,10 +32,12 @@ class ProductInventoryViewSet(viewsets.ViewSet):
             new_prod, errors = Product.create(user_id, **req_data)
             return Response(data=ProductSerializer(new_prod).data, status=status.HTTP_201_CREATED)
         except Exception as e:
+            print(req_data)
+            print(e)
             if type(e)=='TransactionError':
                 return Response(data=e.get_errors(), status=status.HTTP_400_BAD_REQUEST)
             else:
-                return Response(data=str(e))
+                return Response(data=str(e), status=status.HTTP_400_BAD_REQUEST)
         
     
     def partial_update(self, request, pk):
@@ -96,6 +98,7 @@ class ProductInventoryViewSet(viewsets.ViewSet):
             if type(e)=="TransactionError":
                 return Response(data=e.get_errors(), status=status.HTTP_400_BAD_REQUEST)
             else:
+                print(e)
                 return Response(data=str(e), status=status.HTTP_400_BAD_REQUEST)
             
 

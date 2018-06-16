@@ -11,6 +11,8 @@ from django.db import IntegrityError
 from apps.utils.utils import calculate_next_consecutive
 from apps.utils.exceptions import TransactionError
 from apps.utils.utils import dump_object_json
+from django.db import transaction
+
 
 class Inventory_Movement(models.Model):
 
@@ -59,7 +61,11 @@ class Inventory_Movement(models.Model):
 
         prod_string = dump_object_json(product)
 
-        next_consec = calculate_next_consecutive(self_cls)
+        counter = 0
+        success = False
+        origin_mov = None
+        destination_mov = None
+          
 
         #create movement on origin warehouse, as an exit
         origin_mov = self_cls.objects.create(
@@ -75,8 +81,10 @@ class Inventory_Movement(models.Model):
             amount = inv_change * -1
         )
 
-        next_consec = calculate_next_consecutive(self_cls)        
-        
+
+
+        next_consec = calculate_next_consecutive(self_cls)
+        counter += 1
         #create movement on destination warehouse, as an exit
         destination_mov = self_cls.objects.create(
             consecutive = next_consec,
@@ -90,10 +98,8 @@ class Inventory_Movement(models.Model):
             id_generator = id_generator,
             amount = inv_change 
         )
-        
+                
         return (origin_mov, destination_mov)
-
-        
 
     @classmethod
     def simple_movement(self_cls, mov_type, user_string, product, warehouse,
@@ -101,23 +107,24 @@ class Inventory_Movement(models.Model):
         prod_string = dump_object_json(product)
 
         warehouse_string = json.dumps(model_to_dict(warehouse))
-        next_consec = calculate_next_consecutive(self_cls)
         amount = inv_change
+        with transaction.atomic():
+            next_consec = calculate_next_consecutive(self_cls)
+            if(mov_type=='OUTPUT'): amount = amount*-1
+            mov = self_cls.objects.create(
+                consecutive = next_consec,
+                movement_type = mov_type,
+                user = user_string,
+                product_id = product.id,
+                product = prod_string,
+                warehouse_id = warehouse.id,
+                warehouse = warehouse_string,
+                description = description,
+                id_generator = id_generator,
+                amount = amount
+            )
+            return mov
 
-        if(mov_type=='OUTPUT'): amount = amount*-1
-        mov = self_cls.objects.create(
-            consecutive = next_consec,
-            movement_type = mov_type,
-            user = user_string,
-            product_id = product.id,
-            product = prod_string,
-            warehouse_id = warehouse.id,
-            warehouse = warehouse_string,
-            description = description,
-            id_generator = id_generator,
-            amount = amount
-        )
-        return mov
 
 
 
