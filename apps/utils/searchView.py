@@ -225,7 +225,7 @@ def build_smart_like_search(value, model):
         result += '{}={} '.format(field, value)
     print('Smart like search query')
     print(result)
-    return result
+    return result.strip()
 
 def build_code_like_search(value, model):
     result = ''
@@ -233,7 +233,7 @@ def build_code_like_search(value, model):
         result += '{}={} '.format(field, value)
     print('Code like search query')
     print(result)
-    return result
+    return result.strip()
 
 def build_custom_search_request(raw_string, custom_type, model):
     print('Raw search string')
@@ -421,4 +421,6 @@ def find_table_name(model):
         return '{}.{}'.format(db_name, Supplier._meta.db_table)
     if model == 'purchase':
         return '{}.{}'.format(db_name, Purchase._meta.db_table)
+    if model == 'client':
+        return '{}.{}'.format(db_name, Client._meta.db_table)
     
