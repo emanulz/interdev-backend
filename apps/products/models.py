@@ -406,7 +406,7 @@ class Product(models.Model):
 
     @classmethod
     def inventory_movement(self_cls, product_id, warehouse, mov_type, amount, user_string,
-        description, id_generator):
+                           description, id_generator):
         with transaction.atomic():
             #get product by its id
             product = self_cls.objects.select_for_update().get(id=product_id)
@@ -421,7 +421,7 @@ class Product(models.Model):
             product.save()
             new_prod_string = dump_object_json(product)
             Log.objects.create(**{
-                'code':'INVENTORY_MOVEMENT',
+                'code': 'INVENTORY_MOVEMENT',
                 'model': 'PRODUCT',
                 'prev_object': original_prod_string,
                 'new_object': new_prod_string,
@@ -430,7 +430,7 @@ class Product(models.Model):
             })
             #generate movement out of inventory
             return Inventory_Movement.simple_movement(mov_type, user_string, product, warehouse, 
-                                                description, id_generator, inv_change)
+                                                      description, id_generator, inv_change)
             
     @classmethod
     def warehouse_transfer(self_cls, pk, user_id, **kwargs):
