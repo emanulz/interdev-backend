@@ -4,10 +4,11 @@ from decimal import Decimal
 from django.db import models
 import uuid
 from itertools import chain
-from datetime import date, datetime
+from datetime import date
 from django.db import transaction
 from apps.consecutives.models import Consecutive
 from apps.utils.exceptions import TransactionError
+from django.core.exceptions import ObjectDoesNotExist
 
 
 def calculate_next_consecutive_OLD(self_cls):
@@ -20,27 +21,29 @@ def calculate_next_consecutive_OLD(self_cls):
         next_consecutive = 1
     return next_consecutive
 
+
 def calculate_next_consecutive(self_cls):
     with transaction.atomic():
         consecutive = None
         try:
             consecutive = Consecutive.objects.select_for_update().get(model_name=self_cls.__name__)
-        except self_cls.DoesNotExist as e:
+        except ObjectDoesNotExist as e:
             print(e)
             print(type(e))
-            start_point =  calculate_next_consecutive_OLD(self_cls)
+            start_point = calculate_next_consecutive_OLD(self_cls)
             Consecutive.objects.create(**{
                 'model_name': self_cls.__name__,
                 'consecutive': start_point
             })
             consecutive = Consecutive.objects.select_for_update().get(model_name=self_cls.__name__)
-        except Exception:
+        except Exception as e:
+            print('TROLLL')
+            print(type(e))
             raise TransactionError({'Consecutive Table':['El modelo {} no existe en la tabla de consecutivos'.format(self_cls.__name__)]})
         next_consecutive = consecutive.consecutive + 1
         consecutive.consecutive = next_consecutive
         consecutive.save()
         return next_consecutive
-
 
 
 def dump_object_json(target_object):

@@ -26,7 +26,6 @@ SECRET_KEY = 'pq0v9v3y@4dnny%jgrod5*_%snma=t(q6-h&@sf)+uptk54z82'
 DEBUG = True
 
 try:
-    print(os.environ)
     if os.environ["SERVER_NAME"] == "APP_SERVER":
         DEBUG = False
 except Exception as e:
