@@ -359,7 +359,6 @@ class Product(models.Model):
                 'new_object': dump_object_json(prod),
                 'user': dump_object_json(user)
             })
-            print("NEW ID --> {}".format(prod.id))
             return (prod, errors)
 
 

@@ -95,11 +95,11 @@ class SearchViewSet(viewsets.ViewSet):
         elif target_model == 'purchase':
             queryset = Purchase.objects.all()
             search_result = general_search(queryset, max_results, data)
-            return Response(data= SupplierSerializer(search_result, many=True).data, status=status.HTTP_200_OK)
+            return Response(data= PurchaseSerializer(search_result, many=True).data, status=status.HTTP_200_OK)
         elif target_model == 'client':
             queryset = Client.objects.all()
             search_result = general_search(queryset, max_results, data)
-            return Response(data= SupplierSerializer(search_result, many=True).data, status=status.HTTP_200_OK)
+            return Response(data= ClientSerializer(search_result, many=True).data, status=status.HTTP_200_OK)
         else:
             return Response(data="Search not supported on model : {}.".format(target_model), 
                 status=status.HTTP_400_BAD_REQUEST)
