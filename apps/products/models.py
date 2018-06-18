@@ -82,6 +82,8 @@ class Product(models.Model):
     taxes3 = models.DecimalField(max_digits=19, decimal_places=5, default=0, verbose_name='Impuesto3 %', blank=True, null=True)
     tax_code3 = models.CharField(max_length=2, default='00', verbose_name='Código impuesto 3', blank=True, null=True)
     pred_discount = models.FloatField(default=0, verbose_name='Descuento Predeterminado %', blank=True, null=True)
+    max_regular_discount = models.FloatField(default=10, verbose_name='Descuento Máximo regular %', blank=True,
+                                             null=True)
     max_sale_discount = models.FloatField(default=0, verbose_name='Descuento Máximo en liquidación %', blank=True,
                                           null=True)
     on_sale = models.BooleanField(default=False, verbose_name='En liquidación?', blank=True)

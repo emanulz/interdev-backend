@@ -26,7 +26,7 @@ class ProductSerializer(serializers.ModelSerializer):
                   'utility', 'price', 'ask_price', 'use_taxes', 'taxes',
                   'use_taxes2', 'taxes2', 'pred_discount', 'is_active', 'consignment', 'generic', 'image',
                   'observations', 'created', 'updated', 'max_sale_discount', 'on_sale', 'cost_based',
-                  'sell_price', 'inventory_existent')
+                  'sell_price', 'inventory_existent', 'max_regular_discount')
 
 
 class ProductDepartmentSerializer(serializers.ModelSerializer):

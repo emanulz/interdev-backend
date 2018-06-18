@@ -30,7 +30,7 @@ class ProductFilter(django_filters.FilterSet):
                   'internal_barcode', 'supplier_code', 'model', 'part_number', 'brand_code', 'inventory_enabled',
                   'inventory_minimum', 'inventory_maximum', 'inventory_negative', 'cost', 'utility', 'price', 'ask_price', 'use_taxes', 
                   'taxes', 'use_taxes2', 'taxes2', 'pred_discount', 'is_active', 'consignment', 'generic', 'max_sale_discount', 'on_sale', 'cost_based',
-                  'sell_price', 'inventory_existent')
+                  'sell_price', 'inventory_existent', 'max_regular_discount')
 
 
 class ProductDepartmentFilter(django_filters.FilterSet):
