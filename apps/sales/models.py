@@ -493,17 +493,18 @@ class Cash_Advance(models.Model):
         kwargs['user'] = user_string
         with transaction.atomic():
             cash_advance = self_cls.objects.get(id=kwargs['id'])
-            old_cash = dump_object_json(cash_advance)
+            
             #check if the object should be updated
             should_update = False
             if kwargs['description'] != cash_advance.description:
                 should_update = True
 
             new_amount = round(Decimal(kwargs['amount']), 5)
-            if new_amount != cash_advance:
+            if new_amount != cash_advance.amount:
                 should_update = True
             if not should_update:
                 return cash_advance #exit here without updating the object
+            old_cash = dump_object_json(cash_advance)
 
             cash_advance.amount = new_amount
             cash_advance.description = kwargs['description']
@@ -520,8 +521,6 @@ class Cash_Advance(models.Model):
 
     @classmethod
     def deleteInstance(self_cls, user_id, id):
-        print('DELETE')
-        print(id)
         user = User.objects.get(id=user_id)
         user_string = dump_object_json(user)
         with transaction.atomic():

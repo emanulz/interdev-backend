@@ -16,8 +16,6 @@ from apps.clients.models import Client
 from apps.sales.models import Cash_Advance
 
 
-
-
 class Work_Order(models.Model):
 
     id = models.UUIDField(default=uuid.uuid4, editable=False)
@@ -142,7 +140,9 @@ class Work_Order(models.Model):
         work_order = self_cls.objects.get(id=wo_id)
         #return the work order cash advances
         cash_advances = Cash_Advance.objects.filter(work_order_id__exact=work_order.id)
-        return (work_order, cash_advances)
+        labor_objects = Labor.objects.filter(work_order_id__exact=work_order.id)
+        used_objects = UsedPart.objects.filter(work_order_id__exact=work_order.id)
+        return (work_order, cash_advances, labor_objects, used_objects)
 
     @classmethod 
     def patch_workview(self_cls, pk, user_id, **kwargs):
@@ -150,15 +150,18 @@ class Work_Order(models.Model):
 
         work_order = self_cls.objects.get(id=pk)
         return_cash_advances = []
+        return_labor_objects = []
+        return_used_objects = []
 
         client = Client.objects.get(id=kwargs['client_id'])
         client_string = dump_object_json(client)
         user = User.objects.get(id=user_id)
-        data = json.loads(kwargs['cash_advance_list'])
+
+        cash_data = json.loads(kwargs['cash_advance_list'])
         #check if the request contains any cash advances
         cash_advances =  []
         try:
-            for advance in data:
+            for advance in cash_data:
                 cash_advances.append(advance['element'])
         except:
             pass
@@ -193,15 +196,95 @@ class Work_Order(models.Model):
                         })
                     )
 
-        #check if any cash advance exists in the database but not in the
-        #cash advance list, it was deleted
-        wo_ids_to_delete = json.loads(kwargs['cash_advances_to_delete'])
+        labor_data = json.loads(kwargs['labor_list'])
+        labor_objects = []
+        try:
+            for labor in labor_data:
+                labor_objects.append(labor['element'])
+        except:
+            pass
+        if labor_objects != None:
+            for labor in labor_objects:
+                labor_id = labor.get('id', None)
+                if labor_id == None:
+                    return_labor_objects.append(
+                        Labor.create(
+                            user.id,
+                            **{
+                                'work_order_id': pk,
+                                'employee': dump_object_json(user),
+                                'amount': round(Decimal(labor['amount']), 5),
+                                'description': labor['description']
+                            }
+                        )
+                    )
+                else:
+                    #patch existent
+                    print('Patch existent labor')
+                    return_labor_objects.append(
+                        Labor.patch(
+                            user.id,
+                            **{
+                                'id': labor['id'],
+                                'amount': labor['amount'],
+                                'description': labor['description']
+                            }
+                        )
+                    )
 
+        used_data = json.loads(kwargs['used_list'])
+        used_objects = []
+        try:
+            for used in used_data:
+                used_objects.append(used['element'])
+        except:
+            pass
+        
+        if used_objects != None:
+            for used in used_objects:
+                used_id = used.get('id', None)
+                if used_id == None:
+                    return_used_objects.append(
+                        UsedPart.create(
+                            user.id,
+                            **{
+                                'work_order_id': pk,
+                                'employee': dump_object_json(user),
+                                'amount': round(Decimal(used['amount']), 5),
+                                'description': used['description']
+                            }
+                        )
+                    )
+                else:
+                    print('Patch existent used part')
+                    return_used_objects.append(
+                        UsedPart.patch(
+                            user.id,
+                            **{
+                                'id': used['id'],
+                                'amount': used['amount'],
+                                'description': used['description']
+                            }
+                        )
+                    )
+  
+
+        wo_ids_to_delete = json.loads(kwargs['cash_advances_to_delete'])
         for wo_id in wo_ids_to_delete:
             Cash_Advance.deleteInstance(user_id, wo_id)
 
+        labor_ids_to_delete = json.loads(kwargs['labor_list_to_delete'])
+        for labor_id in labor_ids_to_delete:
+            Labor.deleteInstance(user_id, labor_id)
+        
+        used_ids_to_delete = json.loads(kwargs['used_list_to_delete'])
+        for used_id in used_ids_to_delete:
+            UsedPart.deleteInstance(user_id, used_id)
 
-        return (work_order, return_cash_advances)
+
+
+
+        return (work_order, return_cash_advances, return_labor_objects, return_used_objects)
 
 class Labor(models.Model):
 
@@ -220,7 +303,71 @@ class Labor(models.Model):
         verbose_name_plural = "Mano de Obra"
         ordering = ['work_order_id']
         permissions = (("list_labor", "Can list Labor"),)
+    
+    @classmethod
+    def create(self_cls, user_id, **kwargs):
+        user = User.objects.get(id=user_id)
+        user_string = dump_object_json(user)
 
+        with transaction.atomic():
+            labor = self_cls.objects.create(**kwargs)
+            Log.objects.create(**{
+                'code': 'LABOR_CREATED',
+                'model': 'LABOR',
+                'prev_object': '',
+                'new_object': dump_object_json(labor),
+                'user': user_string
+            })   
+            return labor
+    
+    @classmethod
+    def patch(self_cls, user_id, **kwargs):
+        user = User.objects.get(id=user_id)
+        user_string = dump_object_json(user)
+
+        with transaction.atomic():
+            labor = self_cls.objects.get(id=kwargs['id'])
+
+            should_update = False
+            if kwargs['description'] != labor.description:
+                should_update = True
+            new_amount = round(Decimal(kwargs['amount']), 5)
+            if new_amount != labor.amount:
+                should_update = True
+            
+            if not should_update:
+                return labor
+
+            old_labor = dump_object_json(labor)
+
+            labor.amount = new_amount
+            labor.description = kwargs['description']
+
+            labor.save()
+
+            Log.objects.create(**{
+                'code': 'LABOR_UPDATED',
+                'model': 'LABOR',
+                'prev_object': old_labor,
+                'new_object': dump_object_json(labor),
+                'user': user_string
+            })
+            return labor
+
+    @classmethod
+    def deleteInstance(self_cls, user_id, id):
+        user = User.objects.get(id=user_id)
+        user_string = dump_object_json(user) 
+        with transaction.atomic():
+            labor = self_cls.objects.get(id=id)
+            Log.objects.create(**{
+                'code': 'LABOR_DELETED',
+                'model': 'LABOR',
+                'prev_object': dump_object_json(labor),
+                'new_object': '',
+                'user': user_string
+            })
+            labor.delete() 
 
 
 class UsedPart(models.Model):
@@ -240,6 +387,72 @@ class UsedPart(models.Model):
         verbose_name_plural = "Repuestos Usados"
         ordering = ['work_order_id']
         permissions = (("list_used_part", "Can list Used Parts"),)
+
+    @classmethod
+    def create(self_cls, user_id, **kwargs):
+        user = User.objects.get(id=user_id)
+        user_string = dump_object_json(user)
+
+        with transaction.atomic():
+            used_part = self_cls.objects.create(**kwargs)
+            Log.objects.create(**{
+                'code': 'USED_PART_REQUEST_CREATED',
+                'model': 'USED_PART',
+                'prev_object': '',
+                'new_object': dump_object_json(used_part),
+                'user': user_string
+            })
+            return used_part
+    
+    @classmethod
+    def patch(self_cls, user_id, **kwargs):
+        user = User.objects.get(id=user_id)
+        user_string = dump_object_json(user)
+
+        with transaction.atomic():
+            used_part = self_cls.objects.get(id=kwargs['id'])
+            
+            should_update = False
+            if kwargs['description'] != used_part.description:
+                should_update = True
+            new_amount = round(Decimal(kwargs['amount']), 5)
+            if new_amount != used_part.amount:
+                print('SAME AMOUNT USED PART')
+                should_update = True
+            if not should_update:
+                return used_part
+
+            old_used_part = dump_object_json(used_part)
+
+            used_part.amount = new_amount
+            used_part.description = kwargs['description']
+
+            used_part.save()
+
+            Log.objects.create(**{
+                'code': 'USED_PART_REQUEST_UPDATED',
+                'model': 'USED_PART',
+                'prev_object': old_used_part,
+                'new_object': dump_object_json(used_part),
+                'user': user_string
+            })
+            return used_part
+
+
+    @classmethod
+    def deleteInstance(self_cls, user_id, id):
+        user = User.objects.get(id=user_id)
+        user_string = dump_object_json(user) 
+        with transaction.atomic():
+            used_part = self_cls.objects.get(id=id)
+            Log.objects.create(**{
+                'code': 'USED_PART_REQUEST_DELETED',
+                'model': 'USED_PART',
+                'prev_object': dump_object_json(used_part),
+                'new_object':'',
+                'user': user_string
+            })
+            used_part.delete()
 
 class PartRequest(models.Model):
 
