@@ -122,7 +122,7 @@ class Sale(models.Model):
             credit_balance = round((cart_total - total_payment), 5)
             if(credit_balance<0): credit_balance =Decimal(0)
             sale_type = "CASH"
-            if(cart_total>total_payment): sale_type="CRED"
+            if(cart_total>total_payment+Decimal("0.1")): sale_type="CRED"
 
             sale_kwargs = {
                 'consecutive': next_consecutive,
