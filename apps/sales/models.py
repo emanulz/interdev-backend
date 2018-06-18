@@ -473,6 +473,7 @@ class Cash_Advance(models.Model):
 
         user = User.objects.get(id=user_id)
         user_string = dump_object_json(user)
+        kwargs['user'] = user_string
         with transaction.atomic():
             kwargs['consecutive'] = calculate_next_consecutive(self_cls)
             cash_advance = self_cls.objects.create(**kwargs)
@@ -485,8 +486,58 @@ class Cash_Advance(models.Model):
             })
             return cash_advance
 
+    @classmethod
+    def patch(self_cls, user_id, **kwargs):
+        user = User.objects.get(id=user_id)
+        user_string = dump_object_json(user)
+        kwargs['user'] = user_string
+        with transaction.atomic():
+            cash_advance = self_cls.objects.get(id=kwargs['id'])
+            old_cash = dump_object_json(cash_advance)
+            #check if the object should be updated
+            should_update = False
+            if kwargs['description'] != cash_advance.description:
+                should_update = True
+
+            new_amount = round(Decimal(kwargs['amount']), 5)
+            if new_amount != cash_advance:
+                should_update = True
+            if not should_update:
+                return cash_advance #exit here without updating the object
+
+            cash_advance.amount = new_amount
+            cash_advance.description = kwargs['description']
+            cash_advance.save()
+            Log.objects.create(**{
+                'code': 'CASH_ADVANCE_UPDATED',
+                'model': 'CASH_ADVANCE',
+                'prev_object': old_cash,
+                'new_object': dump_object_json(cash_advance),
+                'user': user_string
+            })
+            return cash_advance
+
+
+    @classmethod
+    def deleteInstance(self_cls, user_id, id):
+        print('DELETE')
+        print(id)
+        user = User.objects.get(id=user_id)
+        user_string = dump_object_json(user)
+        with transaction.atomic():
+            cash_advance = self_cls.objects.get(id=id)
+            Log.objects.create(**{
+                'code': 'CASH_ADVANCE_DELETED',
+                'model': 'CASH_ADVANCE',
+                'prev_object': dump_object_json(cash_advance),
+                'new_object': '',
+                'user': user_string
+            })
+            cash_advance.delete()
+
+
     def __str__(self):
-        return '%s' % (self.advance_number)
+        return '%s' % (self.consecutive)
 
     class Meta:
         verbose_name = 'Adelanto de efectivo'

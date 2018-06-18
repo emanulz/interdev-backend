@@ -185,6 +185,21 @@ class Work_Order(models.Model):
                 else:
                     #patch existent key
                     print("Patch existent cash advance")
+                    return_cash_advances.append(
+                        Cash_Advance.patch(user_id, **{
+                            'id': cash['id'],
+                            'amount': cash['amount'],
+                            'description': cash['description']
+                        })
+                    )
+
+        #check if any cash advance exists in the database but not in the
+        #cash advance list, it was deleted
+        wo_ids_to_delete = json.loads(kwargs['cash_advances_to_delete'])
+
+        for wo_id in wo_ids_to_delete:
+            Cash_Advance.deleteInstance(user_id, wo_id)
+
 
         return (work_order, return_cash_advances)
 
