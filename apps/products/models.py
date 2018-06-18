@@ -264,7 +264,7 @@ class Product(models.Model):
                                 'inventory_minimum', 'inventory_maximum', 'inventory_negative', 'cost', 'cost_based', 'utility', 'price',
                                 'sell_price', 'ask_price', 'use_taxes', 'taxes', 'tax_code', 'use_taxes2', 'taxes2', 'tax_code2',
                                 'use_taxes3', 'taxes3', 'tax_code3', 'pred_discount', 'max_sale_discount', 'on_sale', 'is_active', 'consignment',
-                                'generic', 'observations')
+                                'generic', 'observations', 'max_regular_discount')
         patch_kwargs = {}
         errors = {}
         for field in patch_allowed_fields:
