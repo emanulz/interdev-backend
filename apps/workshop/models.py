@@ -13,6 +13,7 @@ from apps.utils.exceptions import TransactionError
 from django.db import transaction
 from django.contrib.auth.models import User
 from apps.clients.models import Client
+from apps.sales.models import Cash_Advance
 
 
 
@@ -134,8 +135,58 @@ class Work_Order(models.Model):
             })
 
             return wo
-        
     
+    @classmethod
+    def getWorkOrderAndRelated(self_cls, user_id, wo_id):
+
+        work_order = self_cls.objects.get(id=wo_id)
+        #return the work order cash advances
+        cash_advances = Cash_Advance.objects.filter(work_order_id__exact=work_order.id)
+        return (work_order, cash_advances)
+
+    @classmethod 
+    def patch_workview(self_cls, pk, user_id, **kwargs):
+        print('Patch workview route entry')
+
+        work_order = self_cls.objects.get(id=pk)
+        return_cash_advances = []
+
+        client = Client.objects.get(id=kwargs['client_id'])
+        client_string = dump_object_json(client)
+        user = User.objects.get(id=user_id)
+        data = json.loads(kwargs['cash_advance_list'])
+        #check if the request contains any cash advances
+        cash_advances =  []
+        try:
+            for advance in data:
+                cash_advances.append(advance['element'])
+        except:
+            pass
+
+        if cash_advances != None:
+            for cash in cash_advances:
+                #if the objects contains an id, it has to patch an existent advance
+                cash_id = cash.get('id', None)
+                if cash_id == None:
+                    #create a new instance
+                    return_cash_advances.append(
+                        Cash_Advance.create(
+                            user.id,
+                            **{
+                            'client': client_string,
+                            'client_id': client.id,
+                            'amount': round(Decimal(cash['amount']), 5),
+                            'description': cash['description'],
+                            'work_order_id': pk,
+                            'sale_id': ''
+                        })
+                    )
+                    
+                else:
+                    #patch existent key
+                    print("Patch existent cash advance")
+
+        return (work_order, return_cash_advances)
 
 class Labor(models.Model):
 
