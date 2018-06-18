@@ -6,7 +6,6 @@ import uuid
 from django.db import models
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
-from django.forms.models import model_to_dict
 from django.db import IntegrityError
 from django.db import transaction
 from django.db.models import Max, Sum
@@ -22,6 +21,8 @@ from apps.utils.exceptions import TransactionError
 from apps.utils.utils import calculate_next_consecutive, dump_object_json
 from apps.money_returns.models import Money_Return, Credit_Voucher
 from apps.presales.models import Presale
+
+
 
 from apps.utils.serializers import UserSerialiazer
 from decimal import Decimal, getcontext
@@ -454,7 +455,7 @@ class Return(models.Model):
 class Cash_Advance(models.Model):
 
     id = models.UUIDField(default=uuid.uuid4, editable=False)
-    consecutive = models.AutoField(primary_key=True, verbose_name='Número de factura', editable=False, unique=True)
+    consecutive = models.IntegerField(primary_key=True, verbose_name='Número de recibo', editable=False, unique=True)
     client = models.TextField(verbose_name='Objeto Cliente', default='')
     client_id = models.CharField(max_length=255, verbose_name='Id de Cliente', default='1')
     user = models.TextField(verbose_name='Objeto Usuario', default='')
@@ -466,6 +467,23 @@ class Cash_Advance(models.Model):
                                    verbose_name='Fecha de creación')
     updated = models.DateTimeField(auto_now=True, auto_now_add=False, blank=True, null=True,
                                    verbose_name='Fecha de modificación')
+
+    @classmethod
+    def create(self_cls, user_id, **kwargs):
+
+        user = User.objects.get(id=user_id)
+        user_string = dump_object_json(user)
+        with transaction.atomic():
+            kwargs['consecutive'] = calculate_next_consecutive(self_cls)
+            cash_advance = self_cls.objects.create(**kwargs)
+            Log.objects.create(**{
+                'code': 'CASH_ADVANCE_CREATED',
+                'model': 'CASH_ADVANCE',
+                'prev_object': '',
+                'new_object': dump_object_json(cash_advance),
+                'user': user_string
+            })
+            return cash_advance
 
     def __str__(self):
         return '%s' % (self.advance_number)
