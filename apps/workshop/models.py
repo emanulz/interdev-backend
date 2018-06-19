@@ -138,18 +138,23 @@ class Work_Order(models.Model):
 
             #create the cash advances as needed
             advance_amount = round(abs(Decimal(kwargs['cash_advance'])),5)
-            cash_advance = Cash_Advance.create(
-                user.id,
-                **{
-                    'client': client_string,
-                    'client_id': client.id,
-                    'amount': advance_amount,
-                    'description': 'Adelanto contra recepción orden de trabajo {}'.format(order_number),
-                    'work_order_id': wo.id,
-                    'sale_id': ''
-                }
-            )
-            return wo, [cash_advance]
+            return_advances = []
+            if advance_amount > 0:
+                return_advances.append(
+                    Cash_Advance.create(
+                        user.id,
+                        **{
+                            'client': client_string,
+                            'client_id': client.id,
+                            'amount': advance_amount,
+                            'description': 'Adelanto contra recepción orden de trabajo {}'.format(order_number),
+                            'work_order_id': wo.id,
+                            'sale_id': ''
+                        }
+                    )
+                )
+
+            return wo, return_advances
     
     @classmethod
     def getWorkOrderAndRelated(self_cls, user_id, wo_id):
@@ -192,17 +197,19 @@ class Work_Order(models.Model):
                 cash_id = cash.get('id', None)
                 if cash_id == None:
                     #create a new instance
-                    return_cash_advances.append(
-                        Cash_Advance.create(
-                            user.id,
-                            **{
-                            'client': client_string,
-                            'client_id': client.id,
-                            'amount': round(Decimal(cash['amount']), 5),
-                            'description': cash['description'],
-                            'work_order_id': pk,
-                            'sale_id': ''
-                        })
+                    advance_amount = round(Decimal(cash['amount']), 5)
+                    if advance_amount > 0 :
+                        return_cash_advances.append(
+                            Cash_Advance.create(
+                                user.id,
+                                **{
+                                'client': client_string,
+                                'client_id': client.id,
+                                'amount': advance_amount,
+                                'description': cash['description'],
+                                'work_order_id': pk,
+                                'sale_id': ''
+                            })
                     )
                     
                 else:
