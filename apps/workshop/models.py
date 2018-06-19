@@ -67,7 +67,7 @@ class Work_Order(models.Model):
         mandatory_props = ['client', 'article_type', 'article_brand', 'article_color',
             'malfunction_details', 'observations_list', 'is_warranty', 'warranty_number_bd']
 
-        optional_props = ['article_model', 'article_serial', 'article_data', 'related_work_order', 'warranty_reference', 'warranty_repaired_by']
+        optional_props = ['article_model', 'article_serial', 'article_data', 'related_work_order', 'warranty_reference']
 
         conditional_mandatory = ['warranty_invoice_date', 'warranty_supplier_name',
             'warranty_invoice_number']
@@ -111,7 +111,8 @@ class Work_Order(models.Model):
 
         new_kwargs['receiving_employee'] = user_string
         new_kwargs['technician'] = 'Técnico por Defecto'
- 
+
+        print("WORK ORDER CREATE CLIENT ID ", kwargs['client_id'])
         client_id = kwargs['client_id']
         client = Client.objects.get(id=client_id)
         client_string = dump_object_json(client)
@@ -135,7 +136,20 @@ class Work_Order(models.Model):
                 'user':user_string
             })
 
-            return wo
+            #create the cash advances as needed
+            advance_amount = round(abs(Decimal(kwargs['cash_advance'])),5)
+            cash_advance = Cash_Advance.create(
+                user.id,
+                **{
+                    'client': client_string,
+                    'client_id': client.id,
+                    'amount': advance_amount,
+                    'description': 'Adelanto contra recepción orden de trabajo {}'.format(order_number),
+                    'work_order_id': wo.id,
+                    'sale_id': ''
+                }
+            )
+            return wo, [cash_advance]
     
     @classmethod
     def getWorkOrderAndRelated(self_cls, user_id, wo_id):

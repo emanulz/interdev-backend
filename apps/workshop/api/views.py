@@ -24,15 +24,11 @@ class Work_OrderCreateViewSet(viewsets.ViewSet):
         req_data = request.data
         user_id = request.user.id
         try:
-            new_wo = Work_Order.create(user_id, **req_data)
-            serialized_cash = []
-            for cash in cash_advances:
-                serialized_cash.append(
-                    Cash_AdvanceSerializer(cash).data
-                )
+            new_wo, cash_advances = Work_Order.create(user_id, **req_data)
+
             return_data = {}
             return_data['work_order'] = Work_OrderSerializer(new_wo).data
-            return_data['cash_advances'] = serialized_cash
+            return_data['cash_advances'] = Cash_AdvanceSerializer(cash_advances, many=True).data
             return Response(data= return_data, status= status.HTTP_201_CREATED)
         except TransactionError as e:
             return Response(data=e.get_errors(), status=status.HTTP_400_BAD_REQUEST)
