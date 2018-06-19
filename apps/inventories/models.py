@@ -44,7 +44,7 @@ class Inventory_Movement(models.Model):
                                    verbose_name='Fecha de modificación')
 
     def __str__(self):
-        return self.consecutive
+        return str(self.consecutive)
 
     class Meta:
         verbose_name = 'Movimiento de Crédito'
@@ -124,6 +124,8 @@ class Inventory_Movement(models.Model):
                 id_generator = id_generator,
                 amount = amount
             )
+            print("HERE MOV")
+            print(mov)
             return mov
 
 

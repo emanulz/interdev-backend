@@ -377,6 +377,7 @@ class Product(models.Model):
         user = User.objects.get(id=user_id)
         user_string = UserSerialiazer(user).data
         description = None
+        id_generator = ''
         try:
             warehouse_id = kwargs['warehouse_id']
             warehouse = Warehouse.objects.get(id=warehouse_id)
@@ -395,6 +396,10 @@ class Product(models.Model):
             description = kwargs['description']
         except KeyError:
             raise TransactionError({'description':['No description was sent for the inventory movement']})
+        try:
+            id_generator = kwargs['id_generator']
+        except KeyError:
+            pass
         return self_cls.inventory_movement(
             product_id,
             warehouse,
@@ -402,7 +407,7 @@ class Product(models.Model):
             amount,
             user_string,
             description,
-            ''
+            id_generator
         )
 
     @classmethod

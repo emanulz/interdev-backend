@@ -16,6 +16,7 @@ from apps.clients.models import Client
 from apps.sales.models import Cash_Advance
 from apps.products.models import Product
 from django.core.exceptions import ObjectDoesNotExist
+from apps.inventories.models import Inventory_Movement
 
 
 class Work_Order(models.Model):
@@ -160,6 +161,7 @@ class Work_Order(models.Model):
         client = Client.objects.get(id=kwargs['client_id'])
         client_string = dump_object_json(client)
         user = User.objects.get(id=user_id)
+        user_string = dump_object_json(user)
 
         cash_data = json.loads(kwargs['cash_advance_list'])
         #check if the request contains any cash advances
@@ -191,7 +193,6 @@ class Work_Order(models.Model):
                     
                 else:
                     #patch existent key
-                    print("Patch existent cash advance")
                     return_cash_advances.append(
                         Cash_Advance.patch(user_id, **{
                             'id': cash['id'],
@@ -252,7 +253,7 @@ class Work_Order(models.Model):
                             user.id,
                             **{
                                 'work_order_id': pk,
-                                'employee': dump_object_json(user),
+                                'employee': user_string,
                                 'amount': round(Decimal(used['amount']), 5),
                                 'description': used['description']
                             }
@@ -293,7 +294,7 @@ class Work_Order(models.Model):
                             user_id,
                             **{
                                 'work_order_id': pk,
-                                'employee': dump_object_json(user),
+                                'employee': user_string,
                                 'product_id': req['element']['id'],
                                 'amount': req['qty'],
                                 'destination_warehouse_id': workshop_warehouse_id,
@@ -329,8 +330,69 @@ class Work_Order(models.Model):
                 }
             )
 
+        #check if the work order must be closed and do so 
+        should_close = kwargs['close_order']
+        if should_close:
+            old_wo_string = dump_object_json(work_order)
+            work_order.is_closed = True
+            work_order.save()
+            Log.objects.create(**{
+                'code': 'WORK_ORDER_CLOSED',
+                'model': 'WORK_ORDER',
+                'prev_object': old_wo_string,
+                'new_object': dump_object_json(work_order),
+                'user': user_string
+            })
+
 
         return (work_order, return_cash_advances, return_labor_objects, return_used_objects, return_part_requests)
+
+    @classmethod
+    def setPaidAndDischargeInventory(self_cls, pk, user_id):
+        print("Setting as paid and substracting inventory")
+        user = User.objects.get(id=user_id)
+        user_string = dump_object_json(user)
+
+        wo = self_cls.objects.get(id=pk)
+        if wo.paid:
+            raise TransactionError({'Pagar Orden': ["Se intento pagar una orden de trabajo ya cancelada."]})
+        old_wo_string = dump_object_json(wo)
+
+        #do the inventory transfer for all Part requests with amount larger than zero
+        part_requests = PartRequest.objects.filter(work_order_id__exact=wo.id).filter(amount__gt=Decimal('0'))
+
+        for request in part_requests:
+            product_request = json.loads(request.product)
+            #grrr load the movement just to get the warehouse id
+            warehouse_mov = Inventory_Movement.objects.get(id=request.id_movement_workshop)
+            print("GOSH --> ")
+            print(warehouse_mov)
+            kwargs_warehouse_mov = {
+                'warehouse_id': warehouse_mov.warehouse_id,
+                'mov_type': 'OUTPUT',
+                'amount': request.amount,
+                'description': 'Movimiento por Orden de trabajo {}'.format(request.work_order_id),
+                'id_generator': 'wo_{}'.format(request.work_order_id)
+            }
+
+            Product.warehouse_movement(
+                product_request['id'],
+                user_id,
+                **kwargs_warehouse_mov
+            )
+
+
+        wo.is_closed = True
+        wo.save()
+        Log.objects.create(**{
+            'code': 'WORK_ORDER_PAYED',
+            'model': 'WORk_ORDER',
+            'prev_object': old_wo_string,
+            'new_object': dump_object_json(wo),
+            'user': user_string
+        })
+
+        return wo
 
 class Labor(models.Model):
 
