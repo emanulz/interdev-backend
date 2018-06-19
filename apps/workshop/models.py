@@ -15,6 +15,7 @@ from django.contrib.auth.models import User
 from apps.clients.models import Client
 from apps.sales.models import Cash_Advance
 from apps.products.models import Product
+from django.core.exceptions import ObjectDoesNotExist
 
 
 class Work_Order(models.Model):
@@ -143,7 +144,7 @@ class Work_Order(models.Model):
         cash_advances = Cash_Advance.objects.filter(work_order_id__exact=work_order.id)
         labor_objects = Labor.objects.filter(work_order_id__exact=work_order.id)
         used_objects = UsedPart.objects.filter(work_order_id__exact=work_order.id)
-        part_requests = PartRequest.objects.filter(work_order_id__exact=work_order.id).filter(amount__gte=Decimal('0'))
+        part_requests = PartRequest.objects.filter(work_order_id__exact=work_order.id).filter(amount__gt=Decimal('0'))
 
         return (work_order, cash_advances, labor_objects, used_objects, part_requests)
 
@@ -277,9 +278,16 @@ class Work_Order(models.Model):
 
         if parts_request_data != None:
             for req in parts_request_data:
-                req_id = req.get('id', None)
-                if req_id == None:
+                req_id = req.get('uuid', None)
+                is_old_req = None
+                try:
+                    is_old_req = PartRequest.objects.get(id=req_id)
+                    return_part_requests.append(is_old_req)
+                    continue
+                except ObjectDoesNotExist:
                     pass
+
+                if is_old_req == None:
                     return_part_requests.append(
                         PartRequest.create(
                             user_id,
@@ -293,8 +301,9 @@ class Work_Order(models.Model):
                             }
                         )
                     )
-                    
 
+                #the part requests are not editable, they involve undoing inventory movements
+                #so it is a big chance to break stuff
 
         wo_ids_to_delete = json.loads(kwargs['cash_advances_to_delete'])
         for wo_id in wo_ids_to_delete:
@@ -310,9 +319,15 @@ class Work_Order(models.Model):
 
         parts_request_to_delete = json.loads(kwargs['parts_request_to_delete'])
         for part_req_id in parts_request_to_delete:
-            pass
-
-
+            PartRequest.nullInstance(
+                user_id,
+                part_req_id,
+                **{
+                    'destination_warehouse_id': main_warhouse_id,
+                    'origin_warehouse_id': workshop_warehouse_id,
+                    'work_order_id': pk
+                }
+            )
 
 
         return (work_order, return_cash_advances, return_labor_objects, return_used_objects, return_part_requests)
@@ -547,15 +562,47 @@ class PartRequest(models.Model):
             })
             return part_request
 
+    
     @classmethod
-    def patch(self_cls, user_id, **kwargs):
+    def nullInstance(self_cls, user_id, id, **kwargs):
+        '''
+        The Part request is linked to inventory transactions so it should not be deleted,
+        when retrieving part requests, the filter looks for amounts larger than 0, to null
+        a part request, set its amount to zero and do a reverse warehouse transfer.
+        '''
         user = User.objects.get(id=user_id)
-        user_string = dump_object_json(user)
-
+        user_string = dump_object_json(user) 
         with transaction.atomic():
-            part_request = self_cls.objects.get(id=kwargs['id'])
+            try:
+                part_request = self_cls.objects.get(id=id)
+            except ObjectDoesNotExist:
+                print("Suspicious")
+                return
+            original_request_string = dump_object_json(part_request)
+            request_product = json.loads(part_request.product)
+            #do the reverse inventory transaction
+            transfer_kwargs = {
+                'amount':part_request.amount,
+                'destination_warehouse_id': kwargs['destination_warehouse_id'],
+                'origin_warehouse_id': kwargs['origin_warehouse_id'],
+                'description': 'Requisición de parte anulada para orden de trabajo {}'.format(kwargs['work_order_id']),
+                'generator': 'wo_{}'.format(part_request.work_order_id)
+            }
 
-            should_update = False
-            if kwargs['description'] != labor.description:
-                should_update = True
+            Product.warehouse_transfer(request_product['id'], user_id, **transfer_kwargs)
+
+            part_request.amount = Decimal("0")
+            part_request.save()
+            updated_request_string = dump_object_json(part_request)
+
+            Log.objects.create(**{
+                'code': 'PART_REQUEST_VOIDED',
+                'model': 'PART_REQUEST',
+                'prev_object': original_request_string,
+                'new_object': dump_object_json(part_request),
+                'user': user_string
+            })
+
+
+
             
