@@ -172,6 +172,9 @@ class Work_Order(models.Model):
     def patch_workview(self_cls, pk, user_id, **kwargs):
 
         work_order = self_cls.objects.get(id=pk)
+        if work_order.is_closed:
+            raise TransactionError({'Orden de Trabajo': ['La orden ya se encuentra cerrada, no se puede modificar.']})
+
         return_cash_advances = []
         return_labor_objects = []
         return_used_objects = []
