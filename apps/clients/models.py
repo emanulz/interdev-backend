@@ -51,7 +51,6 @@ class Client(models.Model):
     category_code = models.CharField(max_length=255, null=True, blank=True, verbose_name='Categoría Cliente')
     pred_discount = models.FloatField(verbose_name='Descuento Predeterminado', default=0)
     max_discount = models.FloatField(verbose_name='Descuento Máximo', default=0)
-    max_line_discount = models.FloatField(verbose_name='Descuento Máximo por línea', default=0)
 
     pays_taxes = models.BooleanField(default=True, verbose_name='Paga Impuestos?')
 
