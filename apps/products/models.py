@@ -496,7 +496,7 @@ class Product(models.Model):
         try:
             description = data['description']
         except KeyError:
-            errs['description'] = 'Description data not sent'
+            errs['C'] = 'Description data not sent'
         try:
             generator = data['generator']
         except KeyError:

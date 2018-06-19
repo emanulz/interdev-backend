@@ -68,6 +68,7 @@ class Inventory_Movement(models.Model):
           
 
         #create movement on origin warehouse, as an exit
+        next_consec = calculate_next_consecutive(self_cls)
         origin_mov = self_cls.objects.create(
             consecutive = next_consec,
             movement_type = 'OUTPUT',

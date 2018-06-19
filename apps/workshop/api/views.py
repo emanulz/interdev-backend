@@ -33,8 +33,6 @@ class Work_OrderCreateViewSet(viewsets.ViewSet):
             return_data = {}
             return_data['work_order'] = Work_OrderSerializer(new_wo).data
             return_data['cash_advances'] = serialized_cash
-            print("Return data sever side")
-            print(return_data)
             return Response(data= return_data, status= status.HTTP_201_CREATED)
         except TransactionError as e:
             return Response(data=e.get_errors(), status=status.HTTP_400_BAD_REQUEST)
@@ -47,7 +45,7 @@ class Work_OrderCreateViewSet(viewsets.ViewSet):
         req_data = request.data
         user_id = request.user.id
         try:
-            new_wo, cash_advances, labor, used = Work_Order.patch_workview(pk, user_id, **req_data)
+            new_wo, cash_advances, labor, used, part_request = Work_Order.patch_workview(pk, user_id, **req_data)
             serialized_cash = []
             for cash in cash_advances:
                 serialized_cash.append(
@@ -58,6 +56,7 @@ class Work_OrderCreateViewSet(viewsets.ViewSet):
             return_data['cash_advances'] = serialized_cash
             return_data['labor_objects'] = LaborSerializer(labor, many=True).data
             return_data['used_objects'] = UsedPartSerializer(used, many=True).data
+            return_data['part_requests'] = PartRequestSerializer(part_request, many=True).data
 
             return Response(data= return_data, status= status.HTTP_201_CREATED)
         except TransactionError as e:
@@ -74,12 +73,13 @@ class Work_OrderViewSet(viewsets.ReadOnlyModelViewSet):
         user_id = request.user.id
 
         try:
-            wo, cash_advance, labor, used = Work_Order.getWorkOrderAndRelated(user_id, kwargs["id"])
+            wo, cash_advance, labor, used, part_request = Work_Order.getWorkOrderAndRelated(user_id, kwargs["id"])
             return_data = {}
             return_data['work_order'] = Work_OrderSerializer(wo).data
             return_data['cash_advances'] = Cash_AdvanceSerializer(cash_advance, many=True).data
             return_data['labor_objects'] = LaborSerializer(labor, many=True).data
             return_data['used_objects'] = UsedPartSerializer(used, many=True).data
+            return_data['part_requests'] = PartRequestSerializer(part_request, many=True).data
             return Response(data=return_data, status=status.HTTP_200_OK)
         except TransactionError as e:
             return Response(data=e.get_errors(), status=status.HTTP_400_BAD_REQUEST)

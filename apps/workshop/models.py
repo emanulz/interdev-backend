@@ -14,6 +14,7 @@ from django.db import transaction
 from django.contrib.auth.models import User
 from apps.clients.models import Client
 from apps.sales.models import Cash_Advance
+from apps.products.models import Product
 
 
 class Work_Order(models.Model):
@@ -142,16 +143,18 @@ class Work_Order(models.Model):
         cash_advances = Cash_Advance.objects.filter(work_order_id__exact=work_order.id)
         labor_objects = Labor.objects.filter(work_order_id__exact=work_order.id)
         used_objects = UsedPart.objects.filter(work_order_id__exact=work_order.id)
-        return (work_order, cash_advances, labor_objects, used_objects)
+        part_requests = PartRequest.objects.filter(work_order_id__exact=work_order.id).filter(amount__gte=Decimal('0'))
+
+        return (work_order, cash_advances, labor_objects, used_objects, part_requests)
 
     @classmethod 
     def patch_workview(self_cls, pk, user_id, **kwargs):
-        print('Patch workview route entry')
 
         work_order = self_cls.objects.get(id=pk)
         return_cash_advances = []
         return_labor_objects = []
         return_used_objects = []
+        return_part_requests = []
 
         client = Client.objects.get(id=kwargs['client_id'])
         client_string = dump_object_json(client)
@@ -220,7 +223,6 @@ class Work_Order(models.Model):
                     )
                 else:
                     #patch existent
-                    print('Patch existent labor')
                     return_labor_objects.append(
                         Labor.patch(
                             user.id,
@@ -256,7 +258,6 @@ class Work_Order(models.Model):
                         )
                     )
                 else:
-                    print('Patch existent used part')
                     return_used_objects.append(
                         UsedPart.patch(
                             user.id,
@@ -268,6 +269,32 @@ class Work_Order(models.Model):
                         )
                     )
   
+
+        parts_request_data = json.loads(kwargs['parts_request_list'])
+
+        main_warhouse_id = kwargs['main_warehouse_id']
+        workshop_warehouse_id = kwargs['workshop_warehouse_id']
+
+        if parts_request_data != None:
+            for req in parts_request_data:
+                req_id = req.get('id', None)
+                if req_id == None:
+                    pass
+                    return_part_requests.append(
+                        PartRequest.create(
+                            user_id,
+                            **{
+                                'work_order_id': pk,
+                                'employee': dump_object_json(user),
+                                'product_id': req['element']['id'],
+                                'amount': req['qty'],
+                                'destination_warehouse_id': workshop_warehouse_id,
+                                'origin_warehouse_id': main_warhouse_id,
+                            }
+                        )
+                    )
+                    
+
 
         wo_ids_to_delete = json.loads(kwargs['cash_advances_to_delete'])
         for wo_id in wo_ids_to_delete:
@@ -281,10 +308,14 @@ class Work_Order(models.Model):
         for used_id in used_ids_to_delete:
             UsedPart.deleteInstance(user_id, used_id)
 
+        parts_request_to_delete = json.loads(kwargs['parts_request_to_delete'])
+        for part_req_id in parts_request_to_delete:
+            pass
 
 
 
-        return (work_order, return_cash_advances, return_labor_objects, return_used_objects)
+
+        return (work_order, return_cash_advances, return_labor_objects, return_used_objects, return_part_requests)
 
 class Labor(models.Model):
 
@@ -475,3 +506,56 @@ class PartRequest(models.Model):
         verbose_name_plural = "Traslados de Repuesto"
         ordering = ['work_order_id']
         permissions = (("list_part_request", "Can list Parts request"),)
+
+    
+    @classmethod
+    def create(self_cls, user_id, **kwargs):
+        user = User.objects.get(id=user_id)
+        user_string = dump_object_json(user)
+        with transaction.atomic():
+
+            #create the inventory transfer from the main warehouse to the workshop warehouse
+            prod = Product.objects.get(id=kwargs['product_id'])
+            prod_string = dump_object_json(prod)
+            #do the warehouse transfer
+            transfer_kwargs = {
+                'amount': kwargs['amount'],
+                'destination_warehouse_id': kwargs['destination_warehouse_id'],
+                'origin_warehouse_id': kwargs['origin_warehouse_id'],
+                'description': 'Transferencia a Bodega de taller por orden {}'.format(kwargs["work_order_id"]),
+                'generator': 'wo_{}'.format(kwargs["work_order_id"])
+            }
+            prod, origin, destination = Product.warehouse_transfer(prod.id, user_id, **transfer_kwargs)
+
+            parts_request_kwargs = {
+                'work_order_id': kwargs['work_order_id'],
+                'employee': kwargs['employee'],
+                'amount': kwargs['amount'],
+                'product': prod_string,
+                'id_movement_origin': origin.id,
+                'id_movement_workshop': destination.id
+            }
+
+            part_request = self_cls.objects.create(**parts_request_kwargs)
+            
+            Log.objects.create(**{
+                'code': 'PART_REQUEST_CREATED',
+                'model': 'LABOR',
+                'prev_object': '',
+                'new_object': dump_object_json(part_request),
+                'user': user_string
+            })
+            return part_request
+
+    @classmethod
+    def patch(self_cls, user_id, **kwargs):
+        user = User.objects.get(id=user_id)
+        user_string = dump_object_json(user)
+
+        with transaction.atomic():
+            part_request = self_cls.objects.get(id=kwargs['id'])
+
+            should_update = False
+            if kwargs['description'] != labor.description:
+                should_update = True
+            
