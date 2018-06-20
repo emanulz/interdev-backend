@@ -116,7 +116,14 @@ class CompanyEmail(StringPreference):
 
 
 @global_preferences_registry.register
-class CompanyEmail(StringPreference):
+class SalesWarehouse(StringPreference):
     section = inventory
     name = 'sales_warehouse'
     default = ''
+
+@global_preferences_registry.register
+class WorkshopWarehouse(StringPreference):
+    section = inventory
+    name = 'workshop_warehouse'
+    default = ''
+
