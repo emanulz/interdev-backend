@@ -367,7 +367,6 @@ class Purchase(models.Model):
 
             if apply:
                 if purchase.purchase_type == "CRED":
-                    print('Doing credit stuff')
                     #apply credit movement on supplier
                     supplier_credit_kwargs = {
                         'supplier_id': supplier.id,
@@ -408,6 +407,12 @@ class Purchase(models.Model):
                     amount = item['qty']
                     Product.inventory_movement(prod['id'], warehouse, 'INPUT', amount,
                         user_string, individual_mov_desc, id_generator)
+                    #update poduct price
+                    Product.update_product_price(prod['id'], user.id, **{
+                        'target_utility': item['target_utility'],
+                        'subtotal': item['subtotal'],
+                        'quantity': item['qty']
+                    })
 
             return purchase
             
