@@ -82,7 +82,7 @@ class Product(models.Model):
     taxes3 = models.DecimalField(max_digits=19, decimal_places=5, default=0, verbose_name='Impuesto3 %', blank=True, null=True)
     tax_code3 = models.CharField(max_length=2, default='00', verbose_name='Código impuesto 3', blank=True, null=True)
     pred_discount = models.FloatField(default=0, verbose_name='Descuento Predeterminado %', blank=True, null=True)
-    max_regular_discount = models.FloatField(default=10, verbose_name='Descuento Máximo regular %', blank=True,
+    max_regular_discount = models.FloatField(default=5, verbose_name='Descuento Máximo regular %', blank=True,
                                              null=True)
     max_sale_discount = models.FloatField(default=0, verbose_name='Descuento Máximo en liquidación %', blank=True,
                                           null=True)
@@ -300,7 +300,7 @@ class Product(models.Model):
         with transaction.atomic():
             errors = {}
             create_data = {}
-            self_cls.get_create_key(kwargs,create_data, 'code', errors)
+            self_cls.get_create_key(kwargs, create_data, 'code', errors)
             self_cls.get_create_key(kwargs, create_data, 'description', errors)
             self_cls.get_create_key(kwargs, create_data, 'short_description', errors, True)
             self_cls.get_create_key(kwargs, create_data, 'unit', errors)
