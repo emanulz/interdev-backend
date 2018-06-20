@@ -124,8 +124,6 @@ class Inventory_Movement(models.Model):
                 id_generator = id_generator,
                 amount = amount
             )
-            print("HERE MOV")
-            print(mov)
             return mov
 
 
