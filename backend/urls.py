@@ -2,7 +2,7 @@ from django.conf.urls import url
 from django.contrib.auth import views as auth_views
 from django.conf import settings
 from django.contrib import admin
-from django.urls import path
+# from django.urls import path
 from django.conf.urls import include
 from django.conf.urls.static import static
 from apps.profiles.views import profile_get, getUserByCode
@@ -15,7 +15,7 @@ from apps.administration.views import adminPage
 urlpatterns = [
     # UTILS
     url(r'^jet/', include('jet.urls', 'jet')),  # Django JET URLS
-    path('globaladmin/', admin.site.urls),
+    url(r'^globaladmin/', admin.site.urls),
     url(r'^profile/', profile_get),
     url(r'^getuserbycode/', getUserByCode),
 
