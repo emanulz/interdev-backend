@@ -178,6 +178,7 @@ class ClientCategory(models.Model):
     code = models.CharField(max_length=10, null=True, verbose_name='Código', unique=True)
     name = models.CharField(max_length=255, verbose_name='Nombre')
     discount = models.FloatField(verbose_name='Descuento de la categoria', default=0)
+    observations = models.TextField(null=True, blank=True, verbose_name='Observaciones')
 
     def __str__(self):
         return '%s - %s' % (self.code, self.name)

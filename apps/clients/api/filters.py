@@ -16,4 +16,4 @@ class ClientCategoryFilter(django_filters.FilterSet):
 
     class Meta:
         model = ClientCategory
-        fields = ('id', 'code', 'name', 'discount')
+        fields = '__all__'
