@@ -35,6 +35,15 @@ class Work_OrderCreateViewSet(viewsets.ViewSet):
         # except Exception as e:
         #     return Response(data=str(e), status=status.HTTP_400_BAD_REQUEST)
     
+    @detail_route(methods=('patch',))
+    def patch_workorder(self, request, pk):
+        req_data = request.data
+        user_id = request.user.id
+        try:
+            work_order = Work_Order.patch_work_order(pk, user_id, **req_data)
+            return Response(data= Work_OrderSerializer(work_order).data, status=status.HTTP_200_OK)
+        except TransactionError as e:
+            return Response(data=e.get_errors(), status=status.HTTP_400_BAD_REQUEST)
 
     @detail_route(methods=('post',))
     def patch_workview(self, request, pk):

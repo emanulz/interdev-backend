@@ -126,4 +126,8 @@ class WorkshopWarehouse(StringPreference):
     section = inventory
     name = 'workshop_warehouse'
     default = ''
-
+@global_preferences_registry.register
+class BlackDeckerWarehouse(StringPreference):
+    section = inventory
+    name = 'blackdecker_warehouse'
+    default = ''

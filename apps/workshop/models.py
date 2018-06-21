@@ -87,7 +87,7 @@ class Work_Order(models.Model):
                     new_kwargs[prop] = kwargs[prop]
                 except KeyError:
                     if is_mandatory:
-                        errors[prop] = 'La propiedad no se encuentra en los parámetrosde creación de la orden de trabajo'
+                        errors[prop] = 'La propiedad no se encuentra en los parámetros de creación de la orden de trabajo'
                     else:
                         if prop == 'warranty_invoice_date' or prop == 'warranty_repaired_by':
                             new_kwargs[prop] = None
@@ -100,7 +100,7 @@ class Work_Order(models.Model):
             raise TransactionError(errors)
         return new_kwargs
     
-
+    
     @classmethod
     def create(self_cls, user_id, **kwargs):
         '''Creates a new work order'''
@@ -112,7 +112,6 @@ class Work_Order(models.Model):
         new_kwargs['receiving_employee'] = user_string
         new_kwargs['technician'] = 'Técnico por Defecto'
 
-        print("WORK ORDER CREATE CLIENT ID ", kwargs['client_id'])
         client_id = kwargs['client_id']
         client = Client.objects.get(id=client_id)
         client_string = dump_object_json(client)
@@ -167,6 +166,33 @@ class Work_Order(models.Model):
         part_requests = PartRequest.objects.filter(work_order_id__exact=work_order.id).filter(amount__gt=Decimal('0'))
 
         return (work_order, cash_advances, labor_objects, used_objects, part_requests)
+
+    @classmethod
+    def patch_work_order(self_cls, pk, user_id, **kwargs):
+        user = User.objects.get(id=user_id)
+        wo = self_cls.objects.get(id=pk)
+        wo_original_string = dump_object_json(wo)
+        patch_kwargs = self_cls.check_create_kwargs(kwargs)
+
+        client_id = kwargs['client_id']
+        client = Client.objects.get(id=client_id)
+        client_string = dump_object_json(client)
+        patch_kwargs['client'] =  client_string
+
+        for key in patch_kwargs.keys():
+            setattr(wo, key, patch_kwargs[key])
+        wo.save()
+        wo_updated_string = dump_object_json(wo)
+        
+        Log.objects.create(**{
+            'code': 'WORK_ORDER_UPDATE',
+            'model': 'WORK_ORDER',
+            'prev_object': wo_original_string,
+            'new_object': dump_object_json(wo),
+            'user': dump_object_json(user)
+        })
+
+        return wo
 
     @classmethod 
     def patch_workview(self_cls, pk, user_id, **kwargs):
@@ -300,6 +326,7 @@ class Work_Order(models.Model):
 
         main_warhouse_id = kwargs['main_warehouse_id']
         workshop_warehouse_id = kwargs['workshop_warehouse_id']
+        black_decker_warehouse = kwargs['black_decker_warehouse']
 
         if parts_request_data != None:
             for req in parts_request_data:
@@ -311,6 +338,9 @@ class Work_Order(models.Model):
                     continue
                 except ObjectDoesNotExist:
                     pass
+                destination_warehouse = workshop_warehouse_id
+                if work_order.warranty_number_bd != None and work_order.warranty_number_bd != '':
+                    destination_warehouse = black_decker_warehouse
 
                 if is_old_req == None:
                     return_part_requests.append(
@@ -321,7 +351,7 @@ class Work_Order(models.Model):
                                 'employee': user_string,
                                 'product_id': req['element']['id'],
                                 'amount': req['qty'],
-                                'destination_warehouse_id': workshop_warehouse_id,
+                                'destination_warehouse_id': destination_warehouse,
                                 'origin_warehouse_id': main_warhouse_id,
                             }
                         )
@@ -343,13 +373,16 @@ class Work_Order(models.Model):
             UsedPart.deleteInstance(user_id, used_id)
 
         parts_request_to_delete = json.loads(kwargs['parts_request_to_delete'])
+        origin_warehouse = workshop_warehouse_id
+        if work_order.warranty_number_bd != None and work_order.warranty_number_bd != '':
+            origin_warehouse = black_decker_warehouse
         for part_req_id in parts_request_to_delete:
             PartRequest.nullInstance(
                 user_id,
                 part_req_id,
                 **{
                     'destination_warehouse_id': main_warhouse_id,
-                    'origin_warehouse_id': workshop_warehouse_id,
+                    'origin_warehouse_id': origin_warehouse,
                     'work_order_id': pk
                 }
             )
