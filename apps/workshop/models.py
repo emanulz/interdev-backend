@@ -326,6 +326,7 @@ class Work_Order(models.Model):
 
         main_warhouse_id = kwargs['main_warehouse_id']
         workshop_warehouse_id = kwargs['workshop_warehouse_id']
+        black_decker_warehouse = kwargs['black_decker_warehouse']
 
         if parts_request_data != None:
             for req in parts_request_data:
@@ -337,6 +338,9 @@ class Work_Order(models.Model):
                     continue
                 except ObjectDoesNotExist:
                     pass
+                destination_warehouse = workshop_warehouse_id
+                if work_order.warranty_number_bd != None and work_order.warranty_number_bd != '':
+                    destination_warehouse = black_decker_warehouse
 
                 if is_old_req == None:
                     return_part_requests.append(
@@ -347,7 +351,7 @@ class Work_Order(models.Model):
                                 'employee': user_string,
                                 'product_id': req['element']['id'],
                                 'amount': req['qty'],
-                                'destination_warehouse_id': workshop_warehouse_id,
+                                'destination_warehouse_id': destination_warehouse,
                                 'origin_warehouse_id': main_warhouse_id,
                             }
                         )
@@ -369,13 +373,16 @@ class Work_Order(models.Model):
             UsedPart.deleteInstance(user_id, used_id)
 
         parts_request_to_delete = json.loads(kwargs['parts_request_to_delete'])
+        origin_warehouse = workshop_warehouse_id
+        if work_order.warranty_number_bd != None and work_order.warranty_number_bd != '':
+            origin_warehouse = black_decker_warehouse
         for part_req_id in parts_request_to_delete:
             PartRequest.nullInstance(
                 user_id,
                 part_req_id,
                 **{
                     'destination_warehouse_id': main_warhouse_id,
-                    'origin_warehouse_id': workshop_warehouse_id,
+                    'origin_warehouse_id': origin_warehouse,
                     'work_order_id': pk
                 }
             )
