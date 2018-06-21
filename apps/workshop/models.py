@@ -460,7 +460,11 @@ class PartRequestGroup(models.Model):
     id = models.UUIDField(default=uuid.uuid4, editable=False)
     consecutive = models.IntegerField(primary_key=True, verbose_name="Número de orden", editable=False)
     work_order_id = models.CharField(verbose_name="ID Orden de Trabajo", max_length=80, default='')
-    
+    user = models.TextField(verbose_name="Objeto usuario", default='')
+    created = models.DateTimeField(auto_now=False, auto_now_add=True, blank=True, null=True,
+                                   verbose_name='Fecha de creación')
+    updated = models.DateTimeField(auto_now=True, auto_now_add=False, blank=True, null=True,
+                                   verbose_name='Fecha de modificación')
     class Meta:
         verbose_name = "Grupo de Requisición"
         verbose_name_plural = "Grupos de Requisción"
@@ -473,7 +477,9 @@ class PartRequestGroup(models.Model):
 
         with transaction.atomic():
             next_consecutive = calculate_next_consecutive(self_cls)
-            pr_group = self_cls.objects.create(**{'consecutive':next_consecutive, 'work_order_id': work_order_id})
+            pr_group = self_cls.objects.create(**{'consecutive':next_consecutive, 
+                                                  'work_order_id': work_order_id,
+                                                  'user': user_string  })
             Log.objects.create(**{
                 'code': 'PART_REQUEST_GROUP_CREATED',
                 'model': 'PART_REQUEST_GROUP',
