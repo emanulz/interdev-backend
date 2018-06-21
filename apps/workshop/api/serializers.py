@@ -1,6 +1,11 @@
 from rest_framework import serializers
-from ..models import Work_Order, Labor, UsedPart, PartRequest
+from ..models import Work_Order, Labor, UsedPart, PartRequest, PartRequestGroup
 
+class PartRequestGroupSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = PartRequestGroup
+        fields = '__all__'
 
 class Work_OrderSerializer(serializers.ModelSerializer):
 
