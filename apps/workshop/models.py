@@ -6,6 +6,7 @@ import json
 
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
+from django.db import IntegrityError
 from apps.logs.models import Log
 from apps.utils.utils import calculate_next_consecutive
 from apps.utils.utils import dump_object_json
@@ -30,8 +31,8 @@ class Work_Order(models.Model):
     client = models.TextField(verbose_name='Objeto Cliente', default='')
     client_id = models.CharField(verbose_name="ID Cliente", default='', max_length=40)
     related_work_order = models.CharField(verbose_name="ID Orden de Trabajo Asociada", default='', max_length=40, blank=True)
-    
-    #article properties
+
+    # article properties
     article_type = models.CharField(verbose_name="Tipo Electrodoméstico", default='', max_length=50)
     article_brand = models.CharField(verbose_name="Marca", default='', max_length=100, blank=True, null=True)
     article_model = models.CharField(verbose_name="Modelo", default='', max_length=100, blank=True, null=True)
@@ -40,9 +41,9 @@ class Work_Order(models.Model):
     article_data = models.CharField(max_length=255, blank=True, null=True, verbose_name="Datos del artículo", default='')
 
     malfunction_details = models.CharField(max_length=255, verbose_name="Detalles falla", default='')
-    observations_list = models.TextField(verbose_name="Observaciones", default='') #store several observations as a JSON
+    observations_list = models.TextField(verbose_name="Observaciones", default='') # store several observations as a JSON
 
-    #warranty related properties
+    # warranty related properties
     is_warranty = models.BooleanField(default=False, verbose_name="Es una orden de Garantía?")
     warranty_number_bd = models.CharField(verbose_name="Número de garantía Black&Decker", max_length=60, blank=True, null=True)
     warranty_invoice_date = models.DateField(verbose_name="Fecha venta en factura del producto", blank=True, null=True)
@@ -99,8 +100,7 @@ class Work_Order(models.Model):
         if len(errors.keys())>0:
             raise TransactionError(errors)
         return new_kwargs
-    
-    
+
     @classmethod
     def create(self_cls, user_id, **kwargs):
         '''Creates a new work order'''
@@ -451,6 +451,7 @@ class Work_Order(models.Model):
 
         return wo
 
+
 class Labor(models.Model):
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -467,7 +468,7 @@ class Labor(models.Model):
         verbose_name = "Mano de Obra"
         verbose_name_plural = "Mano de Obra"
         ordering = ['work_order_id']
-        permissions = (("list_labor", "Can list Labor"),)
+        default_permissions = ()
     
     @classmethod
     def create(self_cls, user_id, **kwargs):
@@ -551,7 +552,7 @@ class UsedPart(models.Model):
         verbose_name = "Repuesto Usado"
         verbose_name_plural = "Repuestos Usados"
         ordering = ['work_order_id']
-        permissions = (("list_used_part", "Can list Used Parts"),)
+        default_permissions = ()
 
     @classmethod
     def create(self_cls, user_id, **kwargs):
@@ -619,6 +620,7 @@ class UsedPart(models.Model):
             })
             used_part.delete()
 
+
 class PartRequest(models.Model):
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -639,19 +641,18 @@ class PartRequest(models.Model):
         verbose_name = "Traslado de Repuesto"
         verbose_name_plural = "Traslados de Repuesto"
         ordering = ['work_order_id']
-        permissions = (("list_part_request", "Can list Parts request"),)
+        default_permissions = ()
 
-    
     @classmethod
     def create(self_cls, user_id, **kwargs):
         user = User.objects.get(id=user_id)
         user_string = dump_object_json(user)
         with transaction.atomic():
 
-            #create the inventory transfer from the main warehouse to the workshop warehouse
+            # create the inventory transfer from the main warehouse to the workshop warehouse
             prod = Product.objects.get(id=kwargs['product_id'])
             prod_string = dump_object_json(prod)
-            #do the warehouse transfer
+            # do the warehouse transfer
             transfer_kwargs = {
                 'amount': kwargs['amount'],
                 'destination_warehouse_id': kwargs['destination_warehouse_id'],
@@ -671,7 +672,7 @@ class PartRequest(models.Model):
             }
 
             part_request = self_cls.objects.create(**parts_request_kwargs)
-            
+
             Log.objects.create(**{
                 'code': 'PART_REQUEST_CREATED',
                 'model': 'LABOR',
@@ -681,7 +682,6 @@ class PartRequest(models.Model):
             })
             return part_request
 
-    
     @classmethod
     def nullInstance(self_cls, user_id, id, **kwargs):
         '''
@@ -699,9 +699,9 @@ class PartRequest(models.Model):
                 return
             original_request_string = dump_object_json(part_request)
             request_product = json.loads(part_request.product)
-            #do the reverse inventory transaction
+            # do the reverse inventory transaction
             transfer_kwargs = {
-                'amount':part_request.amount,
+                'amount': part_request.amount,
                 'destination_warehouse_id': kwargs['destination_warehouse_id'],
                 'origin_warehouse_id': kwargs['origin_warehouse_id'],
                 'description': 'Requisición de parte anulada para orden de trabajo {}'.format(kwargs['work_order_id']),
@@ -723,5 +723,14 @@ class PartRequest(models.Model):
             })
 
 
-
-            
+try:
+    content_type = ContentType.objects.get_for_model(Work_Order)
+    permission = Permission.objects.create(
+        codename='list_work_order',
+        name='Can list Orden de Trabajo',
+        content_type=content_type,
+        )
+except Exception as e:
+    if type(e) != IntegrityError:
+        print(type(e))
+    pass

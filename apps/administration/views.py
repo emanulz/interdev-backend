@@ -25,3 +25,9 @@ def presalesPage(request):
 @permission_required('administration.access_inventories', login_url='/login')
 def inventoriesPage(request):
     return render(request, "inventories.html")
+
+
+@login_required
+@permission_required('administration.access_workshop', login_url='/login')
+def workshopPage(request):
+    return render(request, "workshop.html")

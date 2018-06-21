@@ -10,7 +10,7 @@ from django.contrib.auth.decorators import login_required
 from django.views.generic import TemplateView
 # from apps.reporting import urls
 
-from apps.administration.views import adminPage, salesPage, presalesPage, inventoriesPage
+from apps.administration.views import adminPage, salesPage, presalesPage, inventoriesPage, workshopPage
 
 urlpatterns = [
     # UTILS
@@ -28,7 +28,7 @@ urlpatterns = [
     url(r'^returns/', login_required(TemplateView.as_view(template_name='returns.html'))),
     url(r'^credits/', login_required(TemplateView.as_view(template_name='credits.html'))),
     url(r'^inventories/', inventoriesPage, name='inventories'),
-    url(r'^workshop/', login_required(TemplateView.as_view(template_name='workshop.html'))),
+    url(r'^workshop/', workshopPage, name='workshop'),
     url(r'^payables/', login_required(TemplateView.as_view(template_name="payables.html"))),
     url(r'^purchases/', login_required(TemplateView.as_view(template_name='purchases.html'))),
     url(r'^reportsExcel/', include('apps.reporting.urls')),

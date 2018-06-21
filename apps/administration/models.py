@@ -10,7 +10,7 @@ class Administration(models.Model):
     pass
 
 
-# ADD CAN ACCESS ADMIN PERMISSION
+# ADD CAN ACCESS ADMIN
 try:
     content_type = ContentType.objects.get_for_model(Administration)
     permission = Permission.objects.create(
@@ -23,7 +23,7 @@ except Exception as e:
         print(type(e))
     pass
 
-# ADD CAN ACCESS ADMIN SALES
+# ADD CAN ACCESS SALES
 try:
     content_type = ContentType.objects.get_for_model(Administration)
     permission2 = Permission.objects.create(
@@ -36,7 +36,7 @@ except Exception as e:
         print(type(e))
     pass
 
-# ADD CAN ACCESS ADMIN PRESALES
+# ADD CAN ACCESS PRESALES
 try:
     content_type = ContentType.objects.get_for_model(Administration)
     permission3 = Permission.objects.create(
@@ -49,11 +49,23 @@ except Exception as e:
         print(type(e))
     pass
 
-# ADD CAN ACCESS ADMIN INVENTORIES
+# ADD CAN ACCESS INVENTORIES
 try:
     permission4 = Permission.objects.create(
         codename='access_inventories',
         name='Can access Inventories',
+        content_type=content_type,
+    )
+except Exception as e:
+    if type(e) != IntegrityError:
+        print(type(e))
+    pass
+
+# ADD CAN ACCESS WORKSHOP
+try:
+    permission5 = Permission.objects.create(
+        codename='access_workshop',
+        name='Can access Workshop',
         content_type=content_type,
     )
 except Exception as e:

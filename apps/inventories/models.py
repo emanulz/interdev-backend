@@ -50,6 +50,7 @@ class Inventory_Movement(models.Model):
         verbose_name = 'Movimiento de Crédito'
         verbose_name_plural = 'Movimientos de Crédito'
         ordering = ['consecutive']
+        default_permissions = ()
 
     @classmethod
     def warehouse_transfer(self_cls, user_string, product, origin_warehouse_id, destination_warehouse_id, 

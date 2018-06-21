@@ -9,6 +9,8 @@ from django.db import transaction
 from apps.consecutives.models import Consecutive
 from apps.utils.exceptions import TransactionError
 from django.core.exceptions import ObjectDoesNotExist
+from .serializers import UserSerialiazer
+from django.contrib.auth.models import User
 
 
 def calculate_next_consecutive_OLD(self_cls):
@@ -28,8 +30,6 @@ def calculate_next_consecutive(self_cls):
         try:
             consecutive = Consecutive.objects.select_for_update().get(model_name=self_cls.__name__)
         except ObjectDoesNotExist as e:
-            print(e)
-            print(type(e))
             start_point = calculate_next_consecutive_OLD(self_cls)
             Consecutive.objects.create(**{
                 'model_name': self_cls.__name__,
@@ -37,8 +37,6 @@ def calculate_next_consecutive(self_cls):
             })
             consecutive = Consecutive.objects.select_for_update().get(model_name=self_cls.__name__)
         except Exception as e:
-            print('TROLLL')
-            print(type(e))
             raise TransactionError({'Consecutive Table':['El modelo {} no existe en la tabla de consecutivos'.format(self_cls.__name__)]})
         next_consecutive = consecutive.consecutive + 1
         consecutive.consecutive = next_consecutive
@@ -47,7 +45,9 @@ def calculate_next_consecutive(self_cls):
 
 
 def dump_object_json(target_object):
-
+    if isinstance(target_object, User):
+        data_return = json.dumps(UserSerialiazer(target_object).data)
+        return data_return
     object_dict = model_to_dict_all(target_object)
     keys_to_delete = []
     for key in object_dict.keys():

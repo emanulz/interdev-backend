@@ -19,7 +19,6 @@ class LimitPaginationClass(LimitOffsetPagination):
 class Work_OrderCreateViewSet(viewsets.ViewSet):
     queryset = Work_Order.objects.all()
 
-
     def create(self, request):
         req_data = request.data
         user_id = request.user.id
@@ -34,7 +33,7 @@ class Work_OrderCreateViewSet(viewsets.ViewSet):
             return Response(data=e.get_errors(), status=status.HTTP_400_BAD_REQUEST)
         # except Exception as e:
         #     return Response(data=str(e), status=status.HTTP_400_BAD_REQUEST)
-    
+
     @detail_route(methods=('patch',))
     def patch_workorder(self, request, pk):
         req_data = request.data
@@ -62,9 +61,10 @@ class Work_OrderCreateViewSet(viewsets.ViewSet):
             return_data['labor_objects'] = LaborSerializer(labor, many=True).data
             return_data['used_objects'] = UsedPartSerializer(used, many=True).data
             return_data['part_requests'] = PartRequestSerializer(part_request, many=True).data
-            return Response(data= return_data, status= status.HTTP_201_CREATED)
+            return Response(data=return_data, status=status.HTTP_201_CREATED)
         except TransactionError as e:
             return Response(data=e.get_errors(), status=status.HTTP_400_BAD_REQUEST)
+
 
 class Work_OrderViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = Work_OrderSerializer
@@ -88,9 +88,9 @@ class Work_OrderViewSet(viewsets.ReadOnlyModelViewSet):
         except TransactionError as e:
             return Response(data=e.get_errors(), status=status.HTTP_400_BAD_REQUEST)
 
-
     def get_permissions(self):
         return [HasProperPermission()]
+
 
 class LaborViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = LaborSerializer
@@ -102,6 +102,7 @@ class LaborViewSet(viewsets.ReadOnlyModelViewSet):
     def get_permissions(self):
         return [HasProperPermission()]
 
+
 class UsedPartViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = UsedPartSerializer
     queryset = UsedPart.objects.all()
@@ -111,6 +112,7 @@ class UsedPartViewSet(viewsets.ReadOnlyModelViewSet):
 
     def get_permissions(self):
         return [HasProperPermission()]
+
 
 class PartRequestViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = PartRequestSerializer

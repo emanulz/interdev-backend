@@ -127,7 +127,6 @@ class SaleViewSet(viewsets.ModelViewSet):
     def get_permissions(self):
         return [HasProperPermission(), ]
 
-
 class Cash_AdvanceViewSet(viewsets.ModelViewSet):
 
     serializer_class = Cash_AdvanceSerializer
