@@ -137,7 +137,6 @@ def assingUserPermission(request):
 
         user_id = body['userId']
         user = get_object_or_404(User, pk=user_id)
-        print(user)
 
         permission_name = body['permission']
         add = body['add']
@@ -166,6 +165,36 @@ def assingUserPermission(request):
                 user.user_permissions.remove(permission)
 
                 response = HttpResponse({'status': 'success', 'message': 'Permiso Eliminado Correctamente'},
+                                        content_type='application/json')
+                response.status_code = 200
+                return response
+
+            except Exception as e:
+                response = HttpResponse(json.dumps({'status': 'error', 'message': e}),
+                                        content_type='application/json')
+                response.status_code = 500
+                return response
+
+
+# Toggle user as SuperUser or not
+@login_required
+def makeUserSuperadmin(request):
+    body_unicode = request.body.decode('utf-8')
+    body = json.loads(body_unicode)
+
+    user_request_id = request.user.id
+    user_request = get_object_or_404(User, pk=user_request_id)
+    has_permission = user_request.has_perm('change_user')
+
+    if request.method == 'POST' and has_permission:
+        user_id = body['userId']
+        user = get_object_or_404(User, pk=user_id)
+        add = body['add']
+        if add:
+            try:
+                user.is_superuser = True
+                user.save()
+                response = HttpResponse({'status': 'success', 'message': 'Super User Asignado Correctamente'},
                                         content_type='application/json')
                 response.status_code = 200
                 return response

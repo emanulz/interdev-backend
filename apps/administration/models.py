@@ -10,14 +10,53 @@ class Administration(models.Model):
     pass
 
 
+# ADD CAN ACCESS ADMIN PERMISSION
 try:
     content_type = ContentType.objects.get_for_model(Administration)
     permission = Permission.objects.create(
         codename='access_administration',
         name='Can access Administration',
         content_type=content_type,
-        )
+    )
 except Exception as e:
     if type(e) != IntegrityError:
-        print (type(e))
+        print(type(e))
+    pass
+
+# ADD CAN ACCESS ADMIN SALES
+try:
+    content_type = ContentType.objects.get_for_model(Administration)
+    permission2 = Permission.objects.create(
+        codename='access_sales',
+        name='Can access Sales',
+        content_type=content_type,
+    )
+except Exception as e:
+    if type(e) != IntegrityError:
+        print(type(e))
+    pass
+
+# ADD CAN ACCESS ADMIN PRESALES
+try:
+    content_type = ContentType.objects.get_for_model(Administration)
+    permission3 = Permission.objects.create(
+        codename='access_presales',
+        name='Can access Presales',
+        content_type=content_type,
+    )
+except Exception as e:
+    if type(e) != IntegrityError:
+        print(type(e))
+    pass
+
+# ADD CAN ACCESS ADMIN INVENTORIES
+try:
+    permission4 = Permission.objects.create(
+        codename='access_inventories',
+        name='Can access Inventories',
+        content_type=content_type,
+    )
+except Exception as e:
+    if type(e) != IntegrityError:
+        print(type(e))
     pass

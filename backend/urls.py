@@ -10,7 +10,7 @@ from django.contrib.auth.decorators import login_required
 from django.views.generic import TemplateView
 # from apps.reporting import urls
 
-from apps.administration.views import adminPage
+from apps.administration.views import adminPage, salesPage, presalesPage, inventoriesPage
 
 urlpatterns = [
     # UTILS
@@ -22,12 +22,12 @@ urlpatterns = [
     # APPS
     url(r'^admin/', adminPage, name='admin'),
     url(r'^$', login_required(TemplateView.as_view(template_name='home.html'))),
+    url(r'^sales/', salesPage, name='sales'),
+    url(r'^seller/', presalesPage, name='presales'),
     url(r'^reports/', login_required(TemplateView.as_view(template_name='reports.html'))),
-    url(r'^sales/', login_required(TemplateView.as_view(template_name='sales.html'))),
     url(r'^returns/', login_required(TemplateView.as_view(template_name='returns.html'))),
-    url(r'^seller/', login_required(TemplateView.as_view(template_name='seller.html'))),
     url(r'^credits/', login_required(TemplateView.as_view(template_name='credits.html'))),
-    url(r'^inventories/', login_required(TemplateView.as_view(template_name='inventories.html'))),
+    url(r'^inventories/', inventoriesPage, name='inventories'),
     url(r'^workshop/', login_required(TemplateView.as_view(template_name='workshop.html'))),
     url(r'^payables/', login_required(TemplateView.as_view(template_name="payables.html"))),
     url(r'^purchases/', login_required(TemplateView.as_view(template_name='purchases.html'))),
