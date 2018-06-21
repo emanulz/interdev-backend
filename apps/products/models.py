@@ -508,6 +508,7 @@ class Product(models.Model):
             errs['generator'] = "Id of generator transaction not sent"
 
         if(len(errs.keys())>1): 
+            print("Raise here")
             raise TransactionError(errs)
 
         data = {'amount':amount, 'destination_warehouse_id':destination_warehouse_id,
@@ -527,8 +528,6 @@ class Product(models.Model):
         except KeyError:
             errs['origin_warehouse_id'] = ['Product does not have existences on origin warehouse']
         if not self.inventory_negative:
-            print(total_origin)
-            print(data['amount'])
             if(total_origin < data['amount']):
                 errs['amount'] = ['Transfer requested {} is larger than available inventory at origin {}'.format(data['amount'], total_origin)]
         # obtain the total at the destination warehouse
@@ -541,6 +540,7 @@ class Product(models.Model):
         current_inv[data['destination_warehouse_id']] = total_destination + float(data['amount'])
         #total remains untouched, it is only a transfer
         if(len(errs.keys()) > 0):
+            print('Here')
             raise TransactionError(errs)
         return json.dumps(current_inv)
 

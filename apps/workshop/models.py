@@ -119,7 +119,6 @@ class Work_Order(models.Model):
         new_kwargs['client_id'] = client_id
         new_kwargs['client'] =  client_string
 
-
         with transaction.atomic():
             order_number = calculate_next_consecutive(self_cls)
             new_kwargs['consecutive'] = order_number
@@ -164,8 +163,9 @@ class Work_Order(models.Model):
         labor_objects = Labor.objects.filter(work_order_id__exact=work_order.id)
         used_objects = UsedPart.objects.filter(work_order_id__exact=work_order.id)
         part_requests = PartRequest.objects.filter(work_order_id__exact=work_order.id).filter(amount__gt=Decimal('0'))
+        request_groups = PartRequestGroup.objects.filter(work_order_id__exact=work_order.id)
 
-        return (work_order, cash_advances, labor_objects, used_objects, part_requests)
+        return (work_order, cash_advances, labor_objects, used_objects, part_requests, request_groups)
 
     @classmethod
     def patch_work_order(self_cls, pk, user_id, **kwargs):
@@ -196,260 +196,293 @@ class Work_Order(models.Model):
 
     @classmethod 
     def patch_workview(self_cls, pk, user_id, **kwargs):
+        with transaction.atomic():
+            work_order = self_cls.objects.get(id=pk)
+            if work_order.is_closed:
+                raise TransactionError({'Orden de Trabajo': ['La orden ya se encuentra cerrada, no se puede modificar.']})
 
-        work_order = self_cls.objects.get(id=pk)
-        if work_order.is_closed:
-            raise TransactionError({'Orden de Trabajo': ['La orden ya se encuentra cerrada, no se puede modificar.']})
+            return_cash_advances = []
+            return_labor_objects = []
+            return_used_objects = []
+            return_part_requests = []
 
-        return_cash_advances = []
-        return_labor_objects = []
-        return_used_objects = []
-        return_part_requests = []
+            client = Client.objects.get(id=kwargs['client_id'])
+            client_string = dump_object_json(client)
+            user = User.objects.get(id=user_id)
+            user_string = dump_object_json(user)
 
-        client = Client.objects.get(id=kwargs['client_id'])
-        client_string = dump_object_json(client)
-        user = User.objects.get(id=user_id)
-        user_string = dump_object_json(user)
+            cash_data = json.loads(kwargs['cash_advance_list'])
+            #check if the request contains any cash advances
+            cash_advances =  []
+            try:
+                for advance in cash_data:
+                    cash_advances.append(advance['element'])
+            except:
+                pass
 
-        cash_data = json.loads(kwargs['cash_advance_list'])
-        #check if the request contains any cash advances
-        cash_advances =  []
-        try:
-            for advance in cash_data:
-                cash_advances.append(advance['element'])
-        except:
-            pass
-
-        if cash_advances != None:
-            for cash in cash_advances:
-                #if the objects contains an id, it has to patch an existent advance
-                cash_id = cash.get('id', None)
-                if cash_id == None:
-                    #create a new instance
-                    advance_amount = round(Decimal(cash['amount']), 5)
-                    if advance_amount > 0 :
+            if cash_advances != None:
+                for cash in cash_advances:
+                    #if the objects contains an id, it has to patch an existent advance
+                    cash_id = cash.get('id', None)
+                    if cash_id == None:
+                        #create a new instance
+                        advance_amount = round(Decimal(cash['amount']), 5)
+                        if advance_amount > 0 :
+                            return_cash_advances.append(
+                                Cash_Advance.create(
+                                    user.id,
+                                    **{
+                                    'client': client_string,
+                                    'client_id': client.id,
+                                    'amount': advance_amount,
+                                    'description': cash['description'],
+                                    'work_order_id': pk,
+                                    'sale_id': ''
+                                })
+                        )
+                        
+                    else:
+                        #patch existent key
                         return_cash_advances.append(
-                            Cash_Advance.create(
+                            Cash_Advance.patch(user_id, **{
+                                'id': cash['id'],
+                                'amount': cash['amount'],
+                                'description': cash['description']
+                            })
+                        )
+
+            labor_data = json.loads(kwargs['labor_list'])
+            labor_objects = []
+            try:
+                for labor in labor_data:
+                    labor_objects.append(labor['element'])
+            except:
+                pass
+            if labor_objects != None:
+                for labor in labor_objects:
+                    labor_id = labor.get('id', None)
+                    if labor_id == None:
+                        return_labor_objects.append(
+                            Labor.create(
                                 user.id,
                                 **{
-                                'client': client_string,
-                                'client_id': client.id,
-                                'amount': advance_amount,
-                                'description': cash['description'],
-                                'work_order_id': pk,
-                                'sale_id': ''
-                            })
-                    )
-                    
-                else:
-                    #patch existent key
-                    return_cash_advances.append(
-                        Cash_Advance.patch(user_id, **{
-                            'id': cash['id'],
-                            'amount': cash['amount'],
-                            'description': cash['description']
-                        })
-                    )
-
-        labor_data = json.loads(kwargs['labor_list'])
-        labor_objects = []
-        try:
-            for labor in labor_data:
-                labor_objects.append(labor['element'])
-        except:
-            pass
-        if labor_objects != None:
-            for labor in labor_objects:
-                labor_id = labor.get('id', None)
-                if labor_id == None:
-                    return_labor_objects.append(
-                        Labor.create(
-                            user.id,
-                            **{
-                                'work_order_id': pk,
-                                'employee': dump_object_json(user),
-                                'amount': round(Decimal(labor['amount']), 5),
-                                'description': labor['description']
-                            }
+                                    'work_order_id': pk,
+                                    'employee': dump_object_json(user),
+                                    'amount': round(Decimal(labor['amount']), 5),
+                                    'description': labor['description']
+                                }
+                            )
                         )
-                    )
-                else:
-                    #patch existent
-                    return_labor_objects.append(
-                        Labor.patch(
-                            user.id,
-                            **{
-                                'id': labor['id'],
-                                'amount': labor['amount'],
-                                'description': labor['description']
-                            }
+                    else:
+                        #patch existent
+                        return_labor_objects.append(
+                            Labor.patch(
+                                user.id,
+                                **{
+                                    'id': labor['id'],
+                                    'amount': labor['amount'],
+                                    'description': labor['description']
+                                }
+                            )
                         )
-                    )
 
-        used_data = json.loads(kwargs['used_list'])
-        used_objects = []
-        try:
-            for used in used_data:
-                used_objects.append(used['element'])
-        except:
-            pass
-        
-        if used_objects != None:
-            for used in used_objects:
-                used_id = used.get('id', None)
-                if used_id == None:
-                    return_used_objects.append(
-                        UsedPart.create(
-                            user.id,
-                            **{
-                                'work_order_id': pk,
-                                'employee': user_string,
-                                'amount': round(Decimal(used['amount']), 5),
-                                'description': used['description']
-                            }
+            used_data = json.loads(kwargs['used_list'])
+            used_objects = []
+            try:
+                for used in used_data:
+                    used_objects.append(used['element'])
+            except:
+                pass
+            
+            if used_objects != None:
+                for used in used_objects:
+                    used_id = used.get('id', None)
+                    if used_id == None:
+                        return_used_objects.append(
+                            UsedPart.create(
+                                user.id,
+                                **{
+                                    'work_order_id': pk,
+                                    'employee': user_string,
+                                    'amount': round(Decimal(used['amount']), 5),
+                                    'description': used['description']
+                                }
+                            )
                         )
-                    )
-                else:
-                    return_used_objects.append(
-                        UsedPart.patch(
-                            user.id,
-                            **{
-                                'id': used['id'],
-                                'amount': used['amount'],
-                                'description': used['description']
-                            }
+                    else:
+                        return_used_objects.append(
+                            UsedPart.patch(
+                                user.id,
+                                **{
+                                    'id': used['id'],
+                                    'amount': used['amount'],
+                                    'description': used['description']
+                                }
+                            )
                         )
-                    )
-  
+    
 
-        parts_request_data = json.loads(kwargs['parts_request_list'])
+            parts_request_data = json.loads(kwargs['parts_request_list'])
 
-        main_warhouse_id = kwargs['main_warehouse_id']
-        workshop_warehouse_id = kwargs['workshop_warehouse_id']
-        black_decker_warehouse = kwargs['black_decker_warehouse']
+            main_warhouse_id = kwargs['main_warehouse_id']
+            workshop_warehouse_id = kwargs['workshop_warehouse_id']
+            black_decker_warehouse = kwargs['black_decker_warehouse']
 
-        if parts_request_data != None:
-            for req in parts_request_data:
-                req_id = req.get('uuid', None)
-                is_old_req = None
-                try:
-                    is_old_req = PartRequest.objects.get(id=req_id)
-                    return_part_requests.append(is_old_req)
-                    continue
-                except ObjectDoesNotExist:
-                    pass
-                destination_warehouse = workshop_warehouse_id
-                if work_order.warranty_number_bd != None and work_order.warranty_number_bd != '':
-                    destination_warehouse = black_decker_warehouse
+            if parts_request_data != None:
+                pr_group = None
+                for req in parts_request_data:
+                    req_id = req.get('uuid', None)
+                    is_old_req = None
+                    try:
+                        is_old_req = PartRequest.objects.get(id=req_id)
+                        return_part_requests.append(is_old_req)
+                        continue
+                    except ObjectDoesNotExist:
+                        pass
+                    destination_warehouse = workshop_warehouse_id
+                    if work_order.warranty_number_bd != None and work_order.warranty_number_bd != '':
+                        destination_warehouse = black_decker_warehouse
 
-                if is_old_req == None:
-                    return_part_requests.append(
-                        PartRequest.create(
-                            user_id,
-                            **{
-                                'work_order_id': pk,
-                                'employee': user_string,
-                                'product_id': req['element']['id'],
-                                'amount': req['qty'],
-                                'destination_warehouse_id': destination_warehouse,
-                                'origin_warehouse_id': main_warhouse_id,
-                            }
+                    if pr_group == None:
+                        pr_group = PartRequestGroup.create(user.id, work_order.id)
+
+                    if is_old_req == None:
+                        return_part_requests.append(
+                            PartRequest.create(
+                                user_id,
+                                **{
+                                    'work_order_id': pk,
+                                    'employee': user_string,
+                                    'product_id': req['element']['id'],
+                                    'amount': req['qty'],
+                                    'destination_warehouse_id': destination_warehouse,
+                                    'origin_warehouse_id': main_warhouse_id,
+                                    'part_request_group': pr_group.consecutive
+                                }
+                            )
                         )
-                    )
 
-                #the part requests are not editable, they involve undoing inventory movements
-                #so it is a big chance to break stuff
+                    #the part requests are not editable, they involve undoing inventory movements
+                    #so it is a big chance to break stuff
 
-        wo_ids_to_delete = json.loads(kwargs['cash_advances_to_delete'])
-        for wo_id in wo_ids_to_delete:
-            Cash_Advance.deleteInstance(user_id, wo_id)
+            wo_ids_to_delete = json.loads(kwargs['cash_advances_to_delete'])
+            for wo_id in wo_ids_to_delete:
+                Cash_Advance.deleteInstance(user_id, wo_id)
 
-        labor_ids_to_delete = json.loads(kwargs['labor_list_to_delete'])
-        for labor_id in labor_ids_to_delete:
-            Labor.deleteInstance(user_id, labor_id)
-        
-        used_ids_to_delete = json.loads(kwargs['used_list_to_delete'])
-        for used_id in used_ids_to_delete:
-            UsedPart.deleteInstance(user_id, used_id)
+            labor_ids_to_delete = json.loads(kwargs['labor_list_to_delete'])
+            for labor_id in labor_ids_to_delete:
+                Labor.deleteInstance(user_id, labor_id)
+            
+            used_ids_to_delete = json.loads(kwargs['used_list_to_delete'])
+            for used_id in used_ids_to_delete:
+                UsedPart.deleteInstance(user_id, used_id)
 
-        parts_request_to_delete = json.loads(kwargs['parts_request_to_delete'])
-        origin_warehouse = workshop_warehouse_id
-        if work_order.warranty_number_bd != None and work_order.warranty_number_bd != '':
-            origin_warehouse = black_decker_warehouse
-        for part_req_id in parts_request_to_delete:
-            PartRequest.nullInstance(
-                user_id,
-                part_req_id,
-                **{
-                    'destination_warehouse_id': main_warhouse_id,
-                    'origin_warehouse_id': origin_warehouse,
-                    'work_order_id': pk
-                }
-            )
+            parts_request_to_delete = json.loads(kwargs['parts_request_to_delete'])
+            origin_warehouse = workshop_warehouse_id
+            if work_order.warranty_number_bd != None and work_order.warranty_number_bd != '':
+                origin_warehouse = black_decker_warehouse
+            for part_req_id in parts_request_to_delete:
+                PartRequest.nullInstance(
+                    user_id,
+                    part_req_id,
+                    **{
+                        'destination_warehouse_id': main_warhouse_id,
+                        'origin_warehouse_id': origin_warehouse,
+                        'work_order_id': pk
+                    }
+                )
 
-        #check if the work order must be closed and do so 
-        should_close = kwargs['close_order']
-        if should_close:
-            old_wo_string = dump_object_json(work_order)
-            work_order.is_closed = True
-            work_order.save()
-            Log.objects.create(**{
-                'code': 'WORK_ORDER_CLOSED',
-                'model': 'WORK_ORDER',
-                'prev_object': old_wo_string,
-                'new_object': dump_object_json(work_order),
-                'user': user_string
-            })
+            #check if the work order must be closed and do so 
+            should_close = kwargs['close_order']
+            if should_close:
+                old_wo_string = dump_object_json(work_order)
+                work_order.is_closed = True
+                work_order.save()
+                Log.objects.create(**{
+                    'code': 'WORK_ORDER_CLOSED',
+                    'model': 'WORK_ORDER',
+                    'prev_object': old_wo_string,
+                    'new_object': dump_object_json(work_order),
+                    'user': user_string
+                })
 
-
-        return (work_order, return_cash_advances, return_labor_objects, return_used_objects, return_part_requests)
+            request_groups = PartRequestGroup.objects.filter(work_order_id__exact=work_order.id)
+            return (work_order, return_cash_advances, return_labor_objects, return_used_objects, return_part_requests, request_groups)
 
     @classmethod
     def setPaidAndDischargeInventory(self_cls, pk, user_id):
-        print("Setting as paid and substracting inventory")
+        with transaction.atomic():
+            user = User.objects.get(id=user_id)
+            user_string = dump_object_json(user)
+
+            wo = self_cls.objects.get(id=pk)
+            if wo.paid:
+                raise TransactionError({'Pagar Orden': ["Se intento pagar una orden de trabajo ya cancelada."]})
+            old_wo_string = dump_object_json(wo)
+
+            #do the inventory transfer for all Part requests with amount larger than zero
+            part_requests = PartRequest.objects.filter(work_order_id__exact=wo.id).filter(amount__gt=Decimal('0'))
+
+            for request in part_requests:
+                product_request = json.loads(request.product)
+                #grrr load the movement just to get the warehouse id
+                warehouse_mov = Inventory_Movement.objects.get(id=request.id_movement_workshop)
+                kwargs_warehouse_mov = {
+                    'warehouse_id': warehouse_mov.warehouse_id,
+                    'mov_type': 'OUTPUT',
+                    'amount': request.amount,
+                    'description': 'Movimiento por Orden de trabajo {}'.format(request.work_order_id),
+                    'id_generator': 'wo_{}'.format(request.work_order_id)
+                }
+
+                Product.warehouse_movement(
+                    product_request['id'],
+                    user_id,
+                    **kwargs_warehouse_mov
+                )
+
+
+            wo.is_closed = True
+            wo.save()
+            Log.objects.create(**{
+                'code': 'WORK_ORDER_PAYED',
+                'model': 'WORk_ORDER',
+                'prev_object': old_wo_string,
+                'new_object': dump_object_json(wo),
+                'user': user_string
+            })
+
+            return wo
+
+
+class PartRequestGroup(models.Model):
+
+    id = models.UUIDField(default=uuid.uuid4, editable=False)
+    consecutive = models.IntegerField(primary_key=True, verbose_name="Número de orden", editable=False)
+    work_order_id = models.CharField(verbose_name="ID Orden de Trabajo", max_length=80, default='')
+    
+    class Meta:
+        verbose_name = "Grupo de Requisición"
+        verbose_name_plural = "Grupos de Requisción"
+        ordering = ["consecutive"]
+    
+    @classmethod
+    def create(self_cls, user_id, work_order_id):
         user = User.objects.get(id=user_id)
         user_string = dump_object_json(user)
 
-        wo = self_cls.objects.get(id=pk)
-        if wo.paid:
-            raise TransactionError({'Pagar Orden': ["Se intento pagar una orden de trabajo ya cancelada."]})
-        old_wo_string = dump_object_json(wo)
+        with transaction.atomic():
+            next_consecutive = calculate_next_consecutive(self_cls)
+            pr_group = self_cls.objects.create(**{'consecutive':next_consecutive, 'work_order_id': work_order_id})
+            Log.objects.create(**{
+                'code': 'PART_REQUEST_GROUP_CREATED',
+                'model': 'PART_REQUEST_GROUP',
+                'prev_object': '',
+                'new_object': dump_object_json(pr_group),
+                'user': user_string
+            })
+            return pr_group
 
-        #do the inventory transfer for all Part requests with amount larger than zero
-        part_requests = PartRequest.objects.filter(work_order_id__exact=wo.id).filter(amount__gt=Decimal('0'))
-
-        for request in part_requests:
-            product_request = json.loads(request.product)
-            #grrr load the movement just to get the warehouse id
-            warehouse_mov = Inventory_Movement.objects.get(id=request.id_movement_workshop)
-            print("GOSH --> ")
-            print(warehouse_mov)
-            kwargs_warehouse_mov = {
-                'warehouse_id': warehouse_mov.warehouse_id,
-                'mov_type': 'OUTPUT',
-                'amount': request.amount,
-                'description': 'Movimiento por Orden de trabajo {}'.format(request.work_order_id),
-                'id_generator': 'wo_{}'.format(request.work_order_id)
-            }
-
-            Product.warehouse_movement(
-                product_request['id'],
-                user_id,
-                **kwargs_warehouse_mov
-            )
-
-
-        wo.is_closed = True
-        wo.save()
-        Log.objects.create(**{
-            'code': 'WORK_ORDER_PAYED',
-            'model': 'WORk_ORDER',
-            'prev_object': old_wo_string,
-            'new_object': dump_object_json(wo),
-            'user': user_string
-        })
-
-        return wo
 
 class Labor(models.Model):
 
@@ -626,10 +659,11 @@ class PartRequest(models.Model):
     employee = models.TextField(verbose_name="Empleado", default='')
     amount = models.DecimalField(max_digits=19, decimal_places=5, default=0, verbose_name="Cantidad")
     product = models.TextField(verbose_name= "Producto", default='')
-
+    
     id_movement_workshop = models.UUIDField(verbose_name="ID movimiento Bodega de Taller")
     id_movement_origin = models.UUIDField(verbose_name="ID movimeinto Bodega Origen")
 
+    part_request_group = models.CharField(verbose_name="Consecutivo Grupo Reqisición", max_length=40, default='')
     created = models.DateTimeField(auto_now=False, auto_now_add=True, blank=True, null=True,
                                    verbose_name='Fecha de creación')
     updated = models.DateTimeField(auto_now=True, auto_now_add=False, blank=True, null=True,
@@ -667,7 +701,8 @@ class PartRequest(models.Model):
                 'amount': kwargs['amount'],
                 'product': prod_string,
                 'id_movement_origin': origin.id,
-                'id_movement_workshop': destination.id
+                'id_movement_workshop': destination.id,
+                'part_request_group': kwargs['part_request_group']
             }
 
             part_request = self_cls.objects.create(**parts_request_kwargs)
@@ -695,7 +730,6 @@ class PartRequest(models.Model):
             try:
                 part_request = self_cls.objects.get(id=id)
             except ObjectDoesNotExist:
-                print("Suspicious")
                 return
             original_request_string = dump_object_json(part_request)
             request_product = json.loads(part_request.product)
