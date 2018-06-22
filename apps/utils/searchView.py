@@ -7,6 +7,8 @@ from apps.products.models import Product
 from apps.products.api.serializers import ProductSerializer
 from apps.clients.models import Client
 from apps.clients.api.serializers import ClientSerializer
+from apps.workshop.models import Work_Order
+from apps.workshop.api.serializers import Work_OrderSerializer
 
 from rest_framework.decorators import list_route
 from rest_framework.response import Response
@@ -15,7 +17,7 @@ from decimal import Decimal
 from itertools import chain
 from django.db import connection
 
-SUPPORTED_MODELS = ('Supplier', 'Purchase', 'Product', 'Client')
+SUPPORTED_MODELS = ('Supplier', 'Purchase', 'Product', 'Client', 'WorkOrder')
 MAX_SEARCH_CLUSTERS = 6
 #define the special characters in the query language
 WILDCARD_CHARS = ['=', '&', '|']
@@ -31,12 +33,18 @@ searchable_fields = {
                 'pay_types', 'invoice_number', 'credit_days'],
     'client': ['user', 'id', 'code', 'name', 'last_name', 'id_num', 'email', 'phone_number', 'cellphone_number',
                 'email', 'client_type', 'observations'],
+
+    'workorder':['id', 'consecutive', 'is_closed', 'paid', 'receiving_employee', 'client', 'client_id', 'article_type',
+                'article_brand', 'article_model', 'article_serial', 'article_color', 'article_data', 'malfunction_details',
+                'observations_list', 'is_warranty', 'warranty_number_bd', 'warranty_supplier_name', 'warranty_invoice_number',
+                'warranty_reference', 'warranty_reported_to_bd']
 }
 default_search_field= {
     'supplier':'name',
     'product': 'description',
     'purchase': 'supplier',
     'client': 'name',
+    'workorder': 'client'
 
 }
 
@@ -45,6 +53,7 @@ code_search_fields = {
     'product': ['code', 'internal_barcode', 'barcode' ],
     'purchase': ['id', 'consecutive'],
     'client': ['id', 'code'],
+    'workorder': ['consecutive', 'article_model', 'warranty_number_bd', 'warranty_invoice_number']
 
 }
 
@@ -52,7 +61,8 @@ smart_search_fields = {
     'supplier': ['name', 'code', 'agent_name', 'agent_last_name'],
     'product': ['supplier_code', 'part_number', 'brand_code'],
     'purchase': ['consecutive', 'supplier', 'invoice_number'],
-    'client': ['name', 'last_name', 'id_num', 'phone_number', 'cellphone_number']
+    'client': ['name', 'last_name', 'id_num', 'phone_number', 'cellphone_number'],
+    'work_order': ['client', 'article_type', 'article_brand']
 }
 
 class SearchViewSet(viewsets.ViewSet):
@@ -100,6 +110,10 @@ class SearchViewSet(viewsets.ViewSet):
             queryset = Client.objects.all()
             search_result = general_search(queryset, max_results, data)
             return Response(data= ClientSerializer(search_result, many=True).data, status=status.HTTP_200_OK)
+        elif target_model == 'workorder':
+            queryset = Work_Order.objects.all()
+            search_result = general_search(queryset, max_results, data)
+            return Response(data= Work_OrderSerializer(search_result, many=True).data, status=status.HTTP_200_OK)
         else:
             return Response(data="Search not supported on model : {}.".format(target_model), 
                 status=status.HTTP_400_BAD_REQUEST)
@@ -223,8 +237,6 @@ def build_smart_like_search(value, model):
     result = ''
     for field in smart_search_fields[model]:
         result += '{}={} '.format(field, value)
-    print('Smart like search query')
-    print(result)
     return result.strip()
 
 def build_code_like_search(value, model):
@@ -430,5 +442,11 @@ def find_table_name(model):
             return '{}'.format(Purchase._meta.db_table) 
         return '{}.{}'.format(db_name, Purchase._meta.db_table)
     if model == 'client':
+        if connection.vendor == 'sqlite':
+            return '{}'.format(Purchase._meta.db_table) 
         return '{}.{}'.format(db_name, Client._meta.db_table)
+    if model == 'workorder':
+        if connection.vendor == 'sqlite':
+            return '{}'.format(Purchase._meta.db_table) 
+        return '{}.{}'.format(db_name, Work_Order._meta.db_table)
     
