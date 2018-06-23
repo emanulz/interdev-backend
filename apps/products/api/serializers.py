@@ -33,11 +33,11 @@ class ProductDepartmentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ProductDepartment
-        fields = ('id', 'name', 'code', 'observations', 'created', 'updated')
+        fields = '__all__'
 
 
 class ProductSubDepartmentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ProductSubDepartment
-        fields = ('id', 'department', 'name', 'code', 'observations', 'created', 'updated')
+        fields = '__all__'

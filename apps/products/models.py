@@ -630,6 +630,7 @@ class ProductDepartment(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=255, verbose_name='Nombre de la Familia')
     code = models.CharField(max_length=255, verbose_name='Identificador de Familia')
+    identifier = models.CharField(max_length=255, verbose_name='Identificador de Familia', blank=True, null=True)
     observations = models.TextField(null=True, blank=True, verbose_name='Observaciones')
     created = models.DateTimeField(auto_now=False, auto_now_add=True, blank=True, null=True,
                                    verbose_name='Fecha de creación')
@@ -664,7 +665,8 @@ class ProductSubDepartment(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     department = models.ForeignKey('ProductDepartment', on_delete=models.SET_NULL, null=True, verbose_name='Familia')
     name = models.CharField(max_length=255, verbose_name='Nombre de la Sub-Familia')
-    code = models.CharField(max_length=255, verbose_name='Identificador de Sub-Familia')
+    code = models.CharField(max_length=255, verbose_name='Código de Sub-Familia', blank=True, null=True)
+    identifier = models.CharField(max_length=255, verbose_name='Identificador de Sub-Familia')
     observations = models.TextField(null=True, blank=True, verbose_name='Observaciones')
     created = models.DateTimeField(auto_now=False, auto_now_add=True, blank=True, null=True,
                                    verbose_name='Fecha de creación')
