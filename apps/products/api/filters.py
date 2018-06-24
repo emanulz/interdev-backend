@@ -37,11 +37,11 @@ class ProductDepartmentFilter(django_filters.FilterSet):
 
     class Meta:
         model = ProductDepartment
-        fields = ('id', 'name', 'code', 'created', 'updated')
+        fields = '__all__'
 
 
 class ProductSubDepartmentFilter(django_filters.FilterSet):
 
     class Meta:
         model = ProductSubDepartment
-        fields = ('id', 'name', 'code', 'department', 'created', 'updated')
+        fields = '__all__'
