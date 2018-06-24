@@ -225,9 +225,15 @@ class Purchase(models.Model):
                     )
                     #update price
                     price_update_kwargs = {
+                        'target_price': cart_line['wanted_price_ivi'],
                         'target_utility': cart_line['target_utility'],
                         'subtotal': cart_line['subtotal'],
-                        'quantity': cart_line['qty']
+                        'quantity': cart_line['qty'],
+                        'cart_subtotal': cart_object['cartSubtotal'],
+                        'reflect_discount': cart_line['applyToClient'],
+                        'update_pattern': kwargs['update_pattern'],
+                        'total_transport': cart_object['orderTransport'],
+                        'discount': cart_line['discount'],
                     }
                     Product.update_product_price(
                         cart_line['product']['id'],

@@ -124,14 +124,24 @@ class Product(models.Model):
 
         #check if the necessary parameters where sent
         target_utility = None
+        target_price = None
         subtotal = None
         quantity = None
+        cart_subtotal = None
+        reflect_discount = None
+        update_pattern = None
+        total_transport = None
+        discount = None
 
         errors = {}
         try:
             target_utility = Decimal(kwargs['target_utility'])
         except (KeyError, ValueError):
             errors['target_utility'] = ['The target utility parameter was not sent or is not a number']
+        try:
+            target_price= Decimal(kwargs['target_price'])
+        except (KeyError, ValueError):
+            errors['target_price'] = ['The target price parameter was not sent or is not a number']
 
         try:
             subtotal = Decimal(kwargs['subtotal'])
@@ -143,15 +153,49 @@ class Product(models.Model):
         except (KeyError, ValueError):
             errors['quantity'] = ['The quantity parameter was not sent or is not a number']
 
+        try:
+            cart_subtotal= Decimal(kwargs['cart_subtotal'])
+        except (KeyError, ValueError):
+            errors['cart_subtotal'] = ['The cart_subtotal parameter was not sent or is not a number']
+        
+        try:
+            reflect_discount= bool(kwargs['reflect_discount'])
+        except (KeyError, ValueError):
+            errors['reflect_discount'] = ['The reflect_discount parameter was not sent or is not a boolean']
+
+        try:
+            update_pattern= kwargs['update_pattern']
+        except (KeyError, ValueError):
+            errors['update_pattern'] = ['The update_pattern parameter was not sent']
+
+        try:
+            total_transport= Decimal(kwargs['total_transport'])
+        except (KeyError, ValueError):
+            errors['total_transport'] = ['The total_transport parameter was not sent or is not a number']
+
+        try:
+            discount= Decimal(kwargs['discount'])
+        except (KeyError, ValueError):
+            errors['discount'] = ['The discount parameter was not sent or is not a number']
+
         if(len(errors.keys())>0):
             raise TransactionError(errors)
+
+        unit_cost = subtotal / quantity 
+
+        total_line_transport = subtotal /cart_subtotal*total_transport
+        transport_per_line_item = total_line_transport / quantity
+        unit_cost += transport_per_line_item
+        if reflect_discount:
+            unit_cost -= discount / quantity      
 
         with transaction.atomic():
             product = self_cls.objects.select_for_update().get(id=product_id)
 
             original_product_string = dump_object_json(product)
 
-            price_data = product.calculatePriceUpdateData(target_utility, subtotal, quantity, utility_method, round_to_coin)
+            price_data = product.calculatePriceUpdateData(unit_cost, target_utility, target_price,
+                update_pattern, subtotal, quantity, utility_method, round_to_coin)
 
             product.cost = round(price_data['cost'], 5)
             product.price =  round(price_data['price'], 5)
@@ -171,13 +215,15 @@ class Product(models.Model):
             return product
 
 
-    def calculatePriceUpdateData(self, target_utility, subtotal, quantity, utility_method, round_to_coin):
+    def calculatePriceUpdateData(self, cost,  target_utility, target_price, updatePattern,
+        subtotal, quantity, utility_method, round_to_coin):
         
         dec_100 = Decimal(100.0)
         dec_target_utility = Decimal(target_utility)
         dec_subtotal = Decimal(subtotal)
         dec_quantity = Decimal(quantity)
-        cost = dec_subtotal/dec_quantity
+
+        #cost = dec_subtotal/dec_quantity
 
         total_tax_fraction = Decimal(0)
         if(self.use_taxes):
@@ -187,28 +233,36 @@ class Product(models.Model):
         
         total_tax_factor = Decimal(1) + total_tax_fraction / dec_100
 
-        target_price_no_tax = Decimal(0)
-        if utility_method == 'cost_based':
-            target_price_no_tax = cost * (Decimal(1) + Decimal(target_utility/dec_100))
-        else:
-            target_price_no_tax = cost /(Decimal(1)-(dec_target_utility/dec_100))
-
         default_discount = Decimal(1) - Decimal(self.pred_discount)/dec_100
 
-        target_price_ivi = target_price_no_tax * total_tax_factor * default_discount
+        target_price_no_tax = Decimal(0)
+        if updatePattern == 'byUtility':
+            if utility_method == 'cost_based':
+                target_price_no_tax = cost * (Decimal(1) + Decimal(target_utility/dec_100))
+            else:
+                target_price_no_tax = cost /(Decimal(1)-(dec_target_utility/dec_100))
 
-        int_ivi_price = int(target_price_ivi)
+            target_price_ivi = target_price_no_tax * total_tax_factor * default_discount
 
-        coin_round_modulus = int_ivi_price % int(round_to_coin)
+            int_ivi_price = int(target_price_ivi)
 
-        wanted_price = int_ivi_price - coin_round_modulus
+            coin_round_modulus = int_ivi_price % int(round_to_coin)
+
+            wanted_price = int_ivi_price - coin_round_modulus
+        else:
+            int_ivi_price = int(target_price)
+            coin_round_modulus = int_ivi_price % int(round_to_coin)
+            wanted_price = int_ivi_price - coin_round_modulus
+
 
         real_utility = Decimal(0)
         if utility_method == 'cost_based':
             real_utility = ((wanted_price/total_tax_factor*default_discount)) / cost - 1
         else:
             real_utility = 1 - cost/(wanted_price/(total_tax_factor*default_discount))
+
         price_no_ivi = wanted_price/(total_tax_factor*default_discount)
+
         return {'cost': cost, 'utility': real_utility, 'sell_price': wanted_price, 'price': price_no_ivi}
 
     @classmethod
