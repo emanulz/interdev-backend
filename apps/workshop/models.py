@@ -26,6 +26,7 @@ class Work_Order(models.Model):
     consecutive = models.IntegerField(primary_key=True, verbose_name="Número de orden", editable=False)
     is_closed = models.BooleanField(default=False, verbose_name="Orden Cerrada?")
     paid = models.BooleanField(default=False, verbose_name="Orden Pagada?")
+    is_null = models.BooleanField(default=False, verbose_name="Orden Anulada?")
     receiving_employee = models.TextField(verbose_name="Objeto Empleado", default='')
     technician = models.TextField(verbose_name="Tecnico a Cargo", default='')
     client = models.TextField(verbose_name='Objeto Cliente', default='')
