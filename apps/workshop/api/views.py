@@ -10,6 +10,8 @@ from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.response import Response
 from apps.utils.exceptions import TransactionError
 from rest_framework.decorators import detail_route
+from rest_framework import filters
+from django_filters import rest_framework as django_filters
 
 
 class LimitPaginationClass(LimitOffsetPagination):
@@ -72,6 +74,8 @@ class Work_OrderViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = Work_OrderSerializer
     queryset = Work_Order.objects.all()
     lookup_field = 'id'
+    filter_backends = (django_filters.DjangoFilterBackend, filters.OrderingFilter)
+    ordering_fields = ('created', 'consecutive', 'updated')
     filter_class = Work_OrderFilter
     pagination_class = LimitPaginationClass
 

@@ -21,11 +21,9 @@ from apps.utils.exceptions import TransactionError
 from apps.utils.utils import calculate_next_consecutive, dump_object_json
 from apps.money_returns.models import Money_Return, Credit_Voucher
 from apps.presales.models import Presale
-
-
-
 from apps.utils.serializers import UserSerialiazer
 from decimal import Decimal, getcontext
+
 
 class Sale(models.Model):
 
