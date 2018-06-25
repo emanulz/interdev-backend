@@ -17,7 +17,6 @@ from decimal import Decimal
 from django.db import IntegrityError, transaction
 
 
-
 class Supplier(models.Model):
 
     person = 'PER'
@@ -58,6 +57,7 @@ class Supplier(models.Model):
                                    verbose_name='Fecha de creación')
     updated = models.DateTimeField(auto_now=True, auto_now_add=False, blank=True, null=True,
                                    verbose_name='Fecha de modificación')
+
 
     def __str__(self):
         return '%s %s' % (self.code, self.name)

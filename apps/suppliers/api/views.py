@@ -19,15 +19,15 @@ class LimitPaginationClass(LimitOffsetPagination):
 class SupplierSearchViewSet(viewsets.ViewSet):
     queryset = Supplier.objects.all()
 
-    @detail_route(methods=('get',))
-    def search_supplier(self, request, pk):
-        print('Custom route at supplier get search')
-        return Response(data='yay', status=status.HTTP_200_OK)
+    # @detail_route(methods=('get',))
+    # def search_supplier(self, request, pk):
+    #     print('Custom route at supplier get search')
+    #     return Response(data='yay', status=status.HTTP_200_OK)
 
-    @list_route(methods=('get',))
-    def search(self, request, *args, **kwargs):
+    # @list_route(methods=('get',))
+    # def search(self, request, *args, **kwargs):
 
-        return Response(data='YAY SEARCH', status=status.HTTP_200_OK)
+    #     return Response(data='YAY SEARCH', status=status.HTTP_200_OK)
 
 class SupplierViewSet(viewsets.ModelViewSet):
 
