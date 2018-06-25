@@ -51,7 +51,6 @@ def calculate_next_code(self_cls):
             code = Code.objects.select_for_update().get(model_name=self_cls.__name__)
         except ObjectDoesNotExist as e:
             start_point = calculate_code_start_point(self_cls)
-            print("Start point --> ", start_point)
             Code.objects.create(**{
                 'model_name': self_cls.__name__,
                 'consecutive': start_point
@@ -59,11 +58,20 @@ def calculate_next_code(self_cls):
             return str(letter+str(start_point))
         except Exception as e:
             raise TransactionError({'Code Table':['El modelo {} no existe en la tabla de códigos'.format(self_cls.__name__)]})
+
         
         next_code = code.consecutive + 1
-        code.consecutive = next_code
-        code.save()
-        return str(letter+str(next_code))
+        next_code_string =str(letter+str(next_code))
+        while True:
+            try:
+                self_cls.objects.get(code=next_code_string)
+                next_code+=1
+                next_code_string =str(letter+str(next_code))
+            except ObjectDoesNotExist:
+                code.consecutive = next_code
+                code.save()
+                return next_code_string
+
 
 def calculate_next_consecutive(self_cls):
     with transaction.atomic():
