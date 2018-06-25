@@ -12,6 +12,7 @@ from apps.utils.exceptions import TransactionError
 from rest_framework.decorators import detail_route
 from rest_framework import filters
 from django_filters import rest_framework as django_filters
+from django.db.models.functions import Length
 
 
 class LimitPaginationClass(LimitOffsetPagination):
@@ -69,6 +70,28 @@ class Work_OrderCreateViewSet(viewsets.ViewSet):
         except TransactionError as e:
             return Response(data=e.get_errors(), status=status.HTTP_400_BAD_REQUEST)
 
+
+class Work_OrderWarantyViewset(viewsets.ReadOnlyModelViewSet):
+
+    queryset = Work_Order.objects.filter(is_null=False).filter(is_warranty=True).annotate(text_len=Length('warranty_number_bd')).filter(text_len__exact=0)
+    serializer_class = Work_OrderSerializer
+    lookup_field = 'id'
+    filter_class = Work_OrderFilter
+    pagination_class = LimitPaginationClass
+
+    def get_permissions(self):
+        return [HasProperPermission()]
+
+class Work_OrderWarantyBDViewset(viewsets.ReadOnlyModelViewSet):
+
+    queryset = Work_Order.objects.filter(is_null=False).filter(is_warranty=True).annotate(text_len=Length('warranty_number_bd')).filter(text_len__gt=0)
+    serializer_class = Work_OrderSerializer
+    lookup_field = 'id'
+    filter_class = Work_OrderFilter
+    pagination_class = LimitPaginationClass
+
+    def get_permissions(self):
+        return [HasProperPermission()]
 
 class Work_OrderViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = Work_OrderSerializer

@@ -45,6 +45,7 @@ class Work_Order(models.Model):
     observations_list = models.TextField(verbose_name="Observaciones", default='') # store several observations as a JSON
 
     # warranty related properties
+    closed_no_repair = models.BooleanField(default=False, verbose_name="Cerrada sin Reparación?")
     is_warranty = models.BooleanField(default=False, verbose_name="Es una orden de Garantía?")
     warranty_number_bd = models.CharField(verbose_name="Número de garantía Black&Decker", max_length=60, blank=True, null=True)
     warranty_invoice_date = models.DateField(verbose_name="Fecha venta en factura del producto", blank=True, null=True)
@@ -65,7 +66,8 @@ class Work_Order(models.Model):
         permissions = (("list_work_order", "Can list Work_Order"),)
 
     def check_create_kwargs(kwargs):
-
+        print("GRRRR")
+        print(kwargs)
         mandatory_props = ['client', 'article_type', 'article_brand', 'article_color',
             'malfunction_details', 'observations_list', 'is_warranty', 'warranty_number_bd']
 
@@ -87,6 +89,9 @@ class Work_Order(models.Model):
             for prop in props:
                 try:
                     new_kwargs[prop] = kwargs[prop]
+                    if prop =='warranty_invoice_date' or prop == 'warranty_repaired_by':
+                        if kwargs[prop] == '':
+                            new_kwargs[prop] = None
                 except KeyError:
                     if is_mandatory:
                         errors[prop] = 'La propiedad no se encuentra en los parámetros de creación de la orden de trabajo'
@@ -395,9 +400,12 @@ class Work_Order(models.Model):
 
             #check if the work order must be closed and do so 
             should_close = kwargs['close_order']
+            is_no_reapair = kwargs['no_repair']
             if should_close:
                 old_wo_string = dump_object_json(work_order)
                 work_order.is_closed = True
+                if is_no_reapair:
+                    work_order.closed_no_repair = True
                 work_order.save()
                 Log.objects.create(**{
                     'code': 'WORK_ORDER_CLOSED',

@@ -62,7 +62,7 @@ smart_search_fields = {
     'product': ['supplier_code', 'part_number', 'brand_code'],
     'purchase': ['consecutive', 'supplier', 'invoice_number'],
     'client': ['name', 'last_name', 'id_num', 'phone_number', 'cellphone_number'],
-    'work_order': ['client', 'article_type', 'article_brand']
+    'workorder': ['client', 'article_type', 'article_brand']
 }
 
 class SearchViewSet(viewsets.ViewSet):
