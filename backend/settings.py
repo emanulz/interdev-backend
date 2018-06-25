@@ -75,6 +75,7 @@ INSTALLED_APPS = [
     'apps.money_returns.apps.MoneyReturnsConfig',
     'apps.payables_money_returns.apps.PayablesMoneyReturnsConfig',
     'apps.consecutives.apps.ConsecutivesConfig',
+    'apps.codes.apps.CodesConfig',
 ]
 
 MIDDLEWARE = [

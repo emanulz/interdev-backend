@@ -65,6 +65,8 @@ class Work_Order(models.Model):
         ordering = ['consecutive']
         permissions = (("list_work_order", "Can list Work_Order"),)
 
+
+
     def check_create_kwargs(kwargs):
         print("GRRRR")
         print(kwargs)

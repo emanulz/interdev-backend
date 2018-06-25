@@ -40,7 +40,6 @@ class Credit_Movement(models.Model):
 
     @classmethod
     def create(self_cls, **kwargs):
-        print('Create payables credit movement')
         with transaction.atomic():
             if kwargs['movement_type'] =='CRED':
                 kwargs['amount'] = abs(kwargs['amount'])*-1

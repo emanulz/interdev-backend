@@ -7,14 +7,18 @@ from itertools import chain
 from datetime import date
 from django.db import transaction
 from apps.consecutives.models import Consecutive
+from apps.codes.models import Code
 from apps.utils.exceptions import TransactionError
 from django.core.exceptions import ObjectDoesNotExist
 from .serializers import UserSerialiazer
 from django.contrib.auth.models import User
 
+auto_code_letter = {
+    'Supplier': 'P',
+    'Client': 'C',
+}
 
 def calculate_next_consecutive_OLD(self_cls):
-    print(self_cls.__name__)
 
     next_consecutive = self_cls.objects.all().aggregate(Max('consecutive'))['consecutive__max']
     if next_consecutive != None:
@@ -23,9 +27,47 @@ def calculate_next_consecutive_OLD(self_cls):
         next_consecutive = 1
     return next_consecutive
 
+def calculate_code_start_point(self_cls):
+    code = 0
+    letter = auto_code_letter[self_cls.__name__]
+
+    next_code = letter+str(code)
+    while True:
+        try:
+            target_object = self_cls.objects.get(code=next_code)
+            code+=1
+            print( "CODE + 1 ", str(code))
+        except ObjectDoesNotExist:
+            return code
+
+
+
+def calculate_next_code(self_cls):
+    '''Calculates the code to assign to the next object created for a given class'''
+    letter = auto_code_letter[self_cls.__name__]
+    code  = None
+    with transaction.atomic():
+        try:
+            code = Code.objects.select_for_update().get(model_name=self_cls.__name__)
+        except ObjectDoesNotExist as e:
+            start_point = calculate_code_start_point(self_cls)
+            print("Start point --> ", start_point)
+            Code.objects.create(**{
+                'model_name': self_cls.__name__,
+                'consecutive': start_point
+            })
+            return str(letter+str(start_point))
+        except Exception as e:
+            raise TransactionError({'Code Table':['El modelo {} no existe en la tabla de códigos'.format(self_cls.__name__)]})
+        
+        next_code = code.consecutive + 1
+        code.consecutive = next_code
+        code.save()
+        return str(letter+str(next_code))
 
 def calculate_next_consecutive(self_cls):
     with transaction.atomic():
+        
         consecutive = None
         try:
             consecutive = Consecutive.objects.select_for_update().get(model_name=self_cls.__name__)
