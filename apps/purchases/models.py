@@ -195,14 +195,14 @@ class Purchase(models.Model):
                     
                 
                 #do inventory stuff
-                cart_items = cart_object['cartItems']
-                id_generator = 'pu_' + str(purchase.id)
-                individual_mov_desc =  "Movimiento de ingreso por factura # {}".format(purchase.consecutive)
-                for item in cart_items:
-                    prod = item['product']
-                    amount = item['qty']
-                    Product.inventory_movement(prod['id'], warehouse, 'INPUT', amount,
-                        user_string, individual_mov_desc, id_generator)
+                # cart_items = cart_object['cartItems']
+                # id_generator = 'pu_' + str(purchase.id)
+                # individual_mov_desc =  "Movimiento de ingreso por factura # {}".format(purchase.consecutive)
+                # for item in cart_items:
+                #     prod = item['product']
+                #     amount = item['qty']
+                #     Product.inventory_movement(prod['id'], warehouse, 'INPUT', amount,
+                #         user_string, individual_mov_desc, id_generator)
 
             #if the purchase is to be applied, generate the invrntory movements
             if apply:
@@ -221,7 +221,7 @@ class Purchase(models.Model):
                         cart_line['qty'],
                         user_string,
                         'Ingreso a inventario por compra con consecutivo {}'.format(purchase.consecutive),
-                        purchase.id
+                        'pu_' + str(purchase.id)
                     )
                     #update price
                     price_update_kwargs = {
