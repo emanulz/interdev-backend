@@ -440,7 +440,7 @@ class Work_Order(models.Model):
                     'warehouse_id': warehouse_mov.warehouse_id,
                     'mov_type': 'OUTPUT',
                     'amount': request.amount,
-                    'description': 'Movimiento por Orden de trabajo {}'.format(request.work_order_id),
+                    'description': 'Movimiento por Orden de trabajo #{}'.format(wo.consecutive),
                     'id_generator': 'wo_{}'.format(request.work_order_id)
                 }
 
@@ -452,6 +452,7 @@ class Work_Order(models.Model):
 
 
             wo.is_closed = True
+            wo.paid = True
             wo.save()
             Log.objects.create(**{
                 'code': 'WORK_ORDER_PAYED',
@@ -697,7 +698,7 @@ class PartRequest(models.Model):
         user = User.objects.get(id=user_id)
         user_string = dump_object_json(user)
         with transaction.atomic():
-
+            wo = Work_Order.objects.get(id=kwargs["work_order_id"])
             # create the inventory transfer from the main warehouse to the workshop warehouse
             prod = Product.objects.get(id=kwargs['product_id'])
             prod_string = dump_object_json(prod)
@@ -706,7 +707,7 @@ class PartRequest(models.Model):
                 'amount': kwargs['amount'],
                 'destination_warehouse_id': kwargs['destination_warehouse_id'],
                 'origin_warehouse_id': kwargs['origin_warehouse_id'],
-                'description': 'Transferencia a Bodega de taller por orden {}'.format(kwargs["work_order_id"]),
+                'description': 'Transferencia a Bodega de taller por orden #{}'.format(wo.consecutive),
                 'generator': 'wo_{}'.format(kwargs["work_order_id"])
             }
             prod, origin, destination = Product.warehouse_transfer(prod.id, user_id, **transfer_kwargs)

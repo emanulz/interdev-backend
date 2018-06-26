@@ -59,3 +59,5 @@ daphne.sock.lock
 ##Media
 media/avatars/**
 media/keys/**
+media/Imagenes
+media/Imagenes/**

@@ -71,7 +71,7 @@ class Sale(models.Model):
     def create(self_cls, cart, client_id, pay, user_id, warehouse_id, presale_id):
         #set the context precision to 5 decimal places
         getcontext().prec = 20
-        
+        from apps.workshop.models import Work_Order
         with transaction.atomic():
             #fetch the client by id
             client = Client.objects.get(id=client_id)
@@ -193,6 +193,10 @@ class Sale(models.Model):
             cartItems = cart_object['cartItems']
             id_generator = 'sa_' + str(sale.id)
             individual_mov_desc = "Movimiento por factura # {}".format(str(sale.consecutive))
+            # IF is a workshop closure patch WO and return without the inventory movements
+            if cart_object['work_order_id']:
+                Work_Order.setPaidAndDischargeInventory(cart_object['work_order_id'], user_id)
+                return (sale, left_over_vouchers)
             for item in cartItems:
                 #create an inventory movement
                 prod = item['product']
