@@ -13,20 +13,27 @@ from .filters import SaleFilter, Cash_AdvanceFilter
 from .serializers import SaleSerializer, Cash_AdvanceSerializer
 from .permissions import HasProperPermission, HasProperPermissionCash_Advance
 from apps.utils.exceptions import TransactionError
+from rest_framework import filters
+from django_filters import rest_framework as django_filters
+
 
 class SalePaginationClass(LimitOffsetPagination):
     default_limit = 50
+
 
 class SaleViewSetReadOnly(viewsets.ReadOnlyModelViewSet):
 
     serializer_class = SaleSerializer
     queryset = Sale.objects.all()
     lookup_field = 'id'
+    filter_backends = (django_filters.DjangoFilterBackend, filters.OrderingFilter)
+    ordering_fields = ('created', 'consecutive')
     filter_class = SaleFilter
     pagination_class = SalePaginationClass
 
     def get_permissions(self):
         return [HasProperPermission(), ]
+
 
 class SaleCreateViewSet(viewsets.ViewSet):
 
@@ -102,7 +109,7 @@ class SaleCreateViewSet(viewsets.ViewSet):
             full_validation = request_data['full_validation']
         except:
             pass
-        
+
         try:
             cart = request_data['cart']
         except (KeyError):
@@ -117,6 +124,7 @@ class SaleCreateViewSet(viewsets.ViewSet):
             validation_failures['status'] = 'OK'
         return validation_failures
 
+
 class SaleViewSet(viewsets.ModelViewSet):
 
     serializer_class = SaleSerializer
@@ -126,6 +134,7 @@ class SaleViewSet(viewsets.ModelViewSet):
 
     def get_permissions(self):
         return [HasProperPermission(), ]
+
 
 class Cash_AdvanceViewSet(viewsets.ModelViewSet):
 

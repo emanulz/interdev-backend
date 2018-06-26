@@ -2,10 +2,13 @@
 from __future__ import unicode_literals
 
 import django_filters
+from django_filters import DateFilter
 from ..models import Sale, Cash_Advance
 
 
 class SaleFilter(django_filters.FilterSet):
+    start_date = DateFilter(name='created', lookup_expr=('gt'))
+    end_date = DateFilter(name='created', lookup_expr=('lt'))
 
     class Meta:
         model = Sale
