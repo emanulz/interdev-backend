@@ -19,15 +19,15 @@ class LimitPaginationClass(LimitOffsetPagination):
 class SupplierSearchViewSet(viewsets.ViewSet):
     queryset = Supplier.objects.all()
 
-    @detail_route(methods=('get',))
-    def search_supplier(self, request, pk):
-        print('Custom route at supplier get search')
-        return Response(data='yay', status=status.HTTP_200_OK)
+    # @detail_route(methods=('get',))
+    # def search_supplier(self, request, pk):
+    #     print('Custom route at supplier get search')
+    #     return Response(data='yay', status=status.HTTP_200_OK)
 
-    @list_route(methods=('get',))
-    def search(self, request, *args, **kwargs):
+    # @list_route(methods=('get',))
+    # def search(self, request, *args, **kwargs):
 
-        return Response(data='YAY SEARCH', status=status.HTTP_200_OK)
+    #     return Response(data='YAY SEARCH', status=status.HTTP_200_OK)
 
 class SupplierViewSet(viewsets.ModelViewSet):
 
@@ -36,6 +36,16 @@ class SupplierViewSet(viewsets.ModelViewSet):
     lookup_field = 'id'
     filter_class = SupplierFilter
     pagination_class = LimitPaginationClass
+
+    def create(self, request):
+        req_data = request.data
+        user_id = request.user.id
+        try:
+            supplier = Supplier.create(user_id, **req_data)
+            return Response(data=SupplierSerializer(supplier).data, status=status.HTTP_201_CREATED)
+        except TransactionError as e:
+            return Response(data=e.get_errors(), status=status.HTTP_400_BAD_REQUEST)
+
 
     def get_permissions(self):
         # allow non-authenticated user to create via POST

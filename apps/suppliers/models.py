@@ -6,16 +6,13 @@ from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
 from django.db import IntegrityError
 from apps.utils.exceptions import TransactionError
-from apps.utils.utils import dump_object_json, calculate_next_consecutive
+from apps.utils.utils import dump_object_json, calculate_next_consecutive, calculate_next_code
 from decimal import Decimal, getcontext
 from apps.logs.models import Log
 from decimal import Decimal
+from django.contrib.auth.models import User
 
-#from apps.purchases.models import Purchase
-
-#from apps.purchases.api.serializers import PurchaseSerializer
 from django.db import IntegrityError, transaction
-
 
 
 class Supplier(models.Model):
@@ -59,6 +56,7 @@ class Supplier(models.Model):
     updated = models.DateTimeField(auto_now=True, auto_now_add=False, blank=True, null=True,
                                    verbose_name='Fecha de modificación')
 
+
     def __str__(self):
         return '%s %s' % (self.code, self.name)
 
@@ -67,6 +65,33 @@ class Supplier(models.Model):
         verbose_name_plural = 'Proveedores'
         ordering = ['code']
 
+    @classmethod
+    def create(self_cls, user_id, **kwargs):
+        user = User.objects.get(id=user_id)
+        #try getting the kwargs from the request, if not sent, generate an automatic one
+        print(kwargs)
+        code = None
+        try:
+            code = kwargs['code']
+        except KeyError:
+            pass
+
+        if code == None or code == '':
+            #generate an automatic code
+            next_code = calculate_next_code(self_cls)
+            kwargs['code'] = next_code
+        
+        with transaction.atomic():
+            supplier = self_cls.objects.create(**kwargs)
+            Log.objects.create(**{
+                'code': 'SUPPLIER_CREATED',
+                'model': 'SUPPLIER',
+                'prev_object': '',
+                'new_object': dump_object_json(supplier),
+                'description': 'Nuevo proveedor creado',
+                'user': dump_object_json(user)
+            })
+            return supplier
 
     @classmethod
     def apply_credit_movement(self_cls, **kwargs):
