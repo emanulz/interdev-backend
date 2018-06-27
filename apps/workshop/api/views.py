@@ -70,6 +70,16 @@ class Work_OrderCreateViewSet(viewsets.ViewSet):
         except TransactionError as e:
             return Response(data=e.get_errors(), status=status.HTTP_400_BAD_REQUEST)
 
+class Work_OrderNoRepairViewset(viewsets.ReadOnlyModelViewSet):
+
+    queryset = Work_Order.objects.filter(is_null=False).filter(closed_no_repair=True)
+    serializer_class = Work_OrderSerializer
+    lookup_field = 'id'
+    filter_class = Work_OrderFilter
+    pagination_class = LimitPaginationClass
+    
+    def get_permissions(self):
+        return [HasProperPermission()]
 
 class Work_OrderWarantyViewset(viewsets.ReadOnlyModelViewSet):
 
