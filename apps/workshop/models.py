@@ -484,7 +484,8 @@ class Work_Order(models.Model):
                 'model': 'WORk_ORDER',
                 'prev_object': old_wo_string,
                 'new_object': dump_object_json(wo),
-                'user': user_string
+                'user': user_string,
+                'description': 'Work Order#{} re-opened from sales app'.format(wo_id)
             })
             return wo
 

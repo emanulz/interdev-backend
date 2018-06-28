@@ -31,7 +31,7 @@ class Work_OrderCreateViewSet(viewsets.ViewSet):
             return_data = {}
             return_data['work_order'] = Work_OrderSerializer(new_wo).data
             return_data['cash_advances'] = Cash_AdvanceSerializer(cash_advances, many=True).data
-            return Response(data= return_data, status= status.HTTP_201_CREATED)
+            return Response(data= return_data, status=status.HTTP_201_CREATED)
         except TransactionError as e:
             return Response(data=e.get_errors(), status=status.HTTP_400_BAD_REQUEST)
         # except Exception as e:

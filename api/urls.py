@@ -27,7 +27,7 @@ from apps.workshop.api.views import Work_OrderViewSet, Work_OrderCreateViewSet, 
 from apps.purchases.api.views import PurchaseViewSet, PurchaseCreateViewSet
 from dynamic_preferences.users.viewsets import UserPreferencesViewSet
 from apps.payables.api.views import Credit_MovementPayableViewSet, Credit_PaymentPayableViewSet, CreditPaymentCreateViewSetPayables
-from apps.presales.api.views import PresaleViewSet
+from apps.presales.api.views import PresaleViewSet, PresalePatchViewSet
 from apps.sales.api.views import SaleCreateViewSet, SaleViewSetReadOnly
 from apps.money_returns.api.views import Money_ReturnViewSet, Credit_VoucherViewSet
 from apps.payables_money_returns.api.views import Credit_VoucherViewSetPayable
@@ -80,6 +80,7 @@ router.register(r'payablescreditpaymentcreate', CreditPaymentCreateViewSetPayabl
 router.register(r'payablescreditmovementlist', Credit_MovementPayableViewSet)
 router.register(r'payablescreditpaymentlist', Credit_PaymentPayableViewSet)
 router.register(r'presales', PresaleViewSet)
+router.register(r'presalespatch', PresalePatchViewSet, base_name='presalespatch')
 router.register(r'creditvoucherslist', Credit_VoucherViewSet)
 router.register(r'moneyreturnlist', Money_ReturnViewSet)
 router.register(r'payablescreditvoucherslist', Credit_VoucherViewSetPayable)

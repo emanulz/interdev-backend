@@ -13,6 +13,7 @@ from apps.utils.utils import dump_object_json
 from django.db import transaction
 from apps.logs.models import Log
 from apps.utils.exceptions import TransactionError
+from django.contrib.auth.models import User
 
 
 class Presale(models.Model):
@@ -59,8 +60,8 @@ class Presale(models.Model):
             presale_new = dump_object_json(presale)
             # create the log of the change
             Log.objects.create(**{
-                'code': 'SALE_CREDIT_BALANCE_UDPATE',
-                'model': 'SALE',
+                'code': 'PRESALE_COMPLETED',
+                'model': 'PRESALE',
                 'prev_object': presale_old,
                 'new_object': presale_new,
                 'description': 'Sale created, presale patched',
@@ -69,6 +70,28 @@ class Presale(models.Model):
 
             return True
 
+    @classmethod
+    def set_null(self_cls, presale_id, user_id):
+        with transaction.atomic():
+            ps = self_cls.objects.get(id=presale_id)
+            if ps.billed:
+                raise TransactionError({'Anular Preventa': ["Se intento anular una preventa ya pagada."]})
+            if ps.is_null:
+                raise TransactionError({'Anular Preventa': ["Se intento anular una preventa ya anulada."]})
+            old_ps_string = dump_object_json(ps)
+            ps.is_null = True
+            ps.save()
+            user = User.objects.get(id=user_id)
+            user_string = dump_object_json(user)
+            Log.objects.create(**{
+                'code': 'PRESALE_NULLED',
+                'model': 'PRESALE',
+                'prev_object': old_ps_string,
+                'new_object': dump_object_json(ps),
+                'user': user_string,
+                'description': 'Presale #{} set null from sales app'.format(presale_id)
+            })
+            return ps
 
 @receiver(post_save, sender=Presale)
 def send_message(sender, instance, **kwargs):
