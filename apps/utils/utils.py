@@ -12,6 +12,7 @@ from apps.utils.exceptions import TransactionError
 from django.core.exceptions import ObjectDoesNotExist
 from .serializers import UserSerialiazer
 from django.contrib.auth.models import User
+from django.conf import settings
 
 auto_code_letter = {
     'Supplier': 'P',
@@ -40,6 +41,15 @@ def calculate_code_start_point(self_cls):
         except ObjectDoesNotExist:
             return code
 
+
+def uploadFile(self_cls, f, code):
+
+    extension = f.content_type.split('/')[1]
+    media_path = settings.MEDIA_URL
+    final_path =  settings.BASE_DIR.replace('\\', '/') + media_path +'productImages/'+code+'.'+extension
+    with open(final_path, 'wb+') as destination:
+        for chunk in f.chunks():
+            destination.write(chunk)
 
 
 def calculate_next_code(self_cls):

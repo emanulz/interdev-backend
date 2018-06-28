@@ -13,7 +13,7 @@ from django.forms.models import model_to_dict
 from django.contrib.auth.models import User
 from apps.logs.models import Log
 from apps.utils.serializers import UserSerialiazer
-from apps.utils.utils import dump_object_json
+from apps.utils.utils import dump_object_json, uploadFile
 from apps.logs.models import Log
 from rest_framework.response import Response
 from rest_framework import status
@@ -26,7 +26,10 @@ from django.db import IntegrityError
 from django.db import transaction
 from decimal import Decimal, getcontext
 
+
 from apps.utils.exceptions import TransactionError
+
+from django.core.files.storage import FileSystemStorage
 
 
 def url(instance, filename):
@@ -357,8 +360,9 @@ class Product(models.Model):
 
 
     @classmethod
-    def create(self_cls, user_id,  **kwargs):
-        with transaction.atomic():
+    def create(self_cls, user_id, image_file, **kwargs):
+        print(kwargs)
+        with transaction.atomic():           
             errors = {}
             create_data = {}
             self_cls.get_create_key(kwargs, create_data, 'code', errors)
@@ -420,7 +424,15 @@ class Product(models.Model):
                 'new_object': dump_object_json(prod),
                 'user': dump_object_json(user)
             })
+            if image_file != None:
+                try:
+                    uploadFile(self_cls, image_file, prod.code)
+                except Exception as e:
+                    print(e)
+                    raise TransactionError({'ImageFile': ['Error cargando la imágen del producto.']})
             return (prod, errors)
+            #handle the file upload
+            #fs = FileSystemStorage(location = 'media/productImages/')
 
 
     def get_create_key(target_dict, create_data, key, errors, optional= False):
