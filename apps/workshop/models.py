@@ -466,6 +466,27 @@ class Work_Order(models.Model):
 
             return wo
 
+    @classmethod
+    def reopen(self_cls, wo_id, user_id):
+        with transaction.atomic():
+            wo = self_cls.objects.get(id=wo_id)
+            if wo.paid:
+                raise TransactionError({'Pagar Orden': ["Se intento reabrir una orden de trabajo ya pagada."]})
+            if not wo.is_closed:
+                raise TransactionError({'Pagar Orden': ["Se intento reabrir una orden de trabajo abierta."]})
+            old_wo_string = dump_object_json(wo)
+            wo.is_closed = False
+            wo.save()
+            user = User.objects.get(id=user_id)
+            user_string = dump_object_json(user)
+            Log.objects.create(**{
+                'code': 'WORK_ORDER_REOPENED',
+                'model': 'WORk_ORDER',
+                'prev_object': old_wo_string,
+                'new_object': dump_object_json(wo),
+                'user': user_string
+            })
+            return wo
 
 class PartRequestGroup(models.Model):
 
