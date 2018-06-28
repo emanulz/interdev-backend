@@ -59,11 +59,29 @@ class ProductInventoryViewSet(viewsets.ViewSet):
         
     
     def partial_update(self, request, pk):
-        req_data = request.data 
+
+        prod_image_kwargs = None
+        try:
+            prod_image_kwargs = json.loads(request.data.get('prod', ''))
+        except:
+            pass
+            
+        #req_data = request.data 
         user_id = request.user.id
+        image_file = None
+
+        try:
+            image_file = request.FILES['file']
+        except:
+            pass
+        creation_kwargs = None
+        if prod_image_kwargs != None:
+            creation_kwargs = prod_image_kwargs
+        else:
+            creation_kwargs = request.data
         
         try:
-            updated_prod, errors = Product.partial_update(user_id, pk,  **req_data)
+            updated_prod, errors = Product.partial_update(user_id, pk, image_file,  **creation_kwargs)
         except TransactionError as e:
             return Response(data=e.get_errors(), status=status.HTTP_400_BAD_REQUEST)
 
