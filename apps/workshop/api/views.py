@@ -31,7 +31,7 @@ class Work_OrderCreateViewSet(viewsets.ViewSet):
             return_data = {}
             return_data['work_order'] = Work_OrderSerializer(new_wo).data
             return_data['cash_advances'] = Cash_AdvanceSerializer(cash_advances, many=True).data
-            return Response(data= return_data, status= status.HTTP_201_CREATED)
+            return Response(data= return_data, status=status.HTTP_201_CREATED)
         except TransactionError as e:
             return Response(data=e.get_errors(), status=status.HTTP_400_BAD_REQUEST)
         # except Exception as e:
@@ -65,10 +65,22 @@ class Work_OrderCreateViewSet(viewsets.ViewSet):
             return_data['used_objects'] = UsedPartSerializer(used, many=True).data
             return_data['part_requests'] = PartRequestSerializer(part_request, many=True).data
             return_data['request_groups'] = PartRequestGroupSerializer(request_groups, many=True).data
-            
+
             return Response(data= return_data, status= status.HTTP_201_CREATED)
         except TransactionError as e:
             return Response(data=e.get_errors(), status=status.HTTP_400_BAD_REQUEST)
+
+    @detail_route(methods=('post',))
+    def reopen(self, request, pk):
+        user_id = request.user.id
+        try:
+            wo = Work_Order.reopen(pk, user_id)
+            return_data = {}
+            return_data['work_order'] = Work_OrderSerializer(wo).data
+            return Response(data=return_data, status= status.HTTP_201_CREATED)
+        except TransactionError as e:
+            return Response(data=e.get_errors(), status=status.HTTP_400_BAD_REQUEST)
+
 
 class Work_OrderNoRepairViewset(viewsets.ReadOnlyModelViewSet):
 
