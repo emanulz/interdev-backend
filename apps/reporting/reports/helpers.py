@@ -1,4 +1,5 @@
 from apps.sales.models import Sale
+from apps.products.models import Product
 from datetime import datetime, timedelta, date
 from openpyxl import Workbook
 from openpyxl.styles import colors
@@ -15,7 +16,107 @@ REPORTE_VENTAS = {
     6: 'Cierres de Taller',
 }
 
+VALORACION_INVENTARIO = {
+    0: 'Valoración Inventario',
+}
+
 COMPANY_NAME = 'Repuestos Juanca'
+
+
+def createInventoryValueReport(target_warehouses, include_inactive=False):
+    '''
+    Totalizes the value of all items in the inventory
+    '''
+    print('Inventory value report')
+    print(target_warehouses)
+
+    target_prods = Product.objects.filter(is_active=True).filter(inventory_enabled=True)
+    wb = Workbook()
+    createInvValueSheet(wb, target_prods)
+    return wb
+
+
+def createInvValueSheet(wb, target_prods, sheet_index = 0):
+
+    current_row = 1
+    current_col = 1
+    header_labels = ['Código', 'Descripción', 'Unidades', 'Costo', 'Total']
+
+    wb._active_sheet_index =  sheet_index
+
+    ws = wb.active
+    #change the title of the sheet
+    ws.title = VALORACION_INVENTARIO[0]
+    #add a simple title
+    ws.cell(row=current_row, column=current_col, value=COMPANY_NAME)
+    #write the date
+    now = datetime.now()
+    report_generation = "Fecha generación: {}".format(now)
+    ws.cell(row=current_row, column=current_col, value=report_generation)
+    current_row+=1
+    #write the report type
+    ws.cell(row=current_row, column=current_col, value="REPORTE VALORACIÓN INVENTARIO")
+    current_row+=2
+    #write the header
+    for i in range(0,len(header_labels)):
+        temp_cell = ws.cell(row=current_row, column=current_col+i, value=header_labels[i])
+        temp_cell.font = Font(bold=True, name="Tahoma", size=8)
+    #reset the col position
+    current_col = 1
+    current_row+=1
+    data_body = []
+    total = 0
+    for element in target_prods:
+        temp_row = []
+        #get the element code
+        temp_row.append(element.code)
+        #get the element description
+        temp_row.append(element.description)
+        #load the inventory and calculate how many units are available
+        temp_inv= json.loads(element.inventory_existent)
+        temp_units = 0
+        #for key in temp_inv.keys():
+        temp_units += float(temp_inv['total'])
+        temp_row.append(round(temp_units, 2))
+        #get the cost        
+        temp_cost = element.cost
+        temp_row.append(round(temp_cost, 2))
+        #get the value
+        temp_value =  temp_cost *  temp_units
+        temp_row.append(round(temp_value,2))
+        #track the total inventory value
+        total += temp_value
+        data_body.append(temp_row)
+
+    for data_row in data_body:
+        for i in range(0,len(data_row)):
+            temp_cell = ws.cell(row=current_row, column=current_col+i, value=data_row[i])
+        current_row += 1
+        current_col = 1
+
+    current_col = 4
+    current_row += 2
+    totals_legend_cell = ws.cell(row=current_row, column=current_col, value="Total-->")
+    totals_legend_cell.font = Font(bold=True, name="Tahoma", size=8)
+    totals_legend_cell.number_format = '#,##0.00₡' 
+    current_col+=1
+    
+    temp_cell = ws.cell(row=current_row, column=current_col, value=round(total,2))
+    temp_cell = Font(bold=True, name="Tahoma", size=8)
+    current_col +=1
+
+    for col in ws.columns:
+        max_length = 0
+        column = col[0].column # Get the column name
+        for cell in col:
+            try: # Necessary to avoid error on empty cells
+                if len(str(cell.value)) > max_length:
+                    max_length = len(cell.value)
+            except:
+                pass
+        adjusted_width = (max_length + 2) * 1.2
+        ws.column_dimensions[column].width = adjusted_width
+
 
 def createGenSalesReport(start, end, day, month, year):
     print("Create gen sales report entry point")
@@ -27,7 +128,6 @@ def createGenSalesReport(start, end, day, month, year):
     wb = Workbook()
     
     today = date.today()
-
 
     report_period_type = None
     if start!='' or end!='':
@@ -238,7 +338,6 @@ def createCashSalesReport(target_sales, wb, period, sheet_index = 0):
     ws = wb.active
     #change the title of the sheet
     ws.title = REPORTE_VENTAS[0]
-
     #add a simple title
     ws.cell(row=current_row, column=current_col, value=COMPANY_NAME)
     current_row+=1
