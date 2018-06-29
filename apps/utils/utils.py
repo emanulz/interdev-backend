@@ -12,6 +12,8 @@ from apps.utils.exceptions import TransactionError
 from django.core.exceptions import ObjectDoesNotExist
 from .serializers import UserSerialiazer
 from django.contrib.auth.models import User
+from django.conf import settings
+import os
 
 auto_code_letter = {
     'Supplier': 'P',
@@ -36,10 +38,28 @@ def calculate_code_start_point(self_cls):
         try:
             target_object = self_cls.objects.get(code=next_code)
             code+=1
-            print( "CODE + 1 ", str(code))
         except ObjectDoesNotExist:
             return code
 
+
+def uploadFile(self_cls, f, code, old_code):
+
+    extension = f.content_type.split('/')[1]
+    media_path = settings.MEDIA_URL
+    final_path =  settings.BASE_DIR.replace('\\', '/') + media_path +'productImages/'+code+'.'+extension
+    with open(final_path, 'wb+') as destination:
+        for chunk in f.chunks():
+            destination.write(chunk)
+    #if the old code is not empty, try moving the old image file
+    try:
+        if old_code!='':
+            old_image_path = settings.BASE_DIR.replace('\\', '/') + media_path +'productImages/'+old_code
+            old_image_relocation = settings.BASE_DIR.replace('\\', '/') + media_path +'productImages/old/'+old_code
+            os.rename(old_image_path, old_image_relocation)
+    except Exception as e:
+        print("Error moving old file ", e)
+        pass
+    return code + "." + extension
 
 
 def calculate_next_code(self_cls):

@@ -13,7 +13,7 @@ from django.forms.models import model_to_dict
 from django.contrib.auth.models import User
 from apps.logs.models import Log
 from apps.utils.serializers import UserSerialiazer
-from apps.utils.utils import dump_object_json
+from apps.utils.utils import dump_object_json, uploadFile
 from apps.logs.models import Log
 from rest_framework.response import Response
 from rest_framework import status
@@ -26,7 +26,10 @@ from django.db import IntegrityError
 from django.db import transaction
 from decimal import Decimal, getcontext
 
+
 from apps.utils.exceptions import TransactionError
+
+from django.core.files.storage import FileSystemStorage
 
 
 def url(instance, filename):
@@ -98,6 +101,7 @@ class Product(models.Model):
     consignment = models.BooleanField(default=False, verbose_name='Es en consignación?', blank=True)
     generic = models.BooleanField(default=False, verbose_name='Es Genérico?', blank=True)
     image = models.ImageField(upload_to=url, blank=True, null=True)
+    image_name = models.CharField(max_length=255, default='', verbose_name="Nombre imágen actual", blank=True)
     observations = models.TextField(null=True, blank=True, verbose_name='Observaciones')
     created = models.DateTimeField(auto_now=False, auto_now_add=True, blank=True, null=True,
                                    verbose_name='Fecha de creación')
@@ -319,7 +323,7 @@ class Product(models.Model):
             return (product, inv_mov, error)
 
     @classmethod
-    def partial_update(self_cls, user_id, product_id, **kwargs):
+    def partial_update(self_cls, user_id, product_id, image_file, **kwargs):
         patch_allowed_fields = ('code', 'description', 'short_description', 'unit', 'fractioned', 'department', 'subdepartment',
                                 'barcode', 'internal_barcode', 'supplier_code', 'model', 'part_number', 'brand_code', 'inventory_enabled',
                                 'inventory_minimum', 'inventory_maximum', 'inventory_negative', 'cost', 'cost_based', 'utility', 'price',
@@ -345,6 +349,19 @@ class Product(models.Model):
             user = User.objects.get(id=user_id)
             user_string = UserSerialiazer(user).data
 
+
+            if image_file != None:
+                try:
+                    old_image_name = product.image_name
+                    new_image_name_root = product.code+"_"+str(uuid4())
+                    new_image_name = uploadFile(self_cls, image_file, new_image_name_root, old_image_name)
+                    product.image_name =  new_image_name
+                    product.save()
+                except Exception as e:
+                    print(e)
+                    raise TransactionError({'ImageFile': ['Error cargando la imágen del producto.']})
+            
+            
             Log.objects.create(**{
                 'code': 'PRODUCT_PARTIAL_UPDATE',
                 'model': 'PRODUCT',
@@ -357,8 +374,8 @@ class Product(models.Model):
 
 
     @classmethod
-    def create(self_cls, user_id,  **kwargs):
-        with transaction.atomic():
+    def create(self_cls, user_id, image_file, **kwargs):
+        with transaction.atomic():           
             errors = {}
             create_data = {}
             self_cls.get_create_key(kwargs, create_data, 'code', errors)
@@ -420,6 +437,15 @@ class Product(models.Model):
                 'new_object': dump_object_json(prod),
                 'user': dump_object_json(user)
             })
+            if image_file != None:
+                try:
+                    new_image_name_root = prod.code+"_"+str(uuid4())
+                    new_image_name = uploadFile(self_cls, image_file, new_image_name_root, '')
+                    prod.image_name =  new_image_name
+                    prod.save()
+                except Exception as e:
+                    print(e)
+                    raise TransactionError({'ImageFile': ['Error cargando la imágen del producto.']})
             return (prod, errors)
 
 

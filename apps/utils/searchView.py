@@ -117,7 +117,7 @@ class SearchViewSet(viewsets.ViewSet):
         else:
             return Response(data="Search not supported on model : {}.".format(target_model), 
                 status=status.HTTP_400_BAD_REQUEST)
-        return Response(data="YAY", status=status.HTTP_200_OK)
+        return Response(data="YAY, model not supported :s!", status=status.HTTP_200_OK)
         #except ValueError as e: 
             #print(e)
             #return Response(data='Dang!!', status=status.HTTP_400_BAD_REQUEST)
@@ -328,6 +328,11 @@ def build_cluster_filter(cluster, model, use_like_regex):
     #check if a field was sent in the cluster
     target_field = None
     query = None
+
+    # if '>' in cluster:
+    #     target_field, query = cluster.split('>')
+    #     if target_field not in searchable_fields[model]:
+    #         return 'Invalid'
     if '=' in cluster:
         target_field, query = cluster.split('=')
         if target_field not in searchable_fields[model]:

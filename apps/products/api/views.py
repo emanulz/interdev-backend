@@ -19,20 +19,38 @@ from rest_framework.response import Response
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from rest_framework import status
+import json
 
 class ProductInventoryViewSet(viewsets.ViewSet):
 
     queryset = Product.objects.all()
 
     def create(self, request):
-        req_data = request.data
+
+        prod_image_kwargs = None
+        try:
+            prod_image_kwargs= json.loads(request.data.get('prod', ''))
+        except:
+            pass
         user_id = request.user.id
-        
+        image_file = None
+
+        try:
+            image_file = request.FILES['file']
+        except:
+            pass
+
+        creation_kwargs = None
+        if prod_image_kwargs != None:
+            creation_kwargs = prod_image_kwargs
+        else:
+            creation_kwargs =  request.data
+
         try: 
-            new_prod, errors = Product.create(user_id, **req_data)
+            new_prod, errors = Product.create(user_id, image_file, **creation_kwargs)
             return Response(data=ProductSerializer(new_prod).data, status=status.HTTP_201_CREATED)
         except Exception as e:
-            print(req_data)
+            #print(req_data)
             print(e)
             if type(e)=='TransactionError':
                 return Response(data=e.get_errors(), status=status.HTTP_400_BAD_REQUEST)
@@ -41,11 +59,29 @@ class ProductInventoryViewSet(viewsets.ViewSet):
         
     
     def partial_update(self, request, pk):
-        req_data = request.data 
+
+        prod_image_kwargs = None
+        try:
+            prod_image_kwargs = json.loads(request.data.get('prod', ''))
+        except:
+            pass
+            
+        #req_data = request.data 
         user_id = request.user.id
+        image_file = None
+
+        try:
+            image_file = request.FILES['file']
+        except:
+            pass
+        creation_kwargs = None
+        if prod_image_kwargs != None:
+            creation_kwargs = prod_image_kwargs
+        else:
+            creation_kwargs = request.data
         
         try:
-            updated_prod, errors = Product.partial_update(user_id, pk,  **req_data)
+            updated_prod, errors = Product.partial_update(user_id, pk, image_file,  **creation_kwargs)
         except TransactionError as e:
             return Response(data=e.get_errors(), status=status.HTTP_400_BAD_REQUEST)
 
