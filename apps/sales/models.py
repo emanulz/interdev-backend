@@ -33,7 +33,6 @@ class Sale(models.Model):
     transfer = 'TRAN'
     other = 'OTHE'
 
-
     PAY_CHOICES = ((cash, 'Efectivo'),
                    (card, 'Tarjeta'),
                    (credit, 'Crédito'),
@@ -235,7 +234,6 @@ class Sale(models.Model):
             })
 
             return sale
-
             
     @classmethod
     def return_products(self_cls, pk, user_id, **kwargs):
