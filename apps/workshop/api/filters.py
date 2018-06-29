@@ -1,6 +1,6 @@
 import django_filters
 
-from ..models import Work_Order, Labor, UsedPart, PartRequest
+from ..models import Work_Order, Labor, UsedPart, PartRequest, InformativeMovement
 
 class Work_OrderFilter(django_filters.FilterSet):
     class Meta:
@@ -13,6 +13,12 @@ class Work_OrderFilter(django_filters.FilterSet):
             'warranty_invoice_date', 'warranty_supplier_name',
             'warranty_invoice_number', 'warranty_repaired_by',
             'created', 'updated') 
+
+class InformativeMovementFilter(django_filters.FilterSet):
+    class Meta:
+        model = InformativeMovement
+        fields = ('id', 'work_order_id', 'employee',
+            'description', 'created', 'updated')
 
 class LaborFilter(django_filters.FilterSet):
     class Meta:

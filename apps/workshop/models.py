@@ -172,8 +172,8 @@ class Work_Order(models.Model):
         used_objects = UsedPart.objects.filter(work_order_id__exact=work_order.id)
         part_requests = PartRequest.objects.filter(work_order_id__exact=work_order.id).filter(amount__gt=Decimal('0'))
         request_groups = PartRequestGroup.objects.filter(work_order_id__exact=work_order.id)
-
-        return (work_order, cash_advances, labor_objects, used_objects, part_requests, request_groups)
+        inf_movs = InformativeMovement.objects.filter(work_order_id__exact=work_order.id)
+        return (work_order, cash_advances, labor_objects, used_objects, part_requests, request_groups, inf_movs)
 
     @classmethod
     def patch_work_order(self_cls, pk, user_id, **kwargs):
@@ -213,20 +213,58 @@ class Work_Order(models.Model):
             return_labor_objects = []
             return_used_objects = []
             return_part_requests = []
+            return_informative_movements = []
 
             client = Client.objects.get(id=kwargs['client_id'])
             client_string = dump_object_json(client)
             user = User.objects.get(id=user_id)
             user_string = dump_object_json(user)
 
-            cash_data = json.loads(kwargs['cash_advance_list'])
+            #check if the request contains any informative movements
+            informative_data = json.loads(kwargs['informative_list'])
+            informative_movs = []
+            try:
+                for inf in informative_data:
+                    informative_movs.append(inf['element'])
+            except:
+                pass
+            if informative_movs != None:
+                for inf in informative_movs:
+                    #if the objects contains an id, it has to patch an existent entity
+                    inf_id = inf.get('id', None)
+                    if inf_id == None:
+                        #create a new instance
+                        return_informative_movements.append(
+                            InformativeMovement.create(
+                                user.id,
+                                **{
+                                    'work_order_id': pk,
+                                    'employee': dump_object_json(user),
+                                    'description': inf['description']
+                                }
+                            )
+                        )
+                    else:
+                        #patch existent
+                        return_informative_movements.append(
+                            InformativeMovement.patch(
+                                user.id,
+                                **{
+                                    'id': inf['id'],
+                                    'description': inf['description']
+                                }
+                            )
+                        )
+
             #check if the request contains any cash advances
+            cash_data = json.loads(kwargs['cash_advance_list'])
             cash_advances =  []
             try:
                 for advance in cash_data:
                     cash_advances.append(advance['element'])
             except:
                 pass
+
 
             if cash_advances != None:
                 for cash in cash_advances:
@@ -258,7 +296,8 @@ class Work_Order(models.Model):
                                 'description': cash['description']
                             })
                         )
-
+            
+            #check if the request contains any labor objectes
             labor_data = json.loads(kwargs['labor_list'])
             labor_objects = []
             try:
@@ -293,7 +332,7 @@ class Work_Order(models.Model):
                                 }
                             )
                         )
-
+            #check if the request contains any used parts
             used_data = json.loads(kwargs['used_list'])
             used_objects = []
             try:
@@ -329,7 +368,7 @@ class Work_Order(models.Model):
                             )
                         )
     
-
+            #check if the request contains any parts request
             parts_request_data = json.loads(kwargs['parts_request_list'])
 
             main_warhouse_id = kwargs['main_warehouse_id']
@@ -373,6 +412,8 @@ class Work_Order(models.Model):
                     #the part requests are not editable, they involve undoing inventory movements
                     #so it is a big chance to break stuff
 
+
+            #check for things to delete
             wo_ids_to_delete = json.loads(kwargs['cash_advances_to_delete'])
             for wo_id in wo_ids_to_delete:
                 Cash_Advance.deleteInstance(user_id, wo_id)
@@ -384,6 +425,10 @@ class Work_Order(models.Model):
             used_ids_to_delete = json.loads(kwargs['used_list_to_delete'])
             for used_id in used_ids_to_delete:
                 UsedPart.deleteInstance(user_id, used_id)
+
+            informative_movements_to_delete = json.loads(kwargs['informative_list_to_delete'])
+            for inf_id in informative_movements_to_delete:
+                InformativeMovement.deleteInstance(user_id, inf_id)
 
             parts_request_to_delete = json.loads(kwargs['parts_request_to_delete'])
             origin_warehouse = workshop_warehouse_id
@@ -418,7 +463,8 @@ class Work_Order(models.Model):
                 })
 
             request_groups = PartRequestGroup.objects.filter(work_order_id__exact=work_order.id)
-            return (work_order, return_cash_advances, return_labor_objects, return_used_objects, return_part_requests, request_groups)
+            return (work_order, return_cash_advances, return_labor_objects, return_used_objects, 
+                return_part_requests, request_groups, return_informative_movements)
 
     @classmethod
     def setPaidAndDischargeInventory(self_cls, pk, user_id):
@@ -523,7 +569,81 @@ class PartRequestGroup(models.Model):
             })
             return pr_group
 
+class InformativeMovement(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    work_order_id = models.CharField(verbose_name="ID Orden de Trabajo", max_length=80, default='')
+    employee = models.TextField(verbose_name="Empleado", default='')
+    description = models.CharField(max_length=255, verbose_name= "Descripción Reparación", default='')
+    created = models.DateTimeField(auto_now=False, auto_now_add=True, blank=True, null=True,
+                                   verbose_name='Fecha de creación')
+    updated = models.DateTimeField(auto_now=True, auto_now_add=False, blank=True, null=True,
+                                   verbose_name='Fecha de modificación')
 
+    class Meta:
+        verbose_name = "Movimiento Informativo"
+        verbose_name_plural = "Movimientos Informativos"
+        ordering = ['work_order_id']
+        default_permissions = ()
+
+    @classmethod
+    def create(self_cls, user_id, **kwargs):
+        user = User.objects.get(id=user_id)
+        user_string = dump_object_json(user)
+
+        with transaction.atomic():
+            inf_mov = self_cls.objects.create(**kwargs)
+            Log.objects.create(**{
+                'code': 'INFORMATIVE_MOVEMENT_CREATED',
+                'model': 'INFORMATIVE_MOVEMENT',
+                'prev_object': '',
+                'new_object': dump_object_json(inf_mov),
+                'user': user_string
+            })   
+            return inf_mov
+    @classmethod
+    def patch(self_cls, user_id, **kwargs):
+        user = User.objects.get(id=user_id)
+        user_string = dump_object_json(user)
+
+        with transaction.atomic():
+            inf_mov = self_cls.objects.get(id=kwargs['id'])
+
+            should_update = False
+            if kwargs['description'] != inf_mov.description:
+                should_update = True
+            
+            if not should_update:
+                return inf_mov
+
+            old_inf_mov = dump_object_json(inf_mov)
+
+            inf_mov.description = kwargs['description']
+
+            inf_mov.save()
+
+            Log.objects.create(**{
+                'code': 'INFORMATIVE_MOVEMENT_UPDATED',
+                'model': 'INFORMATIVE_MOVEMENT',
+                'prev_object': old_inf_mov,
+                'new_object': dump_object_json(inf_mov),
+                'user': user_string
+            })
+            return inf_mov
+
+    @classmethod
+    def deleteInstance(self_cls, user_id, id):
+        user = User.objects.get(id=user_id)
+        user_string = dump_object_json(user) 
+        with transaction.atomic():
+            inf_mov = self_cls.objects.get(id=id)
+            Log.objects.create(**{
+                'code': 'INFORMATIVE_MOVEMENT_DELETED',
+                'model': 'INFORMATIVE_MOVEMENT',
+                'prev_object': dump_object_json(inf_mov),
+                'new_object': '',
+                'user': user_string
+            })
+            inf_mov.delete() 
 
 class Labor(models.Model):
 

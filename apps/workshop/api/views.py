@@ -2,7 +2,8 @@ from rest_framework import viewsets
 
 from ..models import Work_Order, Labor, UsedPart, PartRequest, PartRequestGroup
 from .filters import Work_OrderFilter, LaborFilter, UsedPartFilter, PartRequestFilter
-from .serializers import Work_OrderSerializer, LaborSerializer, UsedPartSerializer, PartRequestSerializer, PartRequestGroupSerializer
+from .serializers import (Work_OrderSerializer, LaborSerializer, UsedPartSerializer, 
+    PartRequestSerializer, PartRequestGroupSerializer, InformativeMovementSerializer)
 from apps.sales.api.serializers import Cash_AdvanceSerializer
 from .permissions import HasProperPermission
 from rest_framework import status
@@ -52,7 +53,7 @@ class Work_OrderCreateViewSet(viewsets.ViewSet):
         req_data = request.data
         user_id = request.user.id
         try:
-            new_wo, cash_advances, labor, used, part_request, request_groups = Work_Order.patch_workview(pk, user_id, **req_data)
+            new_wo, cash_advances, labor, used, part_request, request_groups, inf_movs = Work_Order.patch_workview(pk, user_id, **req_data)
             serialized_cash = []
             for cash in cash_advances:
                 serialized_cash.append(
@@ -65,6 +66,7 @@ class Work_OrderCreateViewSet(viewsets.ViewSet):
             return_data['used_objects'] = UsedPartSerializer(used, many=True).data
             return_data['part_requests'] = PartRequestSerializer(part_request, many=True).data
             return_data['request_groups'] = PartRequestGroupSerializer(request_groups, many=True).data
+            return_data['informative_movements'] = InformativeMovementSerializer(inf_movs, many=True).data
 
             return Response(data= return_data, status= status.HTTP_201_CREATED)
         except TransactionError as e:
@@ -128,7 +130,7 @@ class Work_OrderViewSet(viewsets.ReadOnlyModelViewSet):
         user_id = request.user.id
 
         try:
-            wo, cash_advance, labor, used, part_request, request_groups = Work_Order.getWorkOrderAndRelated(user_id, kwargs["id"])
+            wo, cash_advance, labor, used, part_request, request_groups, inf_movs = Work_Order.getWorkOrderAndRelated(user_id, kwargs["id"])
             return_data = {}
             return_data['work_order'] = Work_OrderSerializer(wo).data
             return_data['cash_advances'] = Cash_AdvanceSerializer(cash_advance, many=True).data
@@ -136,6 +138,7 @@ class Work_OrderViewSet(viewsets.ReadOnlyModelViewSet):
             return_data['used_objects'] = UsedPartSerializer(used, many=True).data
             return_data['part_requests'] = PartRequestSerializer(part_request, many=True).data
             return_data['request_groups'] = PartRequestGroupSerializer(request_groups, many=True).data
+            return_data['informative_movements'] = InformativeMovementSerializer(inf_movs, many=True).data
             return Response(data=return_data, status=status.HTTP_200_OK)
         except TransactionError as e:
             return Response(data=e.get_errors(), status=status.HTTP_400_BAD_REQUEST)
