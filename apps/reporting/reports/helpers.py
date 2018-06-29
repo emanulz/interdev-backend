@@ -1,5 +1,5 @@
 from apps.sales.models import Sale
-import datetime
+from datetime import datetime, timedelta, date
 from openpyxl import Workbook
 from openpyxl.styles import colors
 from openpyxl.styles import Font, Color
@@ -20,15 +20,17 @@ COMPANY_NAME = 'Repuestos Juanca'
 def createGenSalesReport(start, end, day, month, year):
     print("Create gen sales report entry point")
 
+    #variable to track the time covered
+    report_coverage = ''
+
     #declare the names of the worksheets to be created
     wb = Workbook()
     
-    today = datetime.date.today()
+    today = date.today()
 
 
-    print("Today --> ", today)
     report_period_type = None
-    if start!='' and end!='':
+    if start!='' or end!='':
         report_period_type='date_range'
     elif day!='':
         report_period_type ='day'
@@ -39,15 +41,68 @@ def createGenSalesReport(start, end, day, month, year):
     
     target_sales = None
     if report_period_type == 'day':
-        target_sales =  Sale.objects.filter(created__lt=today, created__gt=today)
+        day_target =  None
+        month_target = None
+        year_target = None
+
+        if day == 'THIS':
+            target_sales =  Sale.objects.filter(created__lt=today+timedelta(days=1), 
+                created__gt=today-timedelta(days=1))
+            report_coverage = today
+        else:
+            day_target = int(day)
+            if month == '':
+                month_target = today.month
+            else:
+                month_target = int(month)
+            if year == '':
+                year_target = today.year
+            else:
+                year_target = int(year)
+            target_date = datetime(year_target, month_target, day_target)
+            report_coverage = target_date
+            target_sales = Sale.objects.filter(created__lt = target_date+timedelta(days=1),
+                created__gt=target_date-timedelta(days=1))
     elif report_period_type == "month":
-        print("By Month")
-        print(today.month)
-        target_sales = Sale.objects.filter(created__month = today.month)
+        target_year = None
+
+        if year == '':
+            target_year = today.year
+        else:
+            target_year = int(year)
+        target_month = None
+        if month == 'THIS':
+            target_month = today.month
+        else:
+            target_month = int(month)
+        report_coverage = "Mes: {}, Año: {}".format(target_month, target_year)
+        target_sales = Sale.objects.filter(created__month = target_month, created__year =target_year)
     elif report_period_type == "year":
-        target_sales = Sale.objects.filter(created__year=today.year)
+        target_year = None
+        if year == 'THIS':
+            target_year = today.year
+        else:
+            target_year = int(year)
+        report_coverage = "Año: {}".format(target_year)
+        target_sales = Sale.objects.filter(created__year=target_year)
     elif report_period_type == "date_range":
-        print("date range report")
+        #expected date  is YYYY-MONTH-DAY
+        start_year, start_month, start_day = start.split('-')
+        start_year = int(start_year)
+        start_month = int(start_month)
+        start_day = int(start_day)
+
+        end_year, end_month, end_day = end.split('-')
+        end_year = int(end_year)
+        end_month = int(end_month)
+        end_day = int(end_day)
+
+        start_date = datetime(start_year, start_month, start_day)
+        end_date = datetime(end_year, end_month, end_day)
+
+        report_coverage = "Inicio: {}, Fin: {}".format(start_date, end_date)
+        target_sales =  Sale.objects.filter(created__lt=end_date, 
+            created__gt=start_date)
 
     #separate the sales into the different reports that belong to
     cash_sales = []
@@ -62,13 +117,12 @@ def createGenSalesReport(start, end, day, month, year):
             cred_sales.append((sale, cart_data))
     
 
-
-    createCashSalesReport(cash_sales, wb)
-    createCreditSalesReport(cred_sales, wb)
-    createProductMovementReport(cash_sales, cred_sales, wb)
+    createCashSalesReport(cash_sales, wb, report_coverage)
+    createCreditSalesReport(cred_sales, wb, report_coverage)
+    createProductMovementReport(cash_sales, cred_sales, wb, report_coverage)
     return wb
 
-def createProductMovementReport(target_sales_cash, target_sales_cred, wb, sheet_index = 4):
+def createProductMovementReport(target_sales_cash, target_sales_cred, wb, period, sheet_index = 4):
 
     current_row = 1
     current_col = 1
@@ -80,8 +134,13 @@ def createProductMovementReport(target_sales_cash, target_sales_cred, wb, sheet_
     ws.cell(row=current_row, column=current_col, value=COMPANY_NAME)
     current_row+=1
     #write the date
-    now = datetime.datetime.now()
-    ws.cell(row=current_row, column=current_col, value=now)
+    now = datetime.now()
+    report_generation = "Fecha generación: {}".format(now)
+    ws.cell(row=current_row, column=current_col, value=report_generation)
+    current_row+=1
+    #add the perdiod covered by the report
+    report_generation = "Periódo cubierto: {}".format(period)
+    ws.cell(row=current_row, column=current_col, value=report_generation)
     current_row+=1
     #write the report type
     ws.cell(row=current_row, column=current_col, value="REPORTE FACTURACIÓN DE CRÉDITO")
@@ -168,7 +227,7 @@ def createProductMovementReport(target_sales_cash, target_sales_cred, wb, sheet_
         adjusted_width = (max_length + 2) * 1.2
         ws.column_dimensions[column].width = adjusted_width
 
-def createCashSalesReport(target_sales, wb, sheet_index = 0):
+def createCashSalesReport(target_sales, wb, period, sheet_index = 0):
 
     current_row = 1
     current_col = 1
@@ -184,8 +243,13 @@ def createCashSalesReport(target_sales, wb, sheet_index = 0):
     ws.cell(row=current_row, column=current_col, value=COMPANY_NAME)
     current_row+=1
     #write the date
-    now = datetime.datetime.now()
-    ws.cell(row=current_row, column=current_col, value=now)
+    now = datetime.now()
+    report_generation = "Fecha generación: {}".format(now)
+    ws.cell(row=current_row, column=current_col, value=report_generation)
+    current_row+=1
+    #add the perdiod covered by the report
+    report_generation = "Periódo cubierto: {}".format(period)
+    ws.cell(row=current_row, column=current_col, value=report_generation)
     current_row+=1
     #write the report type
     ws.cell(row=current_row, column=current_col, value="REPORTE FACTURACIÓN DE CONTADO")
@@ -271,7 +335,7 @@ def createCashSalesReport(target_sales, wb, sheet_index = 0):
         ws.column_dimensions[column].width = adjusted_width
 
 
-def createCreditSalesReport(target_sales, wb, sheet_index = 1):
+def createCreditSalesReport(target_sales, wb, period, sheet_index = 1):
 
     current_row = 1
     current_col = 1
@@ -283,8 +347,13 @@ def createCreditSalesReport(target_sales, wb, sheet_index = 1):
     ws.cell(row=current_row, column=current_col, value=COMPANY_NAME)
     current_row+=1
     #write the date
-    now = datetime.datetime.now()
-    ws.cell(row=current_row, column=current_col, value=now)
+    now = datetime.now()
+    report_generation = "Fecha generación: {}".format(now)
+    ws.cell(row=current_row, column=current_col, value=report_generation)
+    current_row+=1
+    #add the perdiod covered by the report
+    report_generation = "Periódo cubierto: {}".format(period)
+    ws.cell(row=current_row, column=current_col, value=report_generation)
     current_row+=1
     #write the report type
     ws.cell(row=current_row, column=current_col, value="REPORTE FACTURACIÓN DE CRÉDITO")

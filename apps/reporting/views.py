@@ -16,7 +16,9 @@ def generateReports(request, report =''):
         }
         #holds the data necessary to make the report
         report_kwargs = {
+            'day': request.GET.get('day', ''),
             'month': request.GET.get('month', ''),
+            'year': request.GET.get('year', ''),
             'start': request.GET.get('start', ''),
             'end': request.GET.get('end', ''),
             'closed': request.GET.get('closed', False)

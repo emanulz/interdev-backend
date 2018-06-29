@@ -9,7 +9,8 @@ def buildGenSalesReport(**kwargs):
     response = HttpResponse(content_type='application/ms-excel')
     response['Content-Disposition'] = 'attachment; filename="Reporte Ventas.xlsx"'
 
-    report = createGenSalesReport(start='', end='', day='', month=6, year='')
+    report = createGenSalesReport(start=kwargs['start'], end=kwargs['end'], 
+        day=kwargs['day'], month=kwargs['month'], year=kwargs['year'])
 
     report.save(response)
     return response
