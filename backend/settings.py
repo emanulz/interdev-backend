@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 """
 Django settings for backend project.
 
@@ -11,7 +12,7 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 """
 
 import os
-
+from celery.schedules import crontab
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -32,7 +33,6 @@ except Exception as e:
 
 ALLOWED_HOSTS = ['localhost', '192.168.9.254', '192.168.1.254', '192.168.9.56', '192.168.9.107', '192.168.1.144',
                  'DANTE']
-
 
 # Application definition
 
@@ -237,9 +237,26 @@ if DEBUG:
 
 
 #CELERY CONFIGURATION
-BROKER_URL = 'redis://localhost:6379'
+CELERY_BROKER_URL = 'redis://localhost:6379'
 CELERY_RESULT_BACKEND = 'redis://localhost:6379'
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'America/Costa_Rica'
+CELERY_BEAT_SCHEDULE = {
+    'create_invvalue_report_task': {
+        'task': 'apps.reporting.tasks.create_invvalue_report_task',
+        'schedule': crontab(minute='*/1'),
+        'args': ('s', False,),
+    },
+    
+    'task-number-two': {
+        'task': 'apps.sales.tasks.task_number_one',
+        'schedule': crontab(minute='*/1'),
+    },
+}
+
+
+
+
+
