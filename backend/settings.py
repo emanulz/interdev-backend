@@ -1,4 +1,5 @@
 from __future__ import absolute_import
+import sys
 """
 Django settings for backend project.
 
@@ -15,6 +16,13 @@ import os
 from celery.schedules import crontab
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+print("BASE DIR --> ", BASE_DIR)
+BASE_DIR_TEST = os.path.dirname(os.path.dirname(__file__))
+print("TEST_DIR --> ", BASE_DIR_TEST)
+
+PROJECT_ROOT = os.path.dirname(__file__)
+#print("THIS --> ", os.path.join(PROJECT_ROOT, '..\\apps'))
+sys.path.insert(0, os.path.join(PROJECT_ROOT, '..\\..\\core_apps'))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/
@@ -67,7 +75,10 @@ INSTALLED_APPS = [
     'apps.senders.apps.SendersConfig',
     'apps.addresses.apps.AddressesConfig',
     'apps.inventories.apps.InventoriesConfig',
-    'apps.workshop.apps.WorkshopConfig',
+
+    #'apps.workshop.apps.WorkshopConfig',
+    'workshop.apps.WorkshopConfig',
+
     'apps.reporting.apps.ReportingConfig',
     'apps.purchases.apps.PurchasesConfig',
     'apps.payables.apps.PayablesConfig',

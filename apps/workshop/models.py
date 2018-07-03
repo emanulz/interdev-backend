@@ -68,8 +68,7 @@ class Work_Order(models.Model):
 
 
     def check_create_kwargs(kwargs):
-        print("GRRRR")
-        print(kwargs)
+
         mandatory_props = ['client', 'article_type', 'article_brand', 'article_color',
             'malfunction_details', 'observations_list', 'is_warranty', 'warranty_number_bd']
 
@@ -131,7 +130,7 @@ class Work_Order(models.Model):
             order_number = calculate_next_consecutive(self_cls)
             new_kwargs['consecutive'] = order_number
             #do a model level validation
-            val_wo = Work_Order(**new_kwargs).full_clean()
+            Work_Order(**new_kwargs).full_clean()
             wo = self_cls.objects.create(**new_kwargs)
             #log the creation of the work order
             Log.objects.create(**{
@@ -190,7 +189,6 @@ class Work_Order(models.Model):
         for key in patch_kwargs.keys():
             setattr(wo, key, patch_kwargs[key])
         wo.save()
-        wo_updated_string = dump_object_json(wo)
         
         Log.objects.create(**{
             'code': 'WORK_ORDER_UPDATE',
