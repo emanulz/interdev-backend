@@ -408,12 +408,16 @@ class Purchase(models.Model):
                     Product.inventory_movement(prod['id'], warehouse, 'INPUT', amount,
                         user_string, individual_mov_desc, id_generator)
                     #update poduct price
-                    Product.update_product_price(prod['id'], user.id, **{
+                    updated_prod = Product.update_product_price(prod['id'], user.id, **{
                         'target_utility': item['target_utility'],
                         'subtotal': item['subtotal'],
                         'quantity': item['qty']
                     })
+                    item['product']['inventory_existent'] =  json.loads(updated_prod.inventory_existent)#put the updated product in the cart
 
+                #print("UPDATED CART_OBJECT --> ", cart_object)
+                purchase.cart = json.dumps(cart_object)
+                purchase.save() #save the purchase with the udpated product
 
             return purchase
             
