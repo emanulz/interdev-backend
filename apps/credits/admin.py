@@ -3,7 +3,7 @@
 from __future__ import unicode_literals
 
 from django.contrib import admin
-from .models import Credit_Movement
+from .models import Credit_Movement, Credit_Note
 from .credit_payment_model import Credit_Payment
 # from general.models.companies import Company
 
@@ -18,6 +18,14 @@ class Credit_MovementAdmin(admin.ModelAdmin):
 
 @admin.register(Credit_Payment)
 class Credit_PaymentAdmin(admin.ModelAdmin):
+
+    list_display = ('consecutive', 'description', 'amount', 'created')
+
+    search_fields = ('consecutive', 'amount', 'created')
+
+
+@admin.register(Credit_Note)
+class Credit_NoteAdmin(admin.ModelAdmin):
 
     list_display = ('consecutive', 'description', 'amount', 'created')
 

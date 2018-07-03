@@ -33,7 +33,6 @@ class Sale(models.Model):
     transfer = 'TRAN'
     other = 'OTHE'
 
-
     PAY_CHOICES = ((cash, 'Efectivo'),
                    (card, 'Tarjeta'),
                    (credit, 'Crédito'),
@@ -235,19 +234,19 @@ class Sale(models.Model):
             })
 
             return sale
-
             
     @classmethod
     def return_products(self_cls, pk, user_id, **kwargs):
-        kwargs['return_list']='[{"id":"a02e155c-dd93-41b6-bf27-0c0afdd670b0", "ret_qty":1}]'
-        kwargs['return_method']='CREDIT'
+        # kwargs['return_list']='[{"id":"a02e155c-dd93-41b6-bf27-0c0afdd670b0", "ret_qty":1}]'
+        # kwargs['return_method']='CREDIT'
+        # kwargs['destination_warehouse_id']=''
         
         user = User.objects.get(id=user_id)
         user_string = UserSerialiazer(user).data
 
         with transaction.atomic():
             sale = self_cls.objects.select_for_update().get(id=pk)
-            client_id =  sale.client_id
+            client_id = sale.client_id
             client_string = sale.client
             #update the sale with the return list
 
@@ -266,7 +265,7 @@ class Sale(models.Model):
                 'return_list': kwargs['return_list'],
                 'return_method': return_method,
                 'sale': sale,
-                'destination_warehouse_id': '9d85cecc-feb1-4710-9a19-0a187580e15e'
+                'destination_warehouse_id': kwargs['destination_warehouse_id']
             }
 
             Return.create(**return_kwargs)
@@ -313,7 +312,7 @@ class Sale(models.Model):
                 'client_id': client_id,
                 'return_list': json.dumps(return_list),
                 'sale': sale,
-                'destination_warehouse_id': '9d85cecc-feb1-4710-9a19-0a187580e15e'
+                'destination_warehouse_id': kwargs['destination_warehouse_id']
             }
 
             return Return.create(**return_kwargs)
@@ -346,9 +345,11 @@ class Return(models.Model):
         if sale.returns_collection != '':
             old_return_list = json.loads(sale.returns_collection)
 
-        #hydrate the sale_Cart string
+        # hydrate the sale_Cart string
         sale_cart_object = json.loads(sale_cart)
         merchandise_total_value = Decimal(0)
+        merchandise_subtotal_value = Decimal(0)
+        merchandise_taxes_value = Decimal(0)
         sale_cart_items = sale_cart_object['cartItems']
         for item in return_list:
             original_sale_line = None
@@ -366,22 +367,26 @@ class Return(models.Model):
             if original_sale_qty - item_previous_returns < item['ret_qty']:
                 raise TransactionError({'return_list': [
                     'Para producto {} la cantidad a retornar {} es mayor a la vendida {} menos los retornos previos {}'.format(item['id'], item['ret_qty'], original_sale_qty, item_previous_returns)]})
-            merchandise_total_value += Decimal(original_sale_line['product']['sell_price'])*item['ret_qty']
-
+            
+            # calculates the original sell price, subtotal and taxes by unit, and multiplis the qty of return
+            merchandise_subtotal_value += (Decimal(original_sale_line['subtotal']) / Decimal(original_sale_line['qty'])) * item['ret_qty']
+            merchandise_taxes_value += ((Decimal(original_sale_line['totalWithIv']) - Decimal(original_sale_line['subtotal'])) / Decimal(original_sale_line['qty'])) * item['ret_qty']
+            merchandise_total_value += (Decimal(original_sale_line['totalWithIv']) / Decimal(original_sale_line['qty'])) * item['ret_qty']
+            
             original_sale_string = dump_object_json(sale)
             sale.returns_collection = json.dumps(old_return_list + return_list)
             sale.save()
             new_sale_string = dump_object_json(sale)
-            #log the change in the product
+            # log the change in the product
             Log(**{
                 'code': 'SALE_UPDATED_ON_RETURN',
                 'model': 'SALE',
                 'prev_object': original_sale_string,
                 'new_object': new_sale_string,
-                'description':'Modified Returns collection to include new returned items',
+                'description': 'Modified Returns collection to include new returned items',
                 'user': kwargs['user']
             })
-        
+        merchandise_total_value = round(merchandise_total_value, 5)
         return_object =  self_cls.objects.create(**{
             'consecutive': next_consecutive,
             'client': kwargs['client'],
@@ -393,7 +398,7 @@ class Return(models.Model):
             'amount': merchandise_total_value
 
         })
-        #log the creation of the object
+        # log the creation of the object
 
         return_string = dump_object_json(return_object)
         Log.objects.create(**{
@@ -405,21 +410,23 @@ class Return(models.Model):
             'user': kwargs['user']
         })
 
-        #create a credit note for the return
+        # create a credit note for the return
         credit_note_kwargs = {
             'sale_id': kwargs['sale_id'],
             'user': kwargs['user'],
             'user_id': kwargs['user_id'],
             'client': kwargs['client'],
             'client_id': kwargs['client_id'],
+            'description': 'Nota de Crédito por retorno de producto',
             'amount': merchandise_total_value,
-            'description': 'Nota de Crédito por retorno de producto'
+            'subtotal_amount': merchandise_subtotal_value,
+            'taxes_amount': merchandise_taxes_value
         }
-        #the credit note itself will store its creation log. it will create
-        #the debit movement itself
+        # the credit note itself will store its creation log. it will create
+        # the debit movement itself
         credit_note = Credit_Note.create(**credit_note_kwargs)
 
-        #create a credit note voucher for the total amount of the return
+        # create a credit note voucher for the total amount of the return
         credit_voucher_kwargs = {
             'client': kwargs['client'],
             'client_id': kwargs['client_id'],
@@ -432,8 +439,8 @@ class Return(models.Model):
         }
         credit_voucher = Credit_Voucher.create(**credit_voucher_kwargs)
 
-        #return inventory to the warehouse
-        #hardcode the destination warehouse
+        # return inventory to the warehouse
+        # hardcode the destination warehouse
         inv_movs_description = 'Retorno a inventario por devolución en factura {}'.format(sale.consecutive)
         id_generator = 're_{}'.format(return_object.id)
         warehouse = Warehouse.objects.get(id=kwargs['destination_warehouse_id'])
