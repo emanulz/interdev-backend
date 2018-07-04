@@ -91,7 +91,8 @@ class Purchase(models.Model):
     @classmethod 
     def partial_update(self_cls, user_id, purchase_id, **kwargs):
         user = User.objects.get(id=user_id)
-        user_string = UserSerialiazer(user).data
+        #user_string = UserSerialiazer(user).data
+        user_string = dump_object_json(user)
         apply = None
         try:
             apply = bool(kwargs['apply'])
