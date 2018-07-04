@@ -118,7 +118,7 @@ def createGenPurchasesreport(start, end, day, month, year):
             credit_purchases.append((purchase, cart_data))
 
     createCreditPurchasesReport(credit_purchases, wb, report_coverage)
-
+    createCashPurchasesReport(cash_purchases, wb, report_coverage)
     return wb
 
 def createCreditPurchasesReport(purchases, wb, period, sheet_index=0):
@@ -279,3 +279,159 @@ def createCreditPurchasesReport(purchases, wb, period, sheet_index=0):
 
     adjustSheetColsWidth(ws)
 
+def createCashPurchasesReport(purchases, wb, period, sheet_index=1):
+    COMPANY_NAME = getCompanyName()
+    current_row = 1
+    current_col = 1
+    header_labels = ['# Consecutivo', '# Factura', 'Fecha Factura', 'Proveedor', 'Subtotal', 'Descuento', 'Transporte', 'Impuesto', 'Total', 'Fecha Ingreso', 'Usuario' ] 
+    ws = None
+    if sheet_index == 0:
+        wb._active_sheet_index = sheet_index
+        #get the first sheet, created per default
+        ws = wb.active
+        #change the title of the sheet
+        ws.title = REPORTE_COMPRAS[0]
+    else:
+        ws = wb.create_sheet(title=REPORTE_COMPRAS[sheet_index])
+
+    #add a simple title
+    ws.cell(row=current_row, column=current_col, value=COMPANY_NAME)
+    current_row+=1
+    #write the date
+    now = datetime.now()
+    report_generation = "Fecha generación: {}".format(now)
+    ws.cell(row=current_row, column=current_col, value=report_generation)
+    current_row+=1
+    #add the perdiod covered by the report
+    report_generation = "Periódo cubierto: {}".format(period)
+    ws.cell(row=current_row, column=current_col, value=report_generation)
+    current_row+=1
+    #write the report type
+    ws.cell(row=current_row, column=current_col, value="REPORTE COMPRAS CONTADO")
+    current_row+=2
+
+    #write the header
+    for i in range(0,len(header_labels)):
+        temp_cell = ws.cell(row=current_row, column=current_col+i, value=header_labels[i])
+        temp_cell.font = Font(bold=True, name="Tahoma", size=8)
+    #reset the col position
+    current_col = 1
+    current_row+=1
+    
+    #variable to hold the data of the sheet body
+    data_body = []
+    
+    #track totals for the different columns
+    total_subtotal = 0
+    total_discount = 0
+    total_transport = 0
+    total_tax = 0
+    total_total = 0
+    
+    #each element is a tupple with the first index being the purchase
+    #and the second on the parsed json cart
+    for element in purchases:
+        temp_row = []
+        #get the internal system consecutive
+        temp_row.append(element[0].consecutive)
+        #get the invoice number as received
+        temp_row.append(element[0].invoice_number)
+        #get the date on which the invoice was emitted
+        temp_row.append(element[0].invoice_date)
+        #get the supplier
+        try:
+            supplier = json.loads(element[0].supplier)
+            temp_row.append("{}-{}".format(supplier['code'], supplier['name']))
+        except Exception:
+            if element[0].supplier == None or element[0].supplier == '':
+                temp_row.append("{}-{}".format('Proveedor', 'Vacío'))
+        #get the subtotal of the purchase
+        temp_subtotal = element[1]['cartSubtotal']
+        total_subtotal += temp_subtotal
+        temp_row.append(round(temp_subtotal, 2))
+        #get the discount applied
+        temp_discount =  element[1]['discountTotal']
+        total_discount += temp_discount
+        temp_row.append(round(temp_discount, 2))
+        #get the transport fee
+        temp_transport = 0
+        try:
+            temp_transport = element[1]['orderTransport']
+        except KeyError: #older orders did not suppport transport
+            pass
+        total_transport += temp_transport
+        temp_row.append(round(temp_transport, 2))
+        #get the tax
+        temp_tax = element[1]['cartTaxes']
+        total_tax += temp_tax
+        temp_row.append(round(temp_tax, 2))
+        #get the purchase total
+        temp_total = element[0].purchase_total
+        total_total += temp_total
+        temp_row.append(round(temp_total, 2))
+        #get the date on which the invoice was entered in the system
+        temp_row.append(str(convertToLocalTimezone(element[0].created)))
+        #get the user that entered the purchase in the system
+        try:
+            
+            user_object = json.loads(element[0].user)
+            user_first_name = user_object['first_name']
+            user_last_name = user_object['last_name']
+            if user_first_name == '' and user_last_name == '':
+                temp_row.append(user_object['username'])
+            else:
+                temp_row.append("{} {}".format(user_first_name, user_last_name))
+        except Exception as e:
+            try:
+                cleaned_json = element[0].user.replace("'",'"').replace("True", '"True"').replace('[]', "[]")
+                user_object = json.loads(cleaned_json)
+                user_first_name = user_object['first_name']
+                user_last_name = user_object['last_name']
+                if user_first_name == '' and user_last_name == '':
+                    temp_row.append(user_object['username'])
+                else:
+                    temp_row.append("{} {}".format(user_first_name, user_last_name))
+            except Exception as e:
+                print(e)
+                temp_row.append("BAD USER")
+        
+        data_body.append(temp_row)
+
+    for data_row in data_body:
+        for i in range(0, len(data_row)):
+            temp_cell = ws.cell(row=current_row, column=current_col+i, value=data_row[i])
+        current_row += 1
+        current_col = 1
+    
+    #insert the totals at the totals
+    current_col = 4
+    current_row += 2
+
+    totals_legend_cell = ws.cell(row=current_row, column=current_col, value="Totales-->")
+    totals_legend_cell.font = Font(bold=True, name="Tahoma", size=8)
+    current_col+=1
+
+    #add the subtotal
+    temp_cell = ws.cell(row=current_row, column=current_col, value=round(total_subtotal,2))
+    temp_cell = Font(bold=True, name="Tahoma", size=8)
+    current_col +=1
+    #add the total discount
+    temp_cell = ws.cell(row=current_row, column=current_col, value=round(total_discount,2))
+    temp_cell = Font(bold=True, name="Tahoma", size=8)
+    current_col +=1
+    #total transport
+    temp_cell = ws.cell(row=current_row, column=current_col, value=round(total_transport,2))
+    temp_cell = Font(bold=True, name="Tahoma", size=8)
+    current_col +=1
+    #total tax
+    temp_cell = ws.cell(row=current_row, column=current_col, value=round(total_tax,2))
+    temp_cell = Font(bold=True, name="Tahoma", size=8)
+    current_col +=1
+    #total total
+    temp_cell = ws.cell(row=current_row, column=current_col, value=round(total_total,2))
+    temp_cell = Font(bold=True, name="Tahoma", size=8)
+    current_col +=1
+
+
+
+    adjustSheetColsWidth(ws)
