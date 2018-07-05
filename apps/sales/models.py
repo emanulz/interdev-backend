@@ -337,120 +337,123 @@ class Return(models.Model):
 
     @classmethod
     def create(self_cls, **kwargs):
-        next_consecutive = calculate_next_consecutive(self_cls)
-        sale= kwargs['sale']
-        sale_cart = sale.cart 
-        return_list = json.loads(kwargs['return_list'])
-        old_return_list = [] #load the list containing the items and quantyties previously returned
-        if sale.returns_collection != '':
-            old_return_list = json.loads(sale.returns_collection)
+        with transaction.atomic():
+            next_consecutive = calculate_next_consecutive(self_cls)
+            sale= kwargs['sale']
+            return_method = kwargs['return_method']
+            sale_cart = sale.cart 
+            return_list = json.loads(kwargs['return_list'])
+            old_return_list = [] #load the list containing the items and quantyties previously returned
+            if sale.returns_collection != '':
+                old_return_list = json.loads(sale.returns_collection)
 
-        # hydrate the sale_Cart string
-        sale_cart_object = json.loads(sale_cart)
-        merchandise_total_value = Decimal(0)
-        merchandise_subtotal_value = Decimal(0)
-        merchandise_taxes_value = Decimal(0)
-        sale_cart_items = sale_cart_object['cartItems']
-        for item in return_list:
-            original_sale_line = None
-            for cart_item in sale_cart_items:
-                if cart_item['product']['id'] == item['id']:
-                    original_sale_line = cart_item
-                    break
-            original_sale_qty = original_sale_line['qty']
-            #determine how many, if any of the items in the original line had been returned
-            item_previous_returns = 0
-            for ret in old_return_list:
-                if ret["id"] == item["id"]:
-                    item_previous_returns += ret["ret_qty"]
+            # hydrate the sale_Cart string
+            sale_cart_object = json.loads(sale_cart)
+            merchandise_total_value = Decimal(0)
+            merchandise_subtotal_value = Decimal(0)
+            merchandise_taxes_value = Decimal(0)
+            sale_cart_items = sale_cart_object['cartItems']
+            for item in return_list:
+                original_sale_line = None
+                for cart_item in sale_cart_items:
+                    if cart_item['product']['id'] == item['id']:
+                        original_sale_line = cart_item
+                        break
+                original_sale_qty = original_sale_line['qty']
+                #determine how many, if any of the items in the original line had been returned
+                item_previous_returns = 0
+                for ret in old_return_list:
+                    if ret["id"] == item["id"]:
+                        item_previous_returns += ret["ret_qty"]
 
-            if original_sale_qty - item_previous_returns < item['ret_qty']:
-                raise TransactionError({'return_list': [
-                    'Para producto {} la cantidad a retornar {} es mayor a la vendida {} menos los retornos previos {}'.format(item['id'], item['ret_qty'], original_sale_qty, item_previous_returns)]})
-            
-            # calculates the original sell price, subtotal and taxes by unit, and multiplis the qty of return
-            merchandise_subtotal_value += (Decimal(original_sale_line['subtotal']) / Decimal(original_sale_line['qty'])) * item['ret_qty']
-            merchandise_taxes_value += ((Decimal(original_sale_line['totalWithIv']) - Decimal(original_sale_line['subtotal'])) / Decimal(original_sale_line['qty'])) * item['ret_qty']
-            merchandise_total_value += (Decimal(original_sale_line['totalWithIv']) / Decimal(original_sale_line['qty'])) * item['ret_qty']
-            
-            original_sale_string = dump_object_json(sale)
-            sale.returns_collection = json.dumps(old_return_list + return_list)
-            sale.save()
-            new_sale_string = dump_object_json(sale)
-            # log the change in the product
-            Log(**{
-                'code': 'SALE_UPDATED_ON_RETURN',
-                'model': 'SALE',
-                'prev_object': original_sale_string,
-                'new_object': new_sale_string,
-                'description': 'Modified Returns collection to include new returned items',
+                if original_sale_qty - item_previous_returns < item['ret_qty']:
+                    raise TransactionError({'return_list': [
+                        'Para producto {} la cantidad a retornar {} es mayor a la vendida {} menos los retornos previos {}'.format(item['id'], item['ret_qty'], original_sale_qty, item_previous_returns)]})
+                
+                # calculates the original sell price, subtotal and taxes by unit, and multiplis the qty of return
+                merchandise_subtotal_value += (Decimal(original_sale_line['subtotal']) / Decimal(original_sale_line['qty'])) * item['ret_qty']
+                merchandise_taxes_value += ((Decimal(original_sale_line['totalWithIv']) - Decimal(original_sale_line['subtotal'])) / Decimal(original_sale_line['qty'])) * item['ret_qty']
+                merchandise_total_value += (Decimal(original_sale_line['totalWithIv']) / Decimal(original_sale_line['qty'])) * item['ret_qty']
+                
+                original_sale_string = dump_object_json(sale)
+                sale.returns_collection = json.dumps(old_return_list + return_list)
+                sale.save()
+                new_sale_string = dump_object_json(sale)
+                # log the change in the product
+                Log(**{
+                    'code': 'SALE_UPDATED_ON_RETURN',
+                    'model': 'SALE',
+                    'prev_object': original_sale_string,
+                    'new_object': new_sale_string,
+                    'description': 'Modified Returns collection to include new returned items',
+                    'user': kwargs['user']
+                })
+            merchandise_total_value = round(merchandise_total_value, 5)
+            return_object =  self_cls.objects.create(**{
+                'consecutive': next_consecutive,
+                'client': kwargs['client'],
+                'client_id': kwargs['client_id'],
+                'sale_cart': sale_cart,
+                'return_list': json.dumps(return_list),
+                'sale_id': kwargs['sale_id'],
+                'user': kwargs['user'],
+                'amount': merchandise_total_value
+
+            })
+            # log the creation of the object
+
+            return_string = dump_object_json(return_object)
+            Log.objects.create(**{
+                'code': 'RETURN_OF_PRODUCT',
+                'model': 'RETURN',
+                'prev_object': '',
+                'new_object': return_string,
+                'description': 'Retorno de producto para venta {}'.format(kwargs['sale_id']),
                 'user': kwargs['user']
             })
-        merchandise_total_value = round(merchandise_total_value, 5)
-        return_object =  self_cls.objects.create(**{
-            'consecutive': next_consecutive,
-            'client': kwargs['client'],
-            'client_id': kwargs['client_id'],
-            'sale_cart': sale_cart,
-            'return_list': json.dumps(return_list),
-            'sale_id': kwargs['sale_id'],
-            'user': kwargs['user'],
-            'amount': merchandise_total_value
 
-        })
-        # log the creation of the object
+            # create a credit note for the return
+            credit_note_kwargs = {
+                'sale_id': kwargs['sale_id'],
+                'user': kwargs['user'],
+                'user_id': kwargs['user_id'],
+                'client': kwargs['client'],
+                'client_id': kwargs['client_id'],
+                'description': 'Nota de Crédito por retorno de producto',
+                'amount': merchandise_total_value,
+                'subtotal_amount': merchandise_subtotal_value,
+                'taxes_amount': merchandise_taxes_value
+            }
+            # the credit note itself will store its creation log. it will create
+            # the debit movement itself
+            credit_note = Credit_Note.create(**credit_note_kwargs)
 
-        return_string = dump_object_json(return_object)
-        Log.objects.create(**{
-            'code': 'RETURN_OF_PRODUCT',
-            'model': 'RETURN',
-            'prev_object': '',
-            'new_object': return_string,
-            'description': 'Retorno de producto para venta {}'.format(kwargs['sale_id']),
-            'user': kwargs['user']
-        })
+            # create a credit note voucher for the total amount of the return
+            if return_method == 'VOUCHER':
+                credit_voucher_kwargs = {
+                    'client': kwargs['client'],
+                    'client_id': kwargs['client_id'],
+                    'user': kwargs['user'],
+                    'user_id': kwargs['user_id'],
+                    'credit_note_id': credit_note.id,
+                    'sale_id': kwargs['sale_id'],
+                    'amount': merchandise_total_value,
+                    'description': 'Voucher por devolución en venta {}'.format(sale.consecutive)
+                }
+                credit_voucher = Credit_Voucher.create(**credit_voucher_kwargs)
 
-        # create a credit note for the return
-        credit_note_kwargs = {
-            'sale_id': kwargs['sale_id'],
-            'user': kwargs['user'],
-            'user_id': kwargs['user_id'],
-            'client': kwargs['client'],
-            'client_id': kwargs['client_id'],
-            'description': 'Nota de Crédito por retorno de producto',
-            'amount': merchandise_total_value,
-            'subtotal_amount': merchandise_subtotal_value,
-            'taxes_amount': merchandise_taxes_value
-        }
-        # the credit note itself will store its creation log. it will create
-        # the debit movement itself
-        credit_note = Credit_Note.create(**credit_note_kwargs)
+            # return inventory to the warehouse
+            # hardcode the destination warehouse
+            inv_movs_description = 'Retorno a inventario por devolución en factura {}'.format(sale.consecutive)
+            id_generator = 're_{}'.format(return_object.id)
+            warehouse = Warehouse.objects.get(id=kwargs['destination_warehouse_id'])
+            for prod_return in return_list:
+                Product.inventory_movement(prod_return['id'], warehouse,
+                                            'INPUT', prod_return['ret_qty'], kwargs['user'],
+                                            inv_movs_description, id_generator)
+            
 
-        # create a credit note voucher for the total amount of the return
-        credit_voucher_kwargs = {
-            'client': kwargs['client'],
-            'client_id': kwargs['client_id'],
-            'user': kwargs['user'],
-            'user_id': kwargs['user_id'],
-            'credit_note_id': credit_note.id,
-            'sale_id': kwargs['sale_id'],
-            'amount': merchandise_total_value,
-            'description': 'Voucher por devolución en venta {}'.format(sale.consecutive)
-        }
-        credit_voucher = Credit_Voucher.create(**credit_voucher_kwargs)
-
-        # return inventory to the warehouse
-        # hardcode the destination warehouse
-        inv_movs_description = 'Retorno a inventario por devolución en factura {}'.format(sale.consecutive)
-        id_generator = 're_{}'.format(return_object.id)
-        warehouse = Warehouse.objects.get(id=kwargs['destination_warehouse_id'])
-        for prod_return in return_list:
-            Product.inventory_movement(prod_return['id'], warehouse,
-                                        'INPUT', prod_return['ret_qty'], kwargs['user'],
-                                        inv_movs_description, id_generator)
-        
-
-        return return_object
+            return return_object
 
 
     def __str__(self):
