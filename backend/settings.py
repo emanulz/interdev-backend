@@ -44,6 +44,7 @@ ALLOWED_HOSTS = ['localhost', '192.168.9.254', '192.168.1.254', '192.168.9.56', 
 
 # Application definition
 
+
 INSTALLED_APPS = [
     'widget_tweaks',
     'jet',
@@ -78,7 +79,7 @@ INSTALLED_APPS = [
 
     #'apps.workshop.apps.WorkshopConfig',
     'workshop.apps.WorkshopConfig',
-
+    
     'apps.reporting.apps.ReportingConfig',
     'apps.purchases.apps.PurchasesConfig',
     'apps.payables.apps.PayablesConfig',
@@ -87,6 +88,7 @@ INSTALLED_APPS = [
     'apps.payables_money_returns.apps.PayablesMoneyReturnsConfig',
     'apps.consecutives.apps.ConsecutivesConfig',
     'apps.codes.apps.CodesConfig',
+    'factura_digital.apps.FacturaDigitalConfig',
 ]
 
 MIDDLEWARE = [
