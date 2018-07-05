@@ -11,8 +11,6 @@ from rest_framework.response import Response
 from apps.purchases.api.serializers import PurchaseSerializer
 
 
-
-
 class PurchaseCreateViewSet(viewsets.ViewSet):
     queryset = Purchase.objects.all()
 
@@ -36,10 +34,9 @@ class PurchaseCreateViewSet(viewsets.ViewSet):
         except TransactionError as e:
             return Response(data=e.get_errors(), status=status.HTTP_400_BAD_REQUEST)
 
-
-    
+ 
             
-class SalePaginationClass(LimitOffsetPagination):
+class PurchasePaginationClass(LimitOffsetPagination):
     default_limit = 50
 
 class PurchaseViewSet(viewsets.ReadOnlyModelViewSet):
@@ -47,7 +44,21 @@ class PurchaseViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Purchase.objects.all()
     lookup_field = 'id'
     filter_class = PurchaseFilter
-    pagination_class = SalePaginationClass
+    pagination_class = PurchasePaginationClass
 
     def get_permissions(self):
         return [HasProperPermission()]
+
+class PurchaseCompleteViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = PurchaseSerializer
+    queryset = Purchase.objects.filter(is_closed=True)
+    lookup_field = 'id'
+    filter_class = PurchaseFilter
+    pagination_class = PurchasePaginationClass
+
+class PurchaseIncompleteViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = PurchaseSerializer
+    queryset = Purchase.objects.filter(is_closed=False)
+    lookup_field = 'id'
+    filter_class = PurchaseFilter
+    pagination_class = PurchasePaginationClass
