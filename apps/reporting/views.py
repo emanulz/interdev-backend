@@ -2,7 +2,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import render
 from django.http import HttpResponse
 from .reports.reports_builder_entry import (buildGenSalesReport, buildInvValueReport, 
-    buildPurchasesReport)
+    buildPurchasesReport, buildSalesByDay)
 
 
 @csrf_exempt
@@ -16,6 +16,7 @@ def generateReports(request, report =''):
             'generalsales':buildGenSalesReport,
             'invvalue': buildInvValueReport,
             'generalpurchases': buildPurchasesReport,
+            'salesbyday': buildSalesByDay,
         }
         #holds the data necessary to make the report
         report_kwargs = {

@@ -7,7 +7,7 @@ from openpyxl.styles import Font, Color
 import json
 
 
-from .helpers import getCompanyName, convertToLocalTimezone, adjustSheetColsWidth
+from .helpers import getCompanyName, convertToLocalTimezone, adjustSheetColsWidth, writeRows
 
 REPORTE_VENTAS = {
     0: 'Ventas Contado',
@@ -19,6 +19,236 @@ REPORTE_VENTAS = {
     6: 'Cierres de Taller',
 }
 
+def createSalesByDay(month, year):
+    print("Create Sales by day --> ")
+
+    #variable to track the time covered
+    report_coverage = ''
+
+    #declare the names of the worksheets to be created
+    wb = Workbook()
+    
+    today = date.today()
+
+    target_year = None
+
+    if year == '':
+        target_year = today.year
+    else:
+        target_year = int(year)
+    target_month = None
+    if month == 'THIS':
+        target_month = today.month
+    else:
+        target_month = int(month)
+    report_coverage = "Mes: {}, Año: {}".format(target_month, target_year)
+    target_sales = Sale.objects.filter(created__month = target_month, created__year =target_year).order_by('consecutive')
+
+    createByDaySheet(target_sales, wb, report_coverage)
+    
+    return wb
+
+def createByDaySheet(target_sales, wb, period, sheet_index = 0):
+    COMPANY_NAME = getCompanyName()
+    current_row = 1
+    current_col = 1
+    header_labels = ['# Factura', 'Tipo', 'Cliente', 'Subtotal', 'Descuento', 'Impuestos', 'Total', 'Fecha Venta' ]
+
+    wb._active_sheet_index = sheet_index
+    #get the first sheet, created per default
+    ws = wb.active
+    #change the title of the sheet
+    ws.title = REPORTE_VENTAS[0]
+    #add a simple title
+    ws.cell(row=current_row, column=current_col, value=COMPANY_NAME)
+    current_row+=1
+    #write the date
+    now = datetime.now()
+    report_generation = "Fecha generación: {}".format(now)
+    ws.cell(row=current_row, column=current_col, value=report_generation)
+    current_row+=1
+    #add the perdiod covered by the report
+    report_generation = "Periódo cubierto: {}".format(period)
+    ws.cell(row=current_row, column=current_col, value=report_generation)
+    current_row+=1
+    #write the report type
+    ws.cell(row=current_row, column=current_col, value="REPORTE FACTURACIÓN DE CONTADO")
+    current_row+=2
+    #write the header
+    for i in range(0,len(header_labels)):
+        temp_cell = ws.cell(row=current_row, column=current_col+i, value=header_labels[i])
+        temp_cell.font = Font(bold=True, name="Tahoma", size=8)
+    
+    #reset the col position
+    current_col = 1
+    current_row+=1
+    global_subtotal = 0
+    global_discount = 0
+    global_tax = 0
+    global_total = 0
+
+    data_body = []
+    total_subtotal = 0
+    total_discount = 0
+    total_tax = 0
+    total_total = 0  
+
+    current_month_day = -1
+    starting = True
+
+    for element in target_sales:
+        date_created = convertToLocalTimezone(element.created, False)
+
+        if date_created.day > current_month_day and current_month_day != -1: 
+            #write a line with the current day being dump
+            current_col = 1
+            current_row += 1
+            ws.cell(row=current_row, column=current_col, value = "Día del mes : {}".format(current_month_day))
+            current_row+=1
+            current_col=1
+
+            #write the rows currently on the body buffer
+            current_row, current_col = writeRows(data_body, ws, current_row, current_col)
+            #leave an empty line before writing the totals
+            current_row += 1
+            current_col = 3
+
+            totals_legend_cell = ws.cell(row=current_row, column=current_col, value="Totales-->")
+            totals_legend_cell.font = Font(bold=True, name="Tahoma", size=8)
+            current_col+=1
+            #add the subtotal
+            temp_cell = ws.cell(row=current_row, column=current_col, value=round(total_subtotal,2))
+            temp_cell = Font(bold=True, name="Tahoma", size=8)
+            current_col +=1
+
+            temp_cell = ws.cell(row=current_row, column=current_col, value=round(total_discount,2))
+            temp_cell = Font(bold=True, name="Tahoma", size=8)
+            current_col +=1
+
+            temp_cell = ws.cell(row=current_row, column=current_col, value=round(total_tax,2))
+            temp_cell = Font(bold=True, name="Tahoma", size=8)
+            current_col +=1
+            
+            temp_cell = ws.cell(row=current_row, column=current_col, value=round(total_total,2))
+            temp_cell = Font(bold=True, name="Tahoma", size=8)
+            current_col +=1
+
+            #accumulate to the global totals
+            global_subtotal += total_subtotal
+            global_discount += total_discount
+            global_tax += total_tax
+            global_total += total_total
+            #clear all temp data holders
+            data_body = []
+            total_subtotal = 0
+            total_discount = 0
+            total_tax = 0
+            total_total = 0
+            #reset the starting flag to be able to catch the next block
+            starting = True
+            current_month_day = date_created.day
+        else:
+            current_month_day = date_created.day
+        
+        #process the element data
+        #parse the cart
+        cart = json.loads(element.cart)
+        temp_row = []
+        #add the invoice number 
+        temp_row.append(element.consecutive)
+        #add the type , CRED or CASH
+        invoice_type = "Efectivo"
+        if element.sale_type == "CRED":
+            invoice_type = "Crédito"
+        temp_row.append(invoice_type)
+        #get the client data
+        client = json.loads(element.client)
+        temp_row.append("{} {}".format(client['name'], client['last_name']) )
+        #get the invoice subtotal
+        temp_subtotal = cart['cartSubtotalNoDiscount']
+        total_subtotal += temp_subtotal
+        temp_row.append(round(temp_subtotal, 2))
+        #get the discount
+        temp_discount = cart['discountTotal']
+        total_discount += temp_discount
+        temp_row.append(round(temp_discount,2))    
+        #get the total taxes
+        temp_taxes = cart['cartTaxes']
+        total_tax += temp_taxes
+        temp_row.append(round(temp_taxes,2))
+        #get the total
+        temp_total = element.sale_total
+        total_total += temp_total
+        temp_row.append(round(temp_total,2))
+        #get the sale time
+        temp_row.append(convertToLocalTimezone(element.created))
+        data_body.append(temp_row)
+    #write the last batch of sales
+    if len(data_body)>0:
+        current_row +=1
+        current_col = 1
+        ws.cell(row=current_row, column=current_col, value = "Día del mes : {}".format(date_created.day))
+        current_row+=2
+        current_col=1
+        
+        #write the rows currently on the body buffer
+        current_row, current_col = writeRows(data_body, ws, current_row, current_col)
+        #leave an empty line before writing the totals
+        current_row += 1
+        current_col = 3
+
+        totals_legend_cell = ws.cell(row=current_row, column=current_col, value="Totales-->")
+        totals_legend_cell.font = Font(bold=True, name="Tahoma", size=8)
+        current_col+=1
+        #add the subtotal
+        temp_cell = ws.cell(row=current_row, column=current_col, value=round(total_subtotal,2))
+        temp_cell = Font(bold=True, name="Tahoma", size=8)
+        current_col +=1
+
+        temp_cell = ws.cell(row=current_row, column=current_col, value=round(total_discount,2))
+        temp_cell = Font(bold=True, name="Tahoma", size=8)
+        current_col +=1
+
+        temp_cell = ws.cell(row=current_row, column=current_col, value=round(total_tax,2))
+        temp_cell = Font(bold=True, name="Tahoma", size=8)
+        current_col +=1
+        
+        temp_cell = ws.cell(row=current_row, column=current_col, value=round(total_total,2))
+        temp_cell = Font(bold=True, name="Tahoma", size=8)
+        current_col +=1
+
+        #accumulate to the global totals
+        global_subtotal += total_subtotal
+        global_discount += total_discount
+        global_tax += total_tax
+        global_total += total_total
+    
+    #write the absolute totals
+    current_row +=3
+    current_col = 3
+    totals_legend_cell = ws.cell(row=current_row, column=current_col, value="Totales Globales-->")
+    totals_legend_cell.font = Font(bold=True, name="Tahoma", size=8)
+    current_col+=1
+
+    #add the subtotal
+    temp_cell = ws.cell(row=current_row, column=current_col, value=round(global_subtotal,2))
+    temp_cell = Font(bold=True, name="Tahoma", size=8)
+    current_col +=1
+
+    temp_cell = ws.cell(row=current_row, column=current_col, value=round(global_discount,2))
+    temp_cell = Font(bold=True, name="Tahoma", size=8)
+    current_col +=1
+
+    temp_cell = ws.cell(row=current_row, column=current_col, value=round(global_tax,2))
+    temp_cell = Font(bold=True, name="Tahoma", size=8)
+    current_col +=1
+    
+    temp_cell = ws.cell(row=current_row, column=current_col, value=round(global_total,2))
+    temp_cell = Font(bold=True, name="Tahoma", size=8)
+    current_col +=1
+
+    adjustSheetColsWidth(ws)
+
 def createGenSalesReport(start, end, day, month, year):
     print("Create gen sales report entry point")
 
@@ -29,6 +259,8 @@ def createGenSalesReport(start, end, day, month, year):
     wb = Workbook()
     
     today = date.today()
+
+    #this report can only be generated on a monthly basis
 
     report_period_type = None
     if start!='' or end!='':
