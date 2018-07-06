@@ -259,7 +259,7 @@ CELERY_TIMEZONE = 'America/Costa_Rica'
 CELERY_BEAT_SCHEDULE = {
     'create_invvalue_report_task': {
         'task': 'apps.reporting.tasks.create_invvalue_report_task',
-        'schedule': crontab(minute='*/1'),
+        'schedule': crontab(hour=7, minute=0),
         'args': ('s', False,),
     },
     
@@ -269,6 +269,13 @@ CELERY_BEAT_SCHEDULE = {
     },
 }
 
+#MAILING CONFIGURATION
+if DEBUG:
+    EMAIL_HOST = 'smtp.gmail.com'
+    EMAIL_PORT = 587
+    EMAIL_HOST_USER = 'devtestsvm@gmail.com'
+    EMAIL_HOST_PASSWORD = 'InterdevTestEmail'
+    EMAIL_USE_TLS = True
 
 
 
