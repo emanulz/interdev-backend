@@ -38,6 +38,7 @@ from apps.preferences.api.viewsets import GlobalPreferencesViewSet
 
 from apps.clients.views import createClientQuick
 
+from factura_digital.api.views import Electronic_TicketViewset
 
 router = routers.DefaultRouter()
 router.register(r'products', ProductInventoryViewSet, base_name='products')
@@ -86,6 +87,8 @@ router.register(r'presalespatch', PresalePatchViewSet, base_name='presalespatch'
 router.register(r'creditvoucherslist', Credit_VoucherViewSet)
 router.register(r'moneyreturnlist', Money_ReturnViewSet)
 router.register(r'payablescreditvoucherslist', Credit_VoucherViewSetPayable)
+#register urls related to digital invoicing
+router.register(r'electronicticket', Electronic_TicketViewset)
 
 
 urlpatterns = [
