@@ -12,6 +12,8 @@ installed_apps = Section('installed_apps')
 
 inventory = Section('inventory')
 
+connectivity = Section('connectivity')
+
 @global_preferences_registry.register
 class WorkshopAppInstalled(BooleanPreference):
     section = installed_apps
@@ -56,7 +58,7 @@ class CompanyIdType(StringPreference):
 class CompanyId(StringPreference):
     section = company
     name = 'id'
-    default = '1-1353-0032'
+    default = ''
 
 
 @global_preferences_registry.register
@@ -131,3 +133,25 @@ class BlackDeckerWarehouse(StringPreference):
     section = inventory
     name = 'blackdecker_warehouse'
     default = ''
+
+
+@global_preferences_registry.register
+class InternetTestGatewayA(StringPreference):
+    section = connectivity
+    name = 'internet_test_target'
+    #default to the all mighty always there entity
+    default = '216.58.192.142'
+
+@global_preferences_registry.register
+class HaciendaTestAddress(StringPreference):
+    section = connectivity
+    name = 'hacienda_test_target'
+    #default to the all mighty always there entity
+    default = 'api.comprobanteselectronicos.go.cr/recepcion/v1/'
+
+@global_preferences_registry.register
+class MothershipBeaconAdress(StringPreference):
+    section = connectivity
+    name = 'mothership_gateway'
+    #address of the Ones-Above-All
+    default = 'interdev.cr.com'
