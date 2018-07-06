@@ -93,6 +93,7 @@ class Credit_Note(models.Model):
     user_id =  models.CharField(max_length=80, verbose_name="ID Objeto Usuario")
     client = models.TextField(verbose_name='Objeto Cliente', default='')
     client_id = models.CharField(max_length=255, blank=True, null=True, verbose_name='ID Objeto Cliente', default='')
+    return_id = models.CharField(max_length=255, blank=True, null=True, verbose_name='ID Objeto Retorno', default='')
     description = models.CharField(max_length=255, blank=True, verbose_name='Descripción del movimiento')
     amount = models.DecimalField(max_digits=19, decimal_places=5, verbose_name='Monto',
                                  blank=True, default=0)

@@ -19,10 +19,12 @@ from django.contrib.auth.models import User
 from apps.logs.models import Log
 from apps.utils.exceptions import TransactionError
 from apps.utils.utils import calculate_next_consecutive, dump_object_json
-from apps.money_returns.models import Money_Return, Credit_Voucher
+from apps.money_returns.models import Credit_Voucher
 from apps.presales.models import Presale
 from apps.utils.serializers import UserSerialiazer
 from decimal import Decimal, getcontext
+from apps.money_returns.api.serializers import Credit_VoucherSerializer
+from apps.credits.api.serializers import Credit_NoteSerializer
 
 
 class Sale(models.Model):
@@ -319,10 +321,10 @@ class Sale(models.Model):
 
 
 class Return(models.Model):
-    
+
     id = models.UUIDField(default=uuid.uuid4, editable=False)
     consecutive = models.IntegerField(verbose_name='Número de factura', primary_key=True, editable=False)
-    #subset of the sale cart, with the items being returned and the quantities being returned
+    # subset of the sale cart, with the items being returned and the quantities being returned
     sale_cart = models.TextField(verbose_name='Objeto Carrito Devolución', default='')
     return_list = models.TextField(verbose_name='Lista de productos retornados')
     client = models.TextField(verbose_name='Objeto Cliente', default='')
@@ -422,7 +424,8 @@ class Return(models.Model):
                 'description': 'Nota de Crédito por retorno de producto',
                 'amount': merchandise_total_value,
                 'subtotal_amount': merchandise_subtotal_value,
-                'taxes_amount': merchandise_taxes_value
+                'taxes_amount': merchandise_taxes_value,
+                'return_id': return_object.id
             }
             # the credit note itself will store its creation log. it will create
             # the debit movement itself
@@ -438,7 +441,8 @@ class Return(models.Model):
                     'credit_note_id': credit_note.id,
                     'sale_id': kwargs['sale_id'],
                     'amount': merchandise_total_value,
-                    'description': 'Voucher por devolución en venta {}'.format(sale.consecutive)
+                    'description': 'Voucher por devolución en venta {}'.format(sale.consecutive),
+                    'return_id': return_object.id
                 }
                 credit_voucher = Credit_Voucher.create(**credit_voucher_kwargs)
 
@@ -455,7 +459,26 @@ class Return(models.Model):
 
             return return_object
 
-
+    @classmethod
+    def getReturnAndRelated(self_cls, return_id):
+        voucher_serialized = {}
+        credit_note_serialized = {}
+        return_object = self_cls.objects.get(id=return_id)
+        # Try to get voucher and credit note and serialize them
+        try:
+            voucher = Credit_Voucher.objects.filter(return_id__exact=return_id).first()
+            if voucher:
+                voucher_serialized = Credit_VoucherSerializer(voucher).data
+        except Exception as e:
+            print(e)
+        try:
+            credit_note = Credit_Note.objects.filter(return_id__exact=return_id).first()
+            if credit_note:
+                credit_note_serialized = Credit_NoteSerializer(credit_note).data
+        except Exception as e:
+            print(e)
+        return (return_object, credit_note_serialized, voucher_serialized)
+    
     def __str__(self):
         return '%s' % (self.consecutive)
 
@@ -463,6 +486,7 @@ class Return(models.Model):
         verbose_name = 'Devolución'
         verbose_name_plural = 'Devoluciones'
         ordering = ['consecutive']
+
 
 class Cash_Advance(models.Model):
 

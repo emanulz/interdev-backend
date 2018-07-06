@@ -9,7 +9,6 @@ from django.contrib.auth.models import User
 from apps.utils.serializers import UserSerialiazer
 from apps.clients.models import Client
 from decimal import Decimal, getcontext
-from apps.sales.models import Sale
 from apps.credits.models import Credit_Movement
 from apps.utils.utils import dump_object_json
 from apps.logs.models import Log
@@ -42,6 +41,7 @@ class Credit_Payment(models.Model):
 
     @classmethod
     def create(self_cls, user_id, **kwargs):
+        from apps.sales.models import Sale
         with transaction.atomic():
             errors = {}
             #check incoming data

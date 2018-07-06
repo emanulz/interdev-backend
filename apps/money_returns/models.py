@@ -73,6 +73,7 @@ class Credit_Voucher(models.Model):
     #the value of the voucher spent when it was consumed
     amount_applied = models.DecimalField(max_digits=19, decimal_places=5, default=0, verbose_name='Monto del Vale gastado')
     sale_id = models.CharField(max_length=80, verbose_name='ID Objeto Factura')
+    return_id = models.CharField(max_length=255, blank=True, null=True, verbose_name='ID Objeto Retorno', default='')
     #the money voucher id will be normally left untouched, it will be there in case a voucher is only partially
     #used, then a new voucher for the remaining amount will be created, this will keep a link to the original voucher
     money_voucher_id = models.CharField(max_length=80, verbose_name="ID del creador", null=True, blank=True)

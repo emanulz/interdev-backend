@@ -8,9 +8,9 @@ from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.decorators import detail_route
-from ..models import Sale, Cash_Advance
-from .filters import SaleFilter, Cash_AdvanceFilter
-from .serializers import SaleSerializer, Cash_AdvanceSerializer
+from ..models import Sale, Cash_Advance, Return
+from .filters import SaleFilter, Cash_AdvanceFilter, ReturnFilter
+from .serializers import SaleSerializer, Cash_AdvanceSerializer, ReturnSerializer
 from .permissions import HasProperPermission, HasProperPermissionCash_Advance
 from apps.utils.exceptions import TransactionError
 from rest_framework import filters
@@ -145,3 +145,23 @@ class Cash_AdvanceViewSet(viewsets.ModelViewSet):
 
     def get_permissions(self):
         return [HasProperPermissionCash_Advance(), ]
+
+
+class ReturnViewSet(viewsets.ModelViewSet):
+    serializer_class = ReturnSerializer
+    queryset = Return.objects.all()
+    lookup_field = 'id'
+    filter_class = ReturnFilter
+
+    def retrieve(self, request, *args, **kwargs):
+
+        try:
+            return_object, credit_note, voucher = Return.getReturnAndRelated(kwargs["id"])
+            return Response(data={'return_object': ReturnSerializer(return_object).data, 'credit_note': credit_note,
+                                  'voucher': voucher}, status=status.HTTP_200_OK)
+        except TransactionError as e:
+            return Response(data=e.get_errors(), status=status.HTTP_400_BAD_REQUEST)
+
+    def get_permissions(self):
+        # allow non-authenticated user to create via POST
+        return [HasProperPermission(), ]
