@@ -102,6 +102,52 @@ class CompanyProvince(StringPreference):
     name = 'province'
     default = 'San José'
 
+@global_preferences_registry.register
+class CompanyProvinceHacienda(StringPreference):
+    section = company
+    name = 'provincia_hacienda'
+    default = ''
+
+@global_preferences_registry.register
+class CompanyCantonHacienda(StringPreference):
+    section = company
+    name = 'canton_hacienda'
+    default = ''
+
+@global_preferences_registry.register
+class CompanyDistritoHacienda(StringPreference):
+    section = company
+    name = 'distrito_hacienda'
+    default = ''
+
+@global_preferences_registry.register
+class CompanyBarrioHacienda(StringPreference):
+    section = company
+    name = 'barrio_hacienda'
+    default = ''
+
+@global_preferences_registry.register
+class CompanyOtrasSenasHacienda(StringPreference):
+    section = company
+    name = 'otras_senas_hacienda'
+    default = ''
+
+@global_preferences_registry.register
+class CompanyPhoneHacienda(StringPreference):
+    section = company
+    name = 'phone_hacienda'
+    default = ''
+
+@global_preferences_registry.register
+class CompanyFaxHacienda(StringPreference):
+    section = company
+    name = 'fax_hacienda'
+    default = ''
+@global_preferences_registry.register
+class CompanyEmailHacienda(StringPreference):
+    section = company
+    name = 'email_hacienda'
+    default = ''
 
 @global_preferences_registry.register
 class CompanyTelephones(StringPreference):

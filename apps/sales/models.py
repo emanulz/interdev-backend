@@ -70,7 +70,7 @@ class Sale(models.Model):
     def create(self_cls, cart, client_id, pay, user_id, warehouse_id, presale_id):
         #set the context precision to 5 decimal places
         getcontext().prec = 20
-        from apps.workshop.models import Work_Order
+        from workshop.models import Work_Order
         with transaction.atomic():
             #fetch the client by id
             client = Client.objects.get(id=client_id)

@@ -71,3 +71,4 @@ media/Imagenes/**
 media/productImages/**
 media/reports/**
 
+celerybeat-schedule.bak

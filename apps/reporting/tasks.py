@@ -1,5 +1,4 @@
 from __future__ import absolute_import, unicode_literals
-print("Loading sub task file")
 import os
 from datetime import datetime
 from django.conf import settings

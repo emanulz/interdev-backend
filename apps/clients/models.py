@@ -24,20 +24,24 @@ class Client(models.Model):
     person = '01'
     juridic = '02'
     passport = '03'
+    nite = '04'
 
     ID_TYPE_CHOICES = ((person, 'Cédula Física'),
                        (juridic, 'Cédula Jurídica'),
                        (passport, 'Pasaporte'),
+                       (nite, 'Nite'),
                        )
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     code = models.CharField(max_length=10, null=True, verbose_name='Código', unique=True)
     name = models.CharField(max_length=255, verbose_name='Nombre')
     last_name = models.CharField(max_length=255, null=True, blank=True, verbose_name='Apellidos')
-
+    commercial_name = models.CharField(max_length=255, null=True, blank=True, verbose_name="Nombre Comercial")
     id_type = models.CharField(max_length=3, choices=ID_TYPE_CHOICES, default=person,
                                verbose_name='Tipo de Identificación')
     id_num = models.CharField(max_length=255, null=True, blank=True, verbose_name='Num Identificación')
+
+    id_foreigner = models.CharField(max_length=255, default='', null=True, blank=True, verbose_name='Número Identificación Extrangero')
 
     province = models.CharField(max_length=255, default='', verbose_name='Provincia', blank=True, null=True)
     canton = models.CharField(max_length=255, default='', verbose_name='Cantón', blank=True, null=True)
@@ -47,6 +51,7 @@ class Client(models.Model):
 
     phone_number = models.CharField(max_length=255, null=True, blank=True, verbose_name='Teléfono')
     cellphone_number = models.CharField(max_length=255, null=True, blank=True, verbose_name='Celular')
+    fax_number =  models.CharField(max_length=255, null=True, blank=True, verbose_name="Número de Fax")
     email = models.EmailField(max_length=255, null=True, blank=True, verbose_name='Email')
     category_code = models.CharField(max_length=255, null=True, blank=True, verbose_name='Categoría Cliente')
     pred_discount = models.FloatField(verbose_name='Descuento Predeterminado', default=0)

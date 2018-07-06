@@ -16,13 +16,13 @@ import os
 from celery.schedules import crontab
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-print("BASE DIR --> ", BASE_DIR)
 BASE_DIR_TEST = os.path.dirname(os.path.dirname(__file__))
-print("TEST_DIR --> ", BASE_DIR_TEST)
 
 PROJECT_ROOT = os.path.dirname(__file__)
 #print("THIS --> ", os.path.join(PROJECT_ROOT, '..\\apps'))
 sys.path.insert(0, os.path.join(PROJECT_ROOT, '..\\..\\core_apps'))
+#load the library to build the factura xmls
+sys.path.insert(0, os.path.join(PROJECT_ROOT, '..\\..\\parser_factura_digital'))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/
@@ -256,6 +256,7 @@ CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'America/Costa_Rica'
+CELERY_TASK_SOFT_TIME_LIMIT = 180 #avoids a task hanging indefinitively blocking the worker
 CELERY_BEAT_SCHEDULE = {
     'create_invvalue_report_task': {
         'task': 'apps.reporting.tasks.create_invvalue_report_task',
@@ -265,7 +266,7 @@ CELERY_BEAT_SCHEDULE = {
     
     'task-number-two': {
         'task': 'apps.sales.tasks.task_number_one',
-        'schedule': crontab(minute='*/1'),
+        'schedule': crontab(minute='*/120'),
     },
 }
 
