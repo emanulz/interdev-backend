@@ -23,8 +23,8 @@ from apps.taxes.api.views import TaxViewSet
 from apps.senders.api.views import SenderViewSet
 from apps.addresses.api.views import ProvinceViewSet, CantonViewSet, DistrictViewSet, TownViewSet
 from apps.inventories.api.views import Inventory_MovementViewSet, WarehouseViewSet
-from workshop.api.views import Work_OrderViewSet, Work_OrderCreateViewSet, Work_OrderWarantyViewset, Work_OrderWarantyBDViewset, Work_OrderNoRepairViewset
-from apps.purchases.api.views import PurchaseViewSet, PurchaseCreateViewSet
+from apps.workshop.api.views import Work_OrderViewSet, Work_OrderCreateViewSet, Work_OrderWarantyViewset, Work_OrderWarantyBDViewset, Work_OrderNoRepairViewset
+from apps.purchases.api.views import PurchaseViewSet, PurchaseCreateViewSet, PurchaseIncompleteViewSet, PurchaseCompleteViewSet
 from dynamic_preferences.users.viewsets import UserPreferencesViewSet
 from apps.payables.api.views import Credit_MovementPayableViewSet, Credit_PaymentPayableViewSet, CreditPaymentCreateViewSetPayables
 from apps.presales.api.views import PresaleViewSet, PresalePatchViewSet
@@ -76,6 +76,8 @@ router.register(r'listnrworkorders', Work_OrderNoRepairViewset)
 router.register(r'workorders', Work_OrderCreateViewSet, base_name="workorders")
 router.register(r'purchase', PurchaseCreateViewSet, base_name="purchases")
 router.register(r'purchaselist', PurchaseViewSet)
+router.register(r'purchaseincompletelist', PurchaseIncompleteViewSet)
+router.register(r'purchasecompletelist', PurchaseCompleteViewSet)
 router.register(r'payablescreditpaymentcreate', CreditPaymentCreateViewSetPayables, base_name="payales")
 router.register(r'payablescreditmovementlist', Credit_MovementPayableViewSet)
 router.register(r'payablescreditpaymentlist', Credit_PaymentPayableViewSet)

@@ -124,7 +124,8 @@ class Product(models.Model):
         round_to_coin = 5
         #the utility calculation method should be set as a setting system wide
         utility_method = 'price_based'
-
+        discount_mode = kwargs['discount_mode']
+        print("Update discount method --> ", discount_mode)
 
         #check if the necessary parameters where sent
         target_utility = None
@@ -191,7 +192,10 @@ class Product(models.Model):
         transport_per_line_item = total_line_transport / quantity
         unit_cost += transport_per_line_item
         if reflect_discount:
-            unit_cost -= discount / quantity      
+            if discount_mode  == 'percent_based':
+                unit_cost -= (discount/100*subtotal)/quantity
+            else:
+                unit_cost -= discount / quantity      
 
         with transaction.atomic():
             product = self_cls.objects.select_for_update().get(id=product_id)

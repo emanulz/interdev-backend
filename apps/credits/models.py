@@ -76,7 +76,7 @@ class Credit_Movement(models.Model):
 
 
     def __str__(self):
-        return self.consecutive
+        return '%s' % (self.consecutive)
 
     class Meta:
         verbose_name = 'Movimiento de Crédito'
@@ -95,7 +95,11 @@ class Credit_Note(models.Model):
     client_id = models.CharField(max_length=255, blank=True, null=True, verbose_name='ID Objeto Cliente', default='')
     description = models.CharField(max_length=255, blank=True, verbose_name='Descripción del movimiento')
     amount = models.DecimalField(max_digits=19, decimal_places=5, verbose_name='Monto',
-                                 blank=True, default=0) 
+                                 blank=True, default=0)
+    taxes_amount = models.DecimalField(max_digits=19, decimal_places=5, verbose_name='Monto Impuestos',
+                                 blank=True, default=0)
+    subtotal_amount = models.DecimalField(max_digits=19, decimal_places=5, verbose_name='Monto Subtotal',
+                                 blank=True, default=0)                                                
     created = models.DateTimeField(auto_now=False, auto_now_add=True, blank=True, null=True,
                                    verbose_name='Fecha de creación')
     updated = models.DateTimeField(auto_now=True, auto_now_add=False, blank=True, null=True,
@@ -117,8 +121,8 @@ class Credit_Note(models.Model):
                 description = 'Nota de Crédito'
 
             Log.objects.create(**{
-                'code':'CREDIT_NOTE_CREATED',
-                'model':'CREDIT_NOTE',
+                'code': 'CREDIT_NOTE_CREATED',
+                'model': 'CREDIT_NOTE',
                 'prev_object': '',
                 'new_object': credit_note_string,
                 'description': description,
@@ -141,14 +145,11 @@ class Credit_Note(models.Model):
             #Credit_Movement.create(**kwargs_debit)
             return credit_note
 
-
-
-
     def __str__(self):
-        return self.consecutive
+        return '%s' % (self.consecutive)
 
     class Meta:
-        verbose_name = 'Notao de Crédito'
+        verbose_name = 'Nota de Crédito'
         verbose_name_plural = 'Notas de Crédito'
         ordering = ['consecutive']
 

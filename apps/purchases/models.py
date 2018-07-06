@@ -91,7 +91,8 @@ class Purchase(models.Model):
     @classmethod 
     def partial_update(self_cls, user_id, purchase_id, **kwargs):
         user = User.objects.get(id=user_id)
-        user_string = UserSerialiazer(user).data
+        #user_string = UserSerialiazer(user).data
+        user_string = dump_object_json(user)
         apply = None
         try:
             apply = bool(kwargs['apply'])
@@ -192,27 +193,14 @@ class Purchase(models.Model):
                             'description': 'Adelanto a crédito en compra por factura {}'.format(purchase.consecutive) 
                         }
                         Credit_Movement.create(**kwargs_debit)
-                    
-                
-                #do inventory stuff
-                # cart_items = cart_object['cartItems']
-                # id_generator = 'pu_' + str(purchase.id)
-                # individual_mov_desc =  "Movimiento de ingreso por factura # {}".format(purchase.consecutive)
-                # for item in cart_items:
-                #     prod = item['product']
-                #     amount = item['qty']
-                #     Product.inventory_movement(prod['id'], warehouse, 'INPUT', amount,
-                #         user_string, individual_mov_desc, id_generator)
+
 
             #if the purchase is to be applied, generate the invrntory movements
             if apply:
                 cart_object = json.loads(purchase.cart)
-                #print(cart_object)
+                #print("ORIGINAL CART ---> ", cart_object)
                 destination_warehouse = Warehouse.objects.get(id=purchase.warehouse_id)
                 for cart_line in cart_object['cartItems']:
-                    print("Product\n")
-                    print(cart_line)
-                    print('\n')
                     #load inventory
                     Product.inventory_movement(
                         cart_line['product']['id'],
@@ -234,12 +222,19 @@ class Purchase(models.Model):
                         'update_pattern': kwargs['update_pattern'],
                         'total_transport': cart_object['orderTransport'],
                         'discount': cart_line['discount'],
+                        'discount_mode': kwargs['discount_mode'],
                     }
-                    Product.update_product_price(
+
+                    updated_prod = Product.update_product_price(
                         cart_line['product']['id'],
                         user.id,
                         **price_update_kwargs
                     )
+                    cart_line['product']['inventory_existent'] =  json.loads(updated_prod.inventory_existent)#put the updated product in the cart
+
+                #print("UPDATED CART_OBJECT --> ", cart_object)
+                purchase.cart = json.dumps(cart_object)
+                purchase.save() #save the purchase with the udpated product
 
             return purchase
 
@@ -414,11 +409,16 @@ class Purchase(models.Model):
                     Product.inventory_movement(prod['id'], warehouse, 'INPUT', amount,
                         user_string, individual_mov_desc, id_generator)
                     #update poduct price
-                    Product.update_product_price(prod['id'], user.id, **{
+                    updated_prod = Product.update_product_price(prod['id'], user.id, **{
                         'target_utility': item['target_utility'],
                         'subtotal': item['subtotal'],
                         'quantity': item['qty']
                     })
+                    item['product']['inventory_existent'] =  json.loads(updated_prod.inventory_existent)#put the updated product in the cart
+
+                #print("UPDATED CART_OBJECT --> ", cart_object)
+                purchase.cart = json.dumps(cart_object)
+                purchase.save() #save the purchase with the udpated product
 
             return purchase
             

@@ -21,6 +21,7 @@ class Credit_PaymentSerializer(serializers.ModelSerializer):
         fields = ('id', 'consecutive', 'sales', 'user', 'client', 'client_id', 'amount', 'description', 'created',
                   'updated')
 
+
 class Credit_NoteSerializer(serializers.ModelSerializer):
 
     class Meta:

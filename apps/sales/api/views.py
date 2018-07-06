@@ -48,7 +48,7 @@ class SaleCreateViewSet(viewsets.ViewSet):
 
     def create(self, request):
        
-        req_data =  request.data
+        req_data = request.data
         val_result = self.validate_sale_request(req_data)
         if(val_result['status']!= 'OK'):
             return Response(status=status.HTTP_400_BAD_REQUEST)
