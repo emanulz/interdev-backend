@@ -112,7 +112,9 @@ class Sale(models.Model):
                     
             cart_object = json.loads(cart)
             cart_total = Decimal(cart_object['cartTotal'])
-            cart_total_rounded = Decimal(round(cart_total, 5))
+            
+            
+            #cart_total_rounded = Decimal(round(cart_total, 5))
      
             #don't log more money than the total value of the sale, 
             #raise an exception?
