@@ -13,7 +13,7 @@ class SearchProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
         fields = ('id', 'code', 'description', 'short_description', 'barcode', 'internal_barcode', 'supplier_code',
-                  'model', 'part_number', 'brand_code')
+                  'model', 'part_number', 'brand_code', 'tax_code' )
 
 
 class ProductSerializer(serializers.ModelSerializer):
