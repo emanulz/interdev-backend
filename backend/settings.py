@@ -32,10 +32,16 @@ SECRET_KEY = 'pq0v9v3y@4dnny%jgrod5*_%snma=t(q6-h&@sf)+uptk54z82'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
+TAX_PAYER_SECRET =  None
+try:
+    TAX_PAYER_SECRET = os.environ('TAX_PAYER_SECRET')
+    print("TAX_PAYER_SECRET_LOADED")
+except:
+    TAX_PAYER_SECRET = '$k0!83_2g^#lw*$r5m86jpb035b-m^imh1u6v1vyf+2p$0n6eg'
 try:
     if os.environ["SERVER_NAME"] == "APP_SERVER":
         DEBUG = False
+        TAX_PAYER_SECRET = os.environ('TAX_PAYER_SECRET')
 except Exception as e:
     pass
 
@@ -89,6 +95,7 @@ INSTALLED_APPS = [
     'apps.consecutives.apps.ConsecutivesConfig',
     'apps.codes.apps.CodesConfig',
     'factura_digital.apps.FacturaDigitalConfig',
+    'taxpayer.apps.TaxpayerConfig',
 ]
 
 MIDDLEWARE = [
