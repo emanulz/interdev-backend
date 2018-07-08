@@ -51,6 +51,7 @@ class Product(models.Model):
     description = models.CharField(max_length=255, verbose_name='Descripción del producto', null=True)
     short_description = models.CharField(max_length=255, verbose_name='Descripción corta del producto', null=True,
                                          blank=True)
+    is_service = models.BooleanField(default=False, verbose_name="Es servicio?")
     unit = models.CharField(max_length=255, blank=True, null=True, verbose_name='Unidad')
     fractioned = models.BooleanField(default=True, verbose_name='Se vende Fracionado?', blank=True)
     department = models.CharField(max_length=255, null=True, verbose_name='Familia', default='', blank=True)
@@ -100,7 +101,6 @@ class Product(models.Model):
     is_active = models.BooleanField(default=True, verbose_name='Activo?', blank=True)
     consignment = models.BooleanField(default=False, verbose_name='Es en consignación?', blank=True)
     generic = models.BooleanField(default=False, verbose_name='Es Genérico?', blank=True)
-    image = models.ImageField(upload_to=url, blank=True, null=True)
     image_name = models.CharField(max_length=255, default='', verbose_name="Nombre imágen actual", blank=True)
     observations = models.TextField(null=True, blank=True, verbose_name='Observaciones')
     created = models.DateTimeField(auto_now=False, auto_now_add=True, blank=True, null=True,
