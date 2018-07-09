@@ -5,7 +5,7 @@ from django.contrib import admin
 # from django.urls import path
 from django.conf.urls import include
 from django.conf.urls.static import static
-from apps.profiles.views import profile_get, getUserByCode
+from profiles.views import profile_get, getUserByCode
 from django.contrib.auth.decorators import login_required
 from django.views.generic import TemplateView
 # from apps.reporting import urls

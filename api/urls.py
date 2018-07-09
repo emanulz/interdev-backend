@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 
 from django.conf.urls import include, url
-from apps.profiles.views import checkUserPassword
+from profiles.views import checkUserPassword
 
 # Permsions
-from apps.profiles.views import checkUserPermission, checkUserPermissions, checkSingleUserPermissions
-from apps.profiles.views import assingUserPermission
+from profiles.views import checkUserPermission, checkUserPermissions, checkSingleUserPermissions
+from profiles.views import assingUserPermission
 
 from credits.views import getClientDebt
 
@@ -14,8 +14,7 @@ from rest_framework import routers
 from clients.api.views import ClientViewSet, ClientCategoryViewSet
 from apps.products.api.views import ProductViewSet, ProductDepartmentViewSet, ProductSubDepartmentViewSet, ProductInventoryViewSet
 from suppliers.api.views import SupplierViewSet, SupplierCustomViewSet, SupplierSearchViewSet
-from apps.profiles.api.views import ProfileViewSet
-from apps.profiles.api.views import UserViewSet, PermissionsViewSet
+from profiles.api.views import UserViewSet, PermissionsViewSet, ProfileViewSet
 from sales.api.views import SaleViewSet, Cash_AdvanceViewSet
 from logs.api.views import LogViewSet
 from credits.api.views import Credit_MovementViewSet, Credit_PaymentViewSet, CreditPaymentCreateViewSet

@@ -74,7 +74,7 @@ INSTALLED_APPS = [
     'apps.broadcaster.apps.BroadcasterConfig',
     'apps.administration.apps.AdministrationConfig',
     'logs.apps.LogsConfig',
-    'apps.profiles.apps.ProfilesConfig',
+    'profiles.apps.ProfilesConfig',
     'clients.apps.ClientsConfig',
     'apps.products.apps.ProductsConfig',
     'suppliers.apps.SuppliersConfig',
