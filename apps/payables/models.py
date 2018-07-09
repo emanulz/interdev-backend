@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 from logs.models import Log
 from apps.utils.utils import calculate_next_consecutive, dump_object_json
 from apps.utils.exceptions import TransactionError
-from apps.suppliers.models import Supplier
+from suppliers.models import Supplier
 from decimal import Decimal, getcontext
 
 class Credit_Movement(models.Model):
