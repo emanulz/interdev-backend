@@ -6,7 +6,7 @@ import uuid
 from itertools import chain
 from datetime import date
 from django.db import transaction
-from apps.consecutives.models import Consecutive
+from consecutives.models import Consecutive
 from codes.models import Code
 from apps.utils.exceptions import TransactionError
 from django.core.exceptions import ObjectDoesNotExist
