@@ -10,7 +10,7 @@ from django.contrib.auth.decorators import login_required
 from django.views.generic import TemplateView
 # from apps.reporting import urls
 
-from apps.administration.views import adminPage, salesPage, presalesPage, inventoriesPage, workshopPage
+from administration.views import adminPage, salesPage, presalesPage, inventoriesPage, workshopPage
 
 urlpatterns = [
     # UTILS

@@ -72,7 +72,7 @@ INSTALLED_APPS = [
     'api',
     'preferences',
     'broadcaster.apps.BroadcasterConfig',
-    'apps.administration.apps.AdministrationConfig',
+    'administration.apps.AdministrationConfig',
     'logs.apps.LogsConfig',
     'profiles.apps.ProfilesConfig',
     'clients.apps.ClientsConfig',
