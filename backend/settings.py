@@ -91,7 +91,7 @@ INSTALLED_APPS = [
     'purchases.apps.PurchasesConfig',
     'apps.payables.apps.PayablesConfig',
     'apps.presales.apps.PresalesConfig',
-    'apps.money_returns.apps.MoneyReturnsConfig',
+    'money_returns.apps.MoneyReturnsConfig',
     'apps.payables_money_returns.apps.PayablesMoneyReturnsConfig',
     'consecutives.apps.ConsecutivesConfig',
     'codes.apps.CodesConfig',

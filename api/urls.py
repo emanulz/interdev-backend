@@ -29,7 +29,7 @@ from dynamic_preferences.users.viewsets import UserPreferencesViewSet
 from apps.payables.api.views import Credit_MovementPayableViewSet, Credit_PaymentPayableViewSet, CreditPaymentCreateViewSetPayables
 from apps.presales.api.views import PresaleViewSet, PresalePatchViewSet
 from apps.sales.api.views import SaleCreateViewSet, SaleViewSetReadOnly, ReturnViewSet
-from apps.money_returns.api.views import Money_ReturnViewSet, Credit_VoucherViewSet
+from money_returns.api.views import Money_ReturnViewSet, Credit_VoucherViewSet
 from apps.payables_money_returns.api.views import Credit_VoucherViewSetPayable
 from apps.utils.searchView import SearchViewSet
 

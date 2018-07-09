@@ -19,11 +19,11 @@ from django.contrib.auth.models import User
 from logs.models import Log
 from apps.utils.exceptions import TransactionError
 from apps.utils.utils import calculate_next_consecutive, dump_object_json
-from apps.money_returns.models import Credit_Voucher
+from money_returns.models import Credit_Voucher
 from apps.presales.models import Presale
 from apps.utils.serializers import UserSerialiazer
 from decimal import Decimal, getcontext
-from apps.money_returns.api.serializers import Credit_VoucherSerializer
+from money_returns.api.serializers import Credit_VoucherSerializer
 from apps.credits.api.serializers import Credit_NoteSerializer
 
 
