@@ -94,7 +94,7 @@ INSTALLED_APPS = [
     'apps.money_returns.apps.MoneyReturnsConfig',
     'apps.payables_money_returns.apps.PayablesMoneyReturnsConfig',
     'apps.consecutives.apps.ConsecutivesConfig',
-    'apps.codes.apps.CodesConfig',
+    'codes.apps.CodesConfig',
     'factura_digital.apps.FacturaDigitalConfig',
     'taxpayer.apps.TaxpayerConfig',
 ]
