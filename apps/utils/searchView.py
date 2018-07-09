@@ -3,8 +3,8 @@ from suppliers.models import Supplier
 from suppliers.api.serializers import SupplierSerializer
 from purchases.models import Purchase
 from purchases.api.serializers import PurchaseSerializer
-from apps.products.models import Product
-from apps.products.api.serializers import ProductSerializer
+from products.models import Product
+from products.api.serializers import ProductSerializer
 from clients.models import Client
 from clients.api.serializers import ClientSerializer
 from workshop.models import Work_Order

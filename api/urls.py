@@ -12,7 +12,7 @@ from credits.views import getClientDebt
 # API
 from rest_framework import routers
 from clients.api.views import ClientViewSet, ClientCategoryViewSet
-from apps.products.api.views import ProductViewSet, ProductDepartmentViewSet, ProductSubDepartmentViewSet, ProductInventoryViewSet
+from products.api.views import ProductViewSet, ProductDepartmentViewSet, ProductSubDepartmentViewSet, ProductInventoryViewSet
 from suppliers.api.views import SupplierViewSet, SupplierCustomViewSet, SupplierSearchViewSet
 from profiles.api.views import UserViewSet, PermissionsViewSet, ProfileViewSet
 from sales.api.views import SaleViewSet, Cash_AdvanceViewSet

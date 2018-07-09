@@ -76,7 +76,7 @@ INSTALLED_APPS = [
     'logs.apps.LogsConfig',
     'profiles.apps.ProfilesConfig',
     'clients.apps.ClientsConfig',
-    'apps.products.apps.ProductsConfig',
+    'products.apps.ProductsConfig',
     'suppliers.apps.SuppliersConfig',
     'sales.apps.SalesConfig',
     'credits.apps.CreditsConfig',
