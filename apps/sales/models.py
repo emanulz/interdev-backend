@@ -20,7 +20,7 @@ from logs.models import Log
 from apps.utils.exceptions import TransactionError
 from apps.utils.utils import calculate_next_consecutive, dump_object_json
 from money_returns.models import Credit_Voucher
-from apps.presales.models import Presale
+from presales.models import Presale
 from apps.utils.serializers import UserSerialiazer
 from decimal import Decimal, getcontext
 from money_returns.api.serializers import Credit_VoucherSerializer

@@ -27,7 +27,7 @@ from workshop.api.views import Work_OrderViewSet, Work_OrderCreateViewSet, Work_
 from purchases.api.views import PurchaseViewSet, PurchaseCreateViewSet, PurchaseIncompleteViewSet, PurchaseCompleteViewSet
 from dynamic_preferences.users.viewsets import UserPreferencesViewSet
 from payables.api.views import Credit_MovementPayableViewSet, Credit_PaymentPayableViewSet, CreditPaymentCreateViewSetPayables
-from apps.presales.api.views import PresaleViewSet, PresalePatchViewSet
+from presales.api.views import PresaleViewSet, PresalePatchViewSet
 from apps.sales.api.views import SaleCreateViewSet, SaleViewSetReadOnly, ReturnViewSet
 from money_returns.api.views import Money_ReturnViewSet, Credit_VoucherViewSet
 from payables_money_returns.api.views import Credit_VoucherViewSetPayable

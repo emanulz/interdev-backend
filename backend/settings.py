@@ -90,7 +90,7 @@ INSTALLED_APPS = [
     'reporting.apps.ReportingConfig',
     'purchases.apps.PurchasesConfig',
     'payables.apps.PayablesConfig',
-    'apps.presales.apps.PresalesConfig',
+    'presales.apps.PresalesConfig',
     'money_returns.apps.MoneyReturnsConfig',
     'payables_money_returns.apps.PayablesMoneyReturnsConfig',
     'consecutives.apps.ConsecutivesConfig',
