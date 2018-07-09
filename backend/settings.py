@@ -71,7 +71,7 @@ INSTALLED_APPS = [
     'channels',
     'api',
     'preferences',
-    'apps.broadcaster.apps.BroadcasterConfig',
+    'broadcaster.apps.BroadcasterConfig',
     'apps.administration.apps.AdministrationConfig',
     'logs.apps.LogsConfig',
     'profiles.apps.ProfilesConfig',
