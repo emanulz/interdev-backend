@@ -30,7 +30,7 @@ from payables.api.views import Credit_MovementPayableViewSet, Credit_PaymentPaya
 from apps.presales.api.views import PresaleViewSet, PresalePatchViewSet
 from apps.sales.api.views import SaleCreateViewSet, SaleViewSetReadOnly, ReturnViewSet
 from money_returns.api.views import Money_ReturnViewSet, Credit_VoucherViewSet
-from apps.payables_money_returns.api.views import Credit_VoucherViewSetPayable
+from payables_money_returns.api.views import Credit_VoucherViewSetPayable
 from apps.utils.searchView import SearchViewSet
 
 # API COPIED FROM  dynamic_preferences into apps.preferences.api package and modified permissions class

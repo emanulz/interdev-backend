@@ -92,7 +92,7 @@ INSTALLED_APPS = [
     'payables.apps.PayablesConfig',
     'apps.presales.apps.PresalesConfig',
     'money_returns.apps.MoneyReturnsConfig',
-    'apps.payables_money_returns.apps.PayablesMoneyReturnsConfig',
+    'payables_money_returns.apps.PayablesMoneyReturnsConfig',
     'consecutives.apps.ConsecutivesConfig',
     'codes.apps.CodesConfig',
     'factura_digital.apps.FacturaDigitalConfig',
