@@ -21,6 +21,8 @@ BASE_DIR_TEST = os.path.dirname(os.path.dirname(__file__))
 PROJECT_ROOT = os.path.dirname(__file__)
 #print("THIS --> ", os.path.join(PROJECT_ROOT, '..\\apps'))
 sys.path.insert(0, os.path.join(PROJECT_ROOT, '..\\..\\core_apps'))
+sys.path.insert(0, os.path.join(PROJECT_ROOT, '..\\..\\secondary_apps'))
+sys.path.insert(0, os.path.join(PROJECT_ROOT, '..\\..\\custom_apps'))
 #load the library to build the factura xmls
 sys.path.insert(0, os.path.join(PROJECT_ROOT, '..\\..\\parser_factura_digital'))
 
