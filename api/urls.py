@@ -33,7 +33,7 @@ from payables_money_returns.api.views import Credit_VoucherViewSetPayable
 from apps.utils.searchView import SearchViewSet
 
 # API COPIED FROM  dynamic_preferences into apps.preferences.api package and modified permissions class
-from apps.preferences.api.viewsets import GlobalPreferencesViewSet
+from preferences.api.viewsets import GlobalPreferencesViewSet
 
 from clients.views import createClientQuick
 

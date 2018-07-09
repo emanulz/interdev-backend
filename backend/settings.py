@@ -70,7 +70,7 @@ INSTALLED_APPS = [
     'django_cleanup',
     'channels',
     'api',
-    'apps.preferences',
+    'preferences',
     'apps.broadcaster.apps.BroadcasterConfig',
     'apps.administration.apps.AdministrationConfig',
     'logs.apps.LogsConfig',
