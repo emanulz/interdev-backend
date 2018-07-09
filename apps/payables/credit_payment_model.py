@@ -1,7 +1,7 @@
 from django.db import models
 import uuid
 from decimal import Decimal, getcontext
-from apps.purchases.models import Purchase
+from purchases.models import Purchase
 from suppliers.models import Supplier
 from apps.utils.utils import dump_object_json, calculate_next_consecutive
 from .models import Credit_Movement

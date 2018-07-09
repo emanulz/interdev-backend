@@ -1,4 +1,4 @@
-from apps.purchases.models import Purchase
+from purchases.models import Purchase
 from openpyxl import Workbook
 from openpyxl.styles import colors
 from openpyxl.styles import Font, Color

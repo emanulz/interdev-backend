@@ -88,7 +88,7 @@ INSTALLED_APPS = [
     'workshop.apps.WorkshopConfig',
     
     'apps.reporting.apps.ReportingConfig',
-    'apps.purchases.apps.PurchasesConfig',
+    'purchases.apps.PurchasesConfig',
     'apps.payables.apps.PayablesConfig',
     'apps.presales.apps.PresalesConfig',
     'apps.money_returns.apps.MoneyReturnsConfig',
