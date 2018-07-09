@@ -31,7 +31,7 @@ urlpatterns = [
     url(r'^workshop/', workshopPage, name='workshop'),
     url(r'^payables/', login_required(TemplateView.as_view(template_name="payables.html"))),
     url(r'^purchases/', login_required(TemplateView.as_view(template_name='purchases.html'))),
-    url(r'^reportsExcel/', include('apps.reporting.urls')),
+    url(r'^reportsExcel/', include('reporting.urls')),
 
     # LOGIN
     url(r'^login/$', auth_views.LoginView.as_view()),
