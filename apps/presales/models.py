@@ -11,7 +11,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from apps.utils.utils import dump_object_json
 from django.db import transaction
-from apps.logs.models import Log
+from logs.models import Log
 from apps.utils.exceptions import TransactionError
 from django.contrib.auth.models import User
 

@@ -4,7 +4,7 @@ from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
 from django.db import IntegrityError, transaction
 from django.contrib.auth.models import User
-from apps.logs.models import Log
+from logs.models import Log
 from apps.utils.utils import calculate_next_consecutive, dump_object_json
 from apps.utils.exceptions import TransactionError
 from apps.suppliers.models import Supplier

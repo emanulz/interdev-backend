@@ -3,7 +3,7 @@ import uuid
 from django.db import IntegrityError, transaction
 from decimal import Decimal, getcontext
 from apps.utils.utils import calculate_next_consecutive
-from apps.logs.models import Log
+from logs.models import Log
 from apps.utils.utils import dump_object_json
 from apps.utils.exceptions import TransactionError
 

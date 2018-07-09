@@ -12,7 +12,7 @@ from django.contrib.auth.models import User
 from apps.utils.serializers import UserSerialiazer
 from apps.clients.models import Client
 from decimal import Decimal, getcontext
-from apps.logs.models import Log
+from logs.models import Log
 from apps.utils.utils import dump_object_json
 
 

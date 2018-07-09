@@ -11,10 +11,9 @@ from django.contrib.contenttypes.models import ContentType
 import channels
 from django.forms.models import model_to_dict
 from django.contrib.auth.models import User
-from apps.logs.models import Log
+from logs.models import Log
 from apps.utils.serializers import UserSerialiazer
 from apps.utils.utils import dump_object_json, uploadFile
-from apps.logs.models import Log
 from rest_framework.response import Response
 from rest_framework import status
 

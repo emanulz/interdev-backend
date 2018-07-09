@@ -17,7 +17,7 @@ from apps.suppliers.api.views import SupplierViewSet, SupplierCustomViewSet, Sup
 from apps.profiles.api.views import ProfileViewSet
 from apps.profiles.api.views import UserViewSet, PermissionsViewSet
 from apps.sales.api.views import SaleViewSet, Cash_AdvanceViewSet
-from apps.logs.api.views import LogViewSet
+from logs.api.views import LogViewSet
 from apps.credits.api.views import Credit_MovementViewSet, Credit_PaymentViewSet, CreditPaymentCreateViewSet
 from apps.taxes.api.views import TaxViewSet
 from apps.senders.api.views import SenderViewSet

@@ -16,7 +16,7 @@ from apps.products.models import Product
 from apps.inventories.models import Warehouse
 from apps.credits.models import Credit_Movement, Credit_Note
 from django.contrib.auth.models import User
-from apps.logs.models import Log
+from logs.models import Log
 from apps.utils.exceptions import TransactionError
 from apps.utils.utils import calculate_next_consecutive, dump_object_json
 from apps.money_returns.models import Credit_Voucher

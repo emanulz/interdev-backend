@@ -71,7 +71,7 @@ INSTALLED_APPS = [
     'apps.preferences',
     'apps.broadcaster.apps.BroadcasterConfig',
     'apps.administration.apps.AdministrationConfig',
-    'apps.logs.apps.LogsConfig',
+    'logs.apps.LogsConfig',
     'apps.profiles.apps.ProfilesConfig',
     'apps.clients.apps.ClientsConfig',
     'apps.products.apps.ProductsConfig',
@@ -83,7 +83,6 @@ INSTALLED_APPS = [
     'apps.addresses.apps.AddressesConfig',
     'apps.inventories.apps.InventoriesConfig',
 
-    #'apps.workshop.apps.WorkshopConfig',
     'workshop.apps.WorkshopConfig',
     
     'apps.reporting.apps.ReportingConfig',

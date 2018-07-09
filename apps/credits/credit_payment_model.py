@@ -11,7 +11,7 @@ from apps.clients.models import Client
 from decimal import Decimal, getcontext
 from apps.credits.models import Credit_Movement
 from apps.utils.utils import dump_object_json
-from apps.logs.models import Log
+from logs.models import Log
 import json
 
 class Credit_Payment(models.Model):

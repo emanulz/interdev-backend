@@ -13,7 +13,7 @@ from django.dispatch import receiver
 from django.db import IntegrityError, transaction
 from apps.utils.exceptions import TransactionError
 from decimal import Decimal, getcontext
-from apps.logs.models import Log
+from logs.models import Log
 from apps.utils.utils import dump_object_json
 from apps.money_returns.models import Credit_Voucher
 from apps.money_returns.api.serializers import Credit_VoucherSerializer

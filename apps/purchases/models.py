@@ -10,7 +10,7 @@ from apps.utils.exceptions import TransactionError
 from django.contrib.auth.models import User
 from apps.inventories.models import Warehouse
 from apps.suppliers.models import Supplier
-from apps.logs.models import Log
+from logs.models import Log
 from apps.products.models import Product
 from decimal import Decimal, getcontext
 from apps.payables.models import Credit_Movement

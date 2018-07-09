@@ -8,7 +8,7 @@ from django.db import IntegrityError
 from apps.utils.exceptions import TransactionError
 from apps.utils.utils import dump_object_json, calculate_next_consecutive, calculate_next_code
 from decimal import Decimal, getcontext
-from apps.logs.models import Log
+from logs.models import Log
 from decimal import Decimal
 from django.contrib.auth.models import User
 
