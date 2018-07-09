@@ -19,7 +19,7 @@ from sales.api.views import SaleViewSet, Cash_AdvanceViewSet
 from logs.api.views import LogViewSet
 from credits.api.views import Credit_MovementViewSet, Credit_PaymentViewSet, CreditPaymentCreateViewSet
 from taxes.api.views import TaxViewSet
-from apps.senders.api.views import SenderViewSet
+from senders.api.views import SenderViewSet
 from addresses.api.views import ProvinceViewSet, CantonViewSet, DistrictViewSet, TownViewSet
 from inventories.api.views import Inventory_MovementViewSet, WarehouseViewSet
 from workshop.api.views import Work_OrderViewSet, Work_OrderCreateViewSet, Work_OrderWarantyViewset, Work_OrderWarantyBDViewset, Work_OrderNoRepairViewset
