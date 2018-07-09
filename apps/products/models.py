@@ -17,7 +17,7 @@ from apps.utils.utils import dump_object_json, uploadFile
 from rest_framework.response import Response
 from rest_framework import status
 
-from apps.inventories.models import Inventory_Movement, Warehouse
+from inventories.models import Inventory_Movement, Warehouse
 from asgiref.sync import async_to_sync
 from django.db.models.signals import post_save
 from django.dispatch import receiver

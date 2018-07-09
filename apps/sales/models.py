@@ -13,7 +13,7 @@ from rest_framework.response import Response
 
 from clients.models import Client
 from apps.products.models import Product
-from apps.inventories.models import Warehouse
+from inventories.models import Warehouse
 from credits.models import Credit_Movement, Credit_Note
 from django.contrib.auth.models import User
 from logs.models import Log

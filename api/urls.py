@@ -22,7 +22,7 @@ from credits.api.views import Credit_MovementViewSet, Credit_PaymentViewSet, Cre
 from taxes.api.views import TaxViewSet
 from apps.senders.api.views import SenderViewSet
 from addresses.api.views import ProvinceViewSet, CantonViewSet, DistrictViewSet, TownViewSet
-from apps.inventories.api.views import Inventory_MovementViewSet, WarehouseViewSet
+from inventories.api.views import Inventory_MovementViewSet, WarehouseViewSet
 from workshop.api.views import Work_OrderViewSet, Work_OrderCreateViewSet, Work_OrderWarantyViewset, Work_OrderWarantyBDViewset, Work_OrderNoRepairViewset
 from purchases.api.views import PurchaseViewSet, PurchaseCreateViewSet, PurchaseIncompleteViewSet, PurchaseCompleteViewSet
 from dynamic_preferences.users.viewsets import UserPreferencesViewSet

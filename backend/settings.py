@@ -83,7 +83,7 @@ INSTALLED_APPS = [
     'taxes.apps.TaxesConfig',
     'apps.senders.apps.SendersConfig',
     'addresses.apps.AddressesConfig',
-    'apps.inventories.apps.InventoriesConfig',
+    'inventories.apps.InventoriesConfig',
 
     'workshop.apps.WorkshopConfig',
     

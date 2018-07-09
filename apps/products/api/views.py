@@ -10,7 +10,7 @@ from .serializers import ProductSerializer, ProductDepartmentSerializer, Product
 from .serializers import SearchProductSerializer
 from .permissions import HasProperPermission, HasProperDepartmentPermission, HasProperSubDepartmentPermission
 from apps.utils.exceptions import TransactionError
-from apps.inventories.api.serializers import Inventory_MovementSerializer
+from inventories.api.serializers import Inventory_MovementSerializer
 
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.decorators import api_view
