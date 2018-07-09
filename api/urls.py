@@ -19,7 +19,7 @@ from apps.profiles.api.views import UserViewSet, PermissionsViewSet
 from apps.sales.api.views import SaleViewSet, Cash_AdvanceViewSet
 from logs.api.views import LogViewSet
 from apps.credits.api.views import Credit_MovementViewSet, Credit_PaymentViewSet, CreditPaymentCreateViewSet
-from apps.taxes.api.views import TaxViewSet
+from taxes.api.views import TaxViewSet
 from apps.senders.api.views import SenderViewSet
 from addresses.api.views import ProvinceViewSet, CantonViewSet, DistrictViewSet, TownViewSet
 from apps.inventories.api.views import Inventory_MovementViewSet, WarehouseViewSet
