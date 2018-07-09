@@ -9,8 +9,8 @@ from clients.models import Client
 from clients.api.serializers import ClientSerializer
 from workshop.models import Work_Order
 from workshop.api.serializers import Work_OrderSerializer
-from apps.sales.models import Sale, Return
-from apps.sales.api.serializers import SaleSerializer, ReturnSerializer
+from sales.models import Sale, Return
+from sales.api.serializers import SaleSerializer, ReturnSerializer
 
 from rest_framework.decorators import list_route
 from rest_framework.response import Response

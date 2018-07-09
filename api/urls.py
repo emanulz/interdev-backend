@@ -16,7 +16,7 @@ from apps.products.api.views import ProductViewSet, ProductDepartmentViewSet, Pr
 from suppliers.api.views import SupplierViewSet, SupplierCustomViewSet, SupplierSearchViewSet
 from apps.profiles.api.views import ProfileViewSet
 from apps.profiles.api.views import UserViewSet, PermissionsViewSet
-from apps.sales.api.views import SaleViewSet, Cash_AdvanceViewSet
+from sales.api.views import SaleViewSet, Cash_AdvanceViewSet
 from logs.api.views import LogViewSet
 from credits.api.views import Credit_MovementViewSet, Credit_PaymentViewSet, CreditPaymentCreateViewSet
 from taxes.api.views import TaxViewSet
@@ -28,7 +28,7 @@ from purchases.api.views import PurchaseViewSet, PurchaseCreateViewSet, Purchase
 from dynamic_preferences.users.viewsets import UserPreferencesViewSet
 from payables.api.views import Credit_MovementPayableViewSet, Credit_PaymentPayableViewSet, CreditPaymentCreateViewSetPayables
 from presales.api.views import PresaleViewSet, PresalePatchViewSet
-from apps.sales.api.views import SaleCreateViewSet, SaleViewSetReadOnly, ReturnViewSet
+from sales.api.views import SaleCreateViewSet, SaleViewSetReadOnly, ReturnViewSet
 from money_returns.api.views import Money_ReturnViewSet, Credit_VoucherViewSet
 from payables_money_returns.api.views import Credit_VoucherViewSetPayable
 from apps.utils.searchView import SearchViewSet
