@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 import django_filters
 from django_filters import DateFilter
-from ..models import Sale, Cash_Advance
+from ..models import Sale, Cash_Advance, Return
 
 
 class SaleFilter(django_filters.FilterSet):
@@ -19,4 +19,12 @@ class Cash_AdvanceFilter(django_filters.FilterSet):
 
     class Meta:
         model = Cash_Advance
-        fields = ('id', 'consecutive', 'client', 'client_id', 'user', 'created', 'amount', 'description', 'work_order_id', 'sale_id', 'updated')
+        fields = ('id', 'consecutive', 'client', 'client_id', 'user', 'created', 'amount', 'description',
+                  'work_order_id', 'sale_id', 'updated')
+
+
+class ReturnFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = Return
+        fields = '__all__'

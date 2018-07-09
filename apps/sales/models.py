@@ -19,10 +19,12 @@ from django.contrib.auth.models import User
 from apps.logs.models import Log
 from apps.utils.exceptions import TransactionError
 from apps.utils.utils import calculate_next_consecutive, dump_object_json
-from apps.money_returns.models import Money_Return, Credit_Voucher
+from apps.money_returns.models import Credit_Voucher
 from apps.presales.models import Presale
 from apps.utils.serializers import UserSerialiazer
 from decimal import Decimal, getcontext
+from apps.money_returns.api.serializers import Credit_VoucherSerializer
+from apps.credits.api.serializers import Credit_NoteSerializer
 
 
 class Sale(models.Model):
@@ -232,32 +234,32 @@ class Sale(models.Model):
                 'prev_object': sale_old,
                 'new_object': sale_new,
                 'description': 'Credit payment applied',
-                'user': kwargs['user'],  
+                'user': kwargs['user'],
             })
 
             return sale
-            
+
     @classmethod
     def return_products(self_cls, pk, user_id, **kwargs):
         # kwargs['return_list']='[{"id":"a02e155c-dd93-41b6-bf27-0c0afdd670b0", "ret_qty":1}]'
         # kwargs['return_method']='CREDIT'
         # kwargs['destination_warehouse_id']=''
-        
+
         user = User.objects.get(id=user_id)
-        user_string = UserSerialiazer(user).data
+        user_string = dump_object_json(user)
 
         with transaction.atomic():
             sale = self_cls.objects.select_for_update().get(id=pk)
             client_id = sale.client_id
             client_string = sale.client
-            #update the sale with the return list
+            # update the sale with the return list
 
             return_method = kwargs['return_method']
             return_options = ['CASH', 'CREDIT', 'VOUCHER']
             if return_method not in return_options: 
                 raise TransactionError({'return_method': ['Return method not sent']})
 
-            #create a  return object
+            # create a  return object
             return_kwargs = {
                 'sale_id': pk,
                 'user': user_string,
@@ -269,8 +271,8 @@ class Sale(models.Model):
                 'sale': sale,
                 'destination_warehouse_id': kwargs['destination_warehouse_id']
             }
+            return Return.create(**return_kwargs)
 
-            Return.create(**return_kwargs)
     @classmethod
     def apply_credit_note(self_cls, pk, user_id, **kwargs):
         '''Used to null the total sale'''
@@ -280,7 +282,7 @@ class Sale(models.Model):
             user = User.objects.get(id=user_id)
             user_string = UserSerialiazer(user).data
             original_sale = dump_object_json(sale)
-            client_id =  sale.client_id
+            client_id = sale.client_id
             client_string = sale.client
 
             sale_cart_object = json.loads(sale.cart)
@@ -321,15 +323,16 @@ class Sale(models.Model):
 
 
 class Return(models.Model):
-    
+
     id = models.UUIDField(default=uuid.uuid4, editable=False)
     consecutive = models.IntegerField(verbose_name='Número de factura', primary_key=True, editable=False)
-    #subset of the sale cart, with the items being returned and the quantities being returned
+    # subset of the sale cart, with the items being returned and the quantities being returned
     sale_cart = models.TextField(verbose_name='Objeto Carrito Devolución', default='')
     return_list = models.TextField(verbose_name='Lista de productos retornados')
     client = models.TextField(verbose_name='Objeto Cliente', default='')
     client_id = models.CharField(max_length=255, verbose_name='Id de Cliente', default='1')
     sale_id = models.CharField(max_length=80, verbose_name='ID objecto Venta')
+    sale_consecutive = models.IntegerField(blank=True, null=True, verbose_name='Consecutivo de la Venta')
     amount = models.DecimalField(max_digits=19, decimal_places=5, verbose_name='Monto Retorno')
     user = models.TextField(verbose_name='Objeto Usuario', default='')
     created = models.DateTimeField(auto_now=False, auto_now_add=True, blank=True, null=True,
@@ -341,9 +344,10 @@ class Return(models.Model):
     def create(self_cls, **kwargs):
         with transaction.atomic():
             next_consecutive = calculate_next_consecutive(self_cls)
-            sale= kwargs['sale']
+            sale = kwargs['sale']
             return_method = kwargs['return_method']
-            sale_cart = sale.cart 
+            sale_cart = sale.cart
+            sale_consecutive = sale.consecutive
             return_list = json.loads(kwargs['return_list'])
             old_return_list = [] #load the list containing the items and quantyties previously returned
             if sale.returns_collection != '':
@@ -391,7 +395,8 @@ class Return(models.Model):
                     'user': kwargs['user']
                 })
             merchandise_total_value = round(merchandise_total_value, 5)
-            return_object =  self_cls.objects.create(**{
+
+            return_object = self_cls.objects.create(**{
                 'consecutive': next_consecutive,
                 'client': kwargs['client'],
                 'client_id': kwargs['client_id'],
@@ -399,7 +404,8 @@ class Return(models.Model):
                 'return_list': json.dumps(return_list),
                 'sale_id': kwargs['sale_id'],
                 'user': kwargs['user'],
-                'amount': merchandise_total_value
+                'amount': merchandise_total_value,
+                'sale_consecutive': sale_consecutive
 
             })
             # log the creation of the object
@@ -424,7 +430,8 @@ class Return(models.Model):
                 'description': 'Nota de Crédito por retorno de producto',
                 'amount': merchandise_total_value,
                 'subtotal_amount': merchandise_subtotal_value,
-                'taxes_amount': merchandise_taxes_value
+                'taxes_amount': merchandise_taxes_value,
+                'return_id': return_object.id
             }
             # the credit note itself will store its creation log. it will create
             # the debit movement itself
@@ -440,7 +447,8 @@ class Return(models.Model):
                     'credit_note_id': credit_note.id,
                     'sale_id': kwargs['sale_id'],
                     'amount': merchandise_total_value,
-                    'description': 'Voucher por devolución en venta {}'.format(sale.consecutive)
+                    'description': 'Voucher por devolución en venta {}'.format(sale.consecutive),
+                    'return_id': return_object.id
                 }
                 credit_voucher = Credit_Voucher.create(**credit_voucher_kwargs)
 
@@ -453,11 +461,29 @@ class Return(models.Model):
                 Product.inventory_movement(prod_return['id'], warehouse,
                                             'INPUT', prod_return['ret_qty'], kwargs['user'],
                                             inv_movs_description, id_generator)
-            
 
-            return return_object
+            return return_string
 
-
+    @classmethod
+    def getReturnAndRelated(self_cls, return_id):
+        voucher_serialized = {}
+        credit_note_serialized = {}
+        return_object = self_cls.objects.get(id=return_id)
+        # Try to get voucher and credit note and serialize them
+        try:
+            voucher = Credit_Voucher.objects.filter(return_id__exact=return_id).first()
+            if voucher:
+                voucher_serialized = Credit_VoucherSerializer(voucher).data
+        except Exception as e:
+            print(e)
+        try:
+            credit_note = Credit_Note.objects.filter(return_id__exact=return_id).first()
+            if credit_note:
+                credit_note_serialized = Credit_NoteSerializer(credit_note).data
+        except Exception as e:
+            print(e)
+        return (return_object, credit_note_serialized, voucher_serialized)
+    
     def __str__(self):
         return '%s' % (self.consecutive)
 
@@ -465,6 +491,7 @@ class Return(models.Model):
         verbose_name = 'Devolución'
         verbose_name_plural = 'Devoluciones'
         ordering = ['consecutive']
+
 
 class Cash_Advance(models.Model):
 

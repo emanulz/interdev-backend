@@ -16,7 +16,6 @@ from apps.logs.models import Log
 from apps.utils.utils import dump_object_json
 
 
-
 class Credit_Movement(models.Model):
 
     credit = 'CRED'
@@ -47,7 +46,6 @@ class Credit_Movement(models.Model):
     updated = models.DateTimeField(auto_now=True, auto_now_add=False, blank=True, null=True,
                                    verbose_name='Fecha de modificación')
 
-
     @classmethod
     def create(self_cls, **kwargs): 
         print('Create credit movement')
@@ -56,24 +54,23 @@ class Credit_Movement(models.Model):
             if kwargs['movement_type']=='CRED':
                 kwargs['amount'] = abs(kwargs['amount'])*-1
             Credit_Movement(**kwargs).full_clean()
-            #inject the consecutive in the incoming kwargs
+            # inject the consecutive in the incoming kwargs
             kwargs['consecutive'] = calculate_next_consecutive(self_cls)
-            #create the Creditmovement object
+            # create the Creditmovement object
             mov = self_cls.objects.create(**kwargs)
             mov.save()
-            
+
             mov_new = dump_object_json(mov)
             Log.objects.create(**{
-                'code':'CREDIT_MOVEMENT_CREATED',
-                'model':'CREDIT_MOVEMENT',
-                'prev_object':'',
+                'code': 'CREDIT_MOVEMENT_CREATED',
+                'model': 'CREDIT_MOVEMENT',
+                'prev_object': '',
                 'new_object': mov_new,
-                'description':'Credit movement Initial creation',
+                'description': 'Credit movement Initial creation',
                 'user': kwargs['user']
 
             })
             return mov
-
 
     def __str__(self):
         return '%s' % (self.consecutive)
@@ -93,18 +90,18 @@ class Credit_Note(models.Model):
     user_id =  models.CharField(max_length=80, verbose_name="ID Objeto Usuario")
     client = models.TextField(verbose_name='Objeto Cliente', default='')
     client_id = models.CharField(max_length=255, blank=True, null=True, verbose_name='ID Objeto Cliente', default='')
+    return_id = models.CharField(max_length=255, blank=True, null=True, verbose_name='ID Objeto Retorno', default='')
     description = models.CharField(max_length=255, blank=True, verbose_name='Descripción del movimiento')
     amount = models.DecimalField(max_digits=19, decimal_places=5, verbose_name='Monto',
                                  blank=True, default=0)
     taxes_amount = models.DecimalField(max_digits=19, decimal_places=5, verbose_name='Monto Impuestos',
-                                 blank=True, default=0)
+                                       blank=True, default=0)
     subtotal_amount = models.DecimalField(max_digits=19, decimal_places=5, verbose_name='Monto Subtotal',
-                                 blank=True, default=0)                                                
+                                          blank=True, default=0)                                                
     created = models.DateTimeField(auto_now=False, auto_now_add=True, blank=True, null=True,
                                    verbose_name='Fecha de creación')
     updated = models.DateTimeField(auto_now=True, auto_now_add=False, blank=True, null=True,
                                    verbose_name='Fecha de modificación')
-
 
     @classmethod
     def create(self_cls, **kwargs):
@@ -129,8 +126,8 @@ class Credit_Note(models.Model):
                 'user': kwargs['user']
             })
 
-            #apply credit movement
-            #kwargs_debit = {
+            # apply credit movement
+            # kwargs_debit = {
             #    'client_id': kwargs['client_id'],
             #    'user': kwargs['user'],
             #    'bill_id': kwargs['sale_id'],
@@ -140,9 +137,9 @@ class Credit_Note(models.Model):
             #    'movement_type': 'DEBI',
             #    'amount': kwargs['amount'],
             #    'description': 'Movimiento de Débito por Nota Crédito {}'.format(credit_note.consecutive)
-            #}
-            #it will log its creation itself
-            #Credit_Movement.create(**kwargs_debit)
+            # }
+            # it will log its creation itself
+            # Credit_Movement.create(**kwargs_debit)
             return credit_note
 
     def __str__(self):
@@ -154,7 +151,6 @@ class Credit_Note(models.Model):
         ordering = ['consecutive']
 
 
-
 try:
     content_type = ContentType.objects.get_for_model(Credit_Movement)
     permission = Permission.objects.create(
@@ -164,18 +160,18 @@ try:
         )
 except Exception as e:
     if type(e) != IntegrityError:
-        print (type(e))
+        print(type(e))
     pass
 
 
 try:
-    content_type = ContentType.objects.get_for_model(Credit_Payment)
+    content_type = ContentType.objects.get_for_model(Credit_Note)
     permission = Permission.objects.create(
-        codename='list_credit_payment',
-        name='Can list Credit Payment',
+        codename='list_credit_note',
+        name='Can list Credit Note',
         content_type=content_type,
         )
 except Exception as e:
     if type(e) != IntegrityError:
-        print (type(e))
+        print(type(e))
     pass

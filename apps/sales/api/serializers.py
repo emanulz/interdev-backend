@@ -2,8 +2,7 @@
 from __future__ import unicode_literals
 
 from rest_framework import serializers
-from ..models import Sale, Cash_Advance
-from apps.credits.models import Credit_Movement
+from ..models import Sale, Cash_Advance, Return
 
 
 class Cash_AdvanceSerializer(serializers.ModelSerializer):
@@ -16,8 +15,13 @@ class Cash_AdvanceSerializer(serializers.ModelSerializer):
 
 class SaleSerializer(serializers.ModelSerializer):
 
-
     class Meta:
         model = Sale
         fields = '__all__'
 
+
+class ReturnSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Return
+        fields = '__all__'

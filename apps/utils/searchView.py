@@ -9,8 +9,8 @@ from apps.clients.models import Client
 from apps.clients.api.serializers import ClientSerializer
 from workshop.models import Work_Order
 from workshop.api.serializers import Work_OrderSerializer
-from apps.sales.models import Sale
-from apps.sales.api.serializers import SaleSerializer
+from apps.sales.models import Sale, Return
+from apps.sales.api.serializers import SaleSerializer, ReturnSerializer
 
 from rest_framework.decorators import list_route
 from rest_framework.response import Response
@@ -19,13 +19,13 @@ from decimal import Decimal
 from itertools import chain
 from django.db import connection
 
-SUPPORTED_MODELS = ('Supplier', 'Purchase', 'Product', 'Client', 'WorkOrder', 'Sale')
+SUPPORTED_MODELS = ('Supplier', 'Purchase', 'Product', 'Client', 'WorkOrder', 'Sale', 'Return')
 MAX_SEARCH_CLUSTERS = 6
-#define the special characters in the query language
+# define the special characters in the query language
 WILDCARD_CHARS = ['=', '&', '|']
 CUSTOM_FILTER_CHARS = ['$', '!']
 searchable_fields = {
-    'supplier':['id', 'code', 'name', 'id_num', 'id_type', 'address', 'phone_number', 'cellphone_number', 'agent_name', 
+    'supplier': ['id', 'code', 'name', 'id_num', 'id_type', 'address', 'phone_number', 'cellphone_number', 'agent_name', 
                 'agent_last_name', 'email', 'agent_phone_number', 'agent_email', 'observations', 'user'],
 
     'product': ['description', 'code', 'short_description', 'department', 'subdepartment',
@@ -40,15 +40,18 @@ searchable_fields = {
                   'article_brand', 'article_model', 'article_serial', 'article_color', 'article_data', 'malfunction_details',
                   'observations_list', 'is_warranty', 'warranty_number_bd', 'warranty_supplier_name', 'warranty_invoice_number',
                   'warranty_reference', 'warranty_reported_to_bd'],
-    'sale': ['id', 'consecutive', 'client', 'client_id', 'pay_types', 'pay', 'created']
+    'sale': ['id', 'consecutive', 'client', 'client_id', 'pay_types', 'pay', 'created'],
+    'return': ['id', 'consecutive', 'client', 'client_id', 'created']
 }
-default_search_field= {
+
+default_search_field = {
     'supplier': 'name',
     'product': 'description',
     'purchase': 'supplier',
     'client': 'name',
     'workorder': 'client',
-    'sale': 'client'
+    'sale': 'client',
+    'return': 'client'
 }
 
 code_search_fields = {
@@ -56,6 +59,7 @@ code_search_fields = {
     'product': ['code', 'internal_barcode', 'barcode'],
     'purchase': ['id', 'consecutive'],
     'sale': ['id', 'consecutive'],
+    'return': ['id', 'consecutive'],
     'client': ['id', 'code'],
     'workorder': ['consecutive', 'article_model', 'warranty_number_bd', 'warranty_invoice_number']
 }
@@ -120,10 +124,13 @@ class SearchViewSet(viewsets.ViewSet):
             search_result = general_search(queryset, max_results, data)
             return Response(data=Work_OrderSerializer(search_result, many=True).data, status=status.HTTP_200_OK)
         elif target_model == 'sale':
-            print('SALEEEE')
             queryset = Sale.objects.all()
             search_result = general_search(queryset, max_results, data)
             return Response(data=SaleSerializer(search_result, many=True).data, status=status.HTTP_200_OK)
+        elif target_model == 'return':
+            queryset = Return.objects.all()
+            search_result = general_search(queryset, max_results, data)
+            return Response(data=ReturnSerializer(search_result, many=True).data, status=status.HTTP_200_OK)
         else:
             return Response(data="Search not supported on model : {}.".format(target_model),
                             status=status.HTTP_400_BAD_REQUEST)
@@ -469,3 +476,7 @@ def find_table_name(model):
         if connection.vendor == 'sqlite':
             return '{}'.format(Sale._meta.db_table) 
         return '{}.{}'.format(db_name, Sale._meta.db_table)
+    if model == 'return':
+        if connection.vendor == 'sqlite':
+            return '{}'.format(Return._meta.db_table) 
+        return '{}.{}'.format(db_name, Return._meta.db_table)
