@@ -10,7 +10,7 @@ from apps.utils.exceptions import TransactionError
 from apps.utils.utils import calculate_next_consecutive
 from django.contrib.auth.models import User
 from apps.utils.serializers import UserSerialiazer
-from apps.clients.models import Client
+from clients.models import Client
 from decimal import Decimal, getcontext
 from logs.models import Log
 from apps.utils.utils import dump_object_json

@@ -11,7 +11,7 @@ from apps.credits.views import getClientDebt
 
 # API
 from rest_framework import routers
-from apps.clients.api.views import ClientViewSet, ClientCategoryViewSet
+from clients.api.views import ClientViewSet, ClientCategoryViewSet
 from apps.products.api.views import ProductViewSet, ProductDepartmentViewSet, ProductSubDepartmentViewSet, ProductInventoryViewSet
 from suppliers.api.views import SupplierViewSet, SupplierCustomViewSet, SupplierSearchViewSet
 from apps.profiles.api.views import ProfileViewSet
@@ -36,7 +36,7 @@ from apps.utils.searchView import SearchViewSet
 # API COPIED FROM  dynamic_preferences into apps.preferences.api package and modified permissions class
 from apps.preferences.api.viewsets import GlobalPreferencesViewSet
 
-from apps.clients.views import createClientQuick
+from clients.views import createClientQuick
 
 from factura_digital.api.views import Electronic_TicketViewset, Electronic_TicketCreateViewset
 

@@ -5,8 +5,8 @@ from purchases.models import Purchase
 from purchases.api.serializers import PurchaseSerializer
 from apps.products.models import Product
 from apps.products.api.serializers import ProductSerializer
-from apps.clients.models import Client
-from apps.clients.api.serializers import ClientSerializer
+from clients.models import Client
+from clients.api.serializers import ClientSerializer
 from workshop.models import Work_Order
 from workshop.api.serializers import Work_OrderSerializer
 from apps.sales.models import Sale, Return

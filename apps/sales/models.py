@@ -11,7 +11,7 @@ from django.db import transaction
 from django.db.models import Max, Sum
 from rest_framework.response import Response
 
-from apps.clients.models import Client
+from clients.models import Client
 from apps.products.models import Product
 from apps.inventories.models import Warehouse
 from apps.credits.models import Credit_Movement, Credit_Note
