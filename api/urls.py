@@ -7,7 +7,7 @@ from apps.profiles.views import checkUserPassword
 from apps.profiles.views import checkUserPermission, checkUserPermissions, checkSingleUserPermissions
 from apps.profiles.views import assingUserPermission
 
-from apps.credits.views import getClientDebt
+from credits.views import getClientDebt
 
 # API
 from rest_framework import routers
@@ -18,7 +18,7 @@ from apps.profiles.api.views import ProfileViewSet
 from apps.profiles.api.views import UserViewSet, PermissionsViewSet
 from apps.sales.api.views import SaleViewSet, Cash_AdvanceViewSet
 from logs.api.views import LogViewSet
-from apps.credits.api.views import Credit_MovementViewSet, Credit_PaymentViewSet, CreditPaymentCreateViewSet
+from credits.api.views import Credit_MovementViewSet, Credit_PaymentViewSet, CreditPaymentCreateViewSet
 from taxes.api.views import TaxViewSet
 from apps.senders.api.views import SenderViewSet
 from addresses.api.views import ProvinceViewSet, CantonViewSet, DistrictViewSet, TownViewSet

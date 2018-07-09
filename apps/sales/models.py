@@ -14,7 +14,7 @@ from rest_framework.response import Response
 from clients.models import Client
 from apps.products.models import Product
 from apps.inventories.models import Warehouse
-from apps.credits.models import Credit_Movement, Credit_Note
+from credits.models import Credit_Movement, Credit_Note
 from django.contrib.auth.models import User
 from logs.models import Log
 from apps.utils.exceptions import TransactionError
@@ -24,7 +24,7 @@ from apps.presales.models import Presale
 from apps.utils.serializers import UserSerialiazer
 from decimal import Decimal, getcontext
 from money_returns.api.serializers import Credit_VoucherSerializer
-from apps.credits.api.serializers import Credit_NoteSerializer
+from credits.api.serializers import Credit_NoteSerializer
 
 
 class Sale(models.Model):

@@ -79,7 +79,7 @@ INSTALLED_APPS = [
     'apps.products.apps.ProductsConfig',
     'suppliers.apps.SuppliersConfig',
     'apps.sales.apps.SalesConfig',
-    'apps.credits.apps.CreditsConfig',
+    'credits.apps.CreditsConfig',
     'taxes.apps.TaxesConfig',
     'apps.senders.apps.SendersConfig',
     'addresses.apps.AddressesConfig',
