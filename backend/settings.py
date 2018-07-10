@@ -84,7 +84,7 @@ INSTALLED_APPS = [
     'senders.apps.SendersConfig',
     'addresses.apps.AddressesConfig',
     'inventories.apps.InventoriesConfig',
-
+    'utils.apps.UtilsConfig',
     'workshop.apps.WorkshopConfig',
     
     'reporting.apps.ReportingConfig',
