@@ -55,10 +55,10 @@ except Exception as e:
     pass
 
 ALLOWED_HOSTS = ['localhost', '192.168.9.254', '192.168.1.254', '192.168.9.56', '192.168.9.107', '192.168.1.144',
-                 'DANTE']
+                 'DANTE', '192.168.9.53', 'emanuel']
 
 # Application definition
-
+USE_X_FORWARDED_HOST = True
 
 INSTALLED_APPS = [
     'widget_tweaks',
