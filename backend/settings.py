@@ -19,12 +19,19 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BASE_DIR_TEST = os.path.dirname(os.path.dirname(__file__))
 
 PROJECT_ROOT = os.path.dirname(__file__)
-#print("THIS --> ", os.path.join(PROJECT_ROOT, '..\\apps'))
+# print("THIS --> ", os.path.join(PROJECT_ROOT, '..\\apps'))
 sys.path.insert(0, os.path.join(PROJECT_ROOT, '..\\..\\core_apps'))
 sys.path.insert(0, os.path.join(PROJECT_ROOT, '..\\..\\secondary_apps'))
 sys.path.insert(0, os.path.join(PROJECT_ROOT, '..\\..\\custom_apps'))
-#load the library to build the factura xmls
+# load the library to build the factura xmls
 sys.path.insert(0, os.path.join(PROJECT_ROOT, '..\\..\\parser_factura_digital'))
+
+# UNIX INSERT TO PATH
+sys.path.insert(0, os.path.join(PROJECT_ROOT, '../../core_apps'))
+sys.path.insert(0, os.path.join(PROJECT_ROOT, '../../secondary_apps'))
+sys.path.insert(0, os.path.join(PROJECT_ROOT, '../../custom_apps'))
+# load the library to build the factura xmls
+sys.path.insert(0, os.path.join(PROJECT_ROOT, '../../parser_factura_digital'))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/
@@ -34,7 +41,7 @@ SECRET_KEY = 'pq0v9v3y@4dnny%jgrod5*_%snma=t(q6-h&@sf)+uptk54z82'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-TAX_PAYER_SECRET =  None
+TAX_PAYER_SECRET = None
 try:
     TAX_PAYER_SECRET = os.environ('TAX_PAYER_SECRET')
     print("TAX_PAYER_SECRET_LOADED")
