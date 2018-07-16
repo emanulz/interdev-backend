@@ -72,3 +72,10 @@ media/productImages/**
 media/reports/**
 
 celerybeat-schedule.bak
+
+#ignore certificates
+*.p12
+
+#ignore electronic documents xmls
+media/electronic_bills/**
+media/electronic_tickets/**
