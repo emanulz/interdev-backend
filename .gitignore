@@ -69,6 +69,7 @@ media/keys/**
 media/Imagenes
 media/Imagenes/**
 media/productImages/**
+media/productImages/old**
 media/reports/**
 
 celerybeat-schedule.bak
