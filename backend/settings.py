@@ -19,12 +19,19 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BASE_DIR_TEST = os.path.dirname(os.path.dirname(__file__))
 
 PROJECT_ROOT = os.path.dirname(__file__)
-#print("THIS --> ", os.path.join(PROJECT_ROOT, '..\\apps'))
+# print("THIS --> ", os.path.join(PROJECT_ROOT, '..\\apps'))
 sys.path.insert(0, os.path.join(PROJECT_ROOT, '..\\..\\core_apps'))
 sys.path.insert(0, os.path.join(PROJECT_ROOT, '..\\..\\secondary_apps'))
 sys.path.insert(0, os.path.join(PROJECT_ROOT, '..\\..\\custom_apps'))
-#load the library to build the factura xmls
+# load the library to build the factura xmls
 sys.path.insert(0, os.path.join(PROJECT_ROOT, '..\\..\\parser_factura_digital'))
+
+# UNIX INSERT TO PATH
+sys.path.insert(0, os.path.join(PROJECT_ROOT, '../../core_apps'))
+sys.path.insert(0, os.path.join(PROJECT_ROOT, '../../secondary_apps'))
+sys.path.insert(0, os.path.join(PROJECT_ROOT, '../../custom_apps'))
+# load the library to build the factura xmls
+sys.path.insert(0, os.path.join(PROJECT_ROOT, '../../parser_factura_digital'))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/
@@ -34,24 +41,34 @@ SECRET_KEY = 'pq0v9v3y@4dnny%jgrod5*_%snma=t(q6-h&@sf)+uptk54z82'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-TAX_PAYER_SECRET =  None
+TAX_PAYER_SECRET = None
 try:
     TAX_PAYER_SECRET = os.environ('TAX_PAYER_SECRET')
     print("TAX_PAYER_SECRET_LOADED")
-except:
+except Exception as e:
     TAX_PAYER_SECRET = '$k0!83_2g^#lw*$r5m86jpb035b-m^imh1u6v1vyf+2p$0n6eg'
+
+
 try:
-    if os.environ["SERVER_NAME"] == "APP_SERVER":
+    if os.environ["SERVER_NAME"] == "PROD_SERVER":
+        DEBUG = False
+        TAX_PAYER_SECRET = os.environ('TAX_PAYER_SECRET')
+except Exception as e:
+    pass
+
+# TEST SERVER DEBUG FALSE
+try:
+    if os.environ["SERVER_NAME"] == "TEST_SERVER":
         DEBUG = False
         TAX_PAYER_SECRET = os.environ('TAX_PAYER_SECRET')
 except Exception as e:
     pass
 
 ALLOWED_HOSTS = ['localhost', '192.168.9.254', '192.168.1.254', '192.168.9.56', '192.168.9.107', '192.168.1.144',
-                 'DANTE']
+                 'DANTE', '192.168.9.53']
 
 # Application definition
-
+USE_X_FORWARDED_HOST = True
 
 INSTALLED_APPS = [
     'widget_tweaks',
@@ -86,7 +103,7 @@ INSTALLED_APPS = [
     'inventories.apps.InventoriesConfig',
     'utils.apps.UtilsConfig',
     'workshop.apps.WorkshopConfig',
-    
+
     'reporting.apps.ReportingConfig',
     'purchases.apps.PurchasesConfig',
     'payables.apps.PayablesConfig',
@@ -167,7 +184,7 @@ try:
 except KeyError:
     pass
 
-# Server DB
+# IF ITS PROD SERVER USE MYSQL
 if not DEBUG:
     DATABASES = {
         'default': {
@@ -178,6 +195,17 @@ if not DEBUG:
         }
     }
 
+# IF ITS TEST SERVER USE SQL LITE
+try:
+    if os.environ["SERVER_NAME"] == "TEST_SERVER":
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.sqlite3',
+                'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+            }
+        }
+except KeyError:
+    pass
 
 # Password validation
 # https://docs.djangoproject.com/en/2.0/ref/settings/#auth-password-validators
@@ -257,22 +285,21 @@ if DEBUG:
             }
         }
 
-
-#CELERY CONFIGURATION
+# CELERY CONFIGURATION
 CELERY_BROKER_URL = 'redis://localhost:6379'
 CELERY_RESULT_BACKEND = 'redis://localhost:6379'
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'America/Costa_Rica'
-CELERY_TASK_SOFT_TIME_LIMIT = 180 #avoids a task hanging indefinitively blocking the worker
+CELERY_TASK_SOFT_TIME_LIMIT = 180  # avoids a task hanging indefinitively blocking the worker
 CELERY_BEAT_SCHEDULE = {
     'create_invvalue_report_task': {
         'task': 'apps.reporting.tasks.create_invvalue_report_task',
         'schedule': crontab(hour=7, minute=0),
         'args': ('s', False,),
     },
-    
+
     'task-number-two': {
         'task': 'apps.sales.tasks.task_number_one',
         'schedule': crontab(minute='*/120'),
@@ -286,7 +313,3 @@ if DEBUG:
     EMAIL_HOST_USER = 'devtestsvm@gmail.com'
     EMAIL_HOST_PASSWORD = 'InterdevTestEmail'
     EMAIL_USE_TLS = True
-
-
-
-
