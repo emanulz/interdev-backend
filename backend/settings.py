@@ -26,6 +26,7 @@ if os.sys.platform == 'win32':
     sys.path.insert(0, os.path.join(PROJECT_ROOT, '..\\..\\custom_apps'))
     # load the library to build the factura xmls
     sys.path.insert(0, os.path.join(PROJECT_ROOT, '..\\..\\parser_factura_digital'))
+    sys.path.insert(0, os.path.join(PROJECT_ROOT, '..\\..\\printers_integration'))
 else:
     # UNIX INSERT TO PATH
     sys.path.insert(0, os.path.join(PROJECT_ROOT, '../../core_apps'))
@@ -33,6 +34,7 @@ else:
     sys.path.insert(0, os.path.join(PROJECT_ROOT, '../../custom_apps'))
     # load the library to build the factura xmls
     sys.path.insert(0, os.path.join(PROJECT_ROOT, '../../parser_factura_digital'))
+    sys.path.insert(0, os.path.join(PROJECT_ROOT, '../../printers_integration'))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/
