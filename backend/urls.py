@@ -5,12 +5,12 @@ from django.contrib import admin
 # from django.urls import path
 from django.conf.urls import include
 from django.conf.urls.static import static
-from apps.profiles.views import profile_get, getUserByCode
+from profiles.views import profile_get, getUserByCode
 from django.contrib.auth.decorators import login_required
 from django.views.generic import TemplateView
 # from apps.reporting import urls
 
-from apps.administration.views import adminPage, salesPage, presalesPage, inventoriesPage, workshopPage
+from administration.views import adminPage, salesPage, presalesPage, inventoriesPage, workshopPage
 
 urlpatterns = [
     # UTILS
@@ -31,7 +31,7 @@ urlpatterns = [
     url(r'^workshop/', workshopPage, name='workshop'),
     url(r'^payables/', login_required(TemplateView.as_view(template_name="payables.html"))),
     url(r'^purchases/', login_required(TemplateView.as_view(template_name='purchases.html'))),
-    url(r'^reportsExcel/', include('apps.reporting.urls')),
+    url(r'^reportsExcel/', include('reporting.urls')),
 
     # LOGIN
     url(r'^login/$', auth_views.LoginView.as_view()),

@@ -56,6 +56,13 @@ static/bundles/
 daphne.sock
 daphne.sock.lock
 
+##Celery
+celerybeat.pid
+celerybeat-schedule.bak
+celerybeat-schedule.dat
+celerybeat-schedule.dir
+
+
 ##Media
 media/avatars/**
 media/keys/**
@@ -67,3 +74,7 @@ media/productImages/**
 media/electronic_bills/**
 media/electronic_tickets/**
 media/certificates/**
+media/productImages/old**
+media/reports/**
+
+celerybeat-schedule.bak
