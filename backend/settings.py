@@ -19,19 +19,20 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BASE_DIR_TEST = os.path.dirname(os.path.dirname(__file__))
 
 PROJECT_ROOT = os.path.dirname(__file__)
+if os.sys.platform == 'win32':
 # print("THIS --> ", os.path.join(PROJECT_ROOT, '..\\apps'))
-sys.path.insert(0, os.path.join(PROJECT_ROOT, '..\\..\\core_apps'))
-sys.path.insert(0, os.path.join(PROJECT_ROOT, '..\\..\\secondary_apps'))
-sys.path.insert(0, os.path.join(PROJECT_ROOT, '..\\..\\custom_apps'))
-# load the library to build the factura xmls
-sys.path.insert(0, os.path.join(PROJECT_ROOT, '..\\..\\parser_factura_digital'))
-
-# UNIX INSERT TO PATH
-sys.path.insert(0, os.path.join(PROJECT_ROOT, '../../core_apps'))
-sys.path.insert(0, os.path.join(PROJECT_ROOT, '../../secondary_apps'))
-sys.path.insert(0, os.path.join(PROJECT_ROOT, '../../custom_apps'))
-# load the library to build the factura xmls
-sys.path.insert(0, os.path.join(PROJECT_ROOT, '../../parser_factura_digital'))
+    sys.path.insert(0, os.path.join(PROJECT_ROOT, '..\\..\\core_apps'))
+    sys.path.insert(0, os.path.join(PROJECT_ROOT, '..\\..\\secondary_apps'))
+    sys.path.insert(0, os.path.join(PROJECT_ROOT, '..\\..\\custom_apps'))
+    # load the library to build the factura xmls
+    sys.path.insert(0, os.path.join(PROJECT_ROOT, '..\\..\\parser_factura_digital'))
+else:
+    # UNIX INSERT TO PATH
+    sys.path.insert(0, os.path.join(PROJECT_ROOT, '../../core_apps'))
+    sys.path.insert(0, os.path.join(PROJECT_ROOT, '../../secondary_apps'))
+    sys.path.insert(0, os.path.join(PROJECT_ROOT, '../../custom_apps'))
+    # load the library to build the factura xmls
+    sys.path.insert(0, os.path.join(PROJECT_ROOT, '../../parser_factura_digital'))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/
