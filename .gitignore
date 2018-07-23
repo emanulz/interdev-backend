@@ -62,3 +62,8 @@ media/keys/**
 media/Imagenes
 media/Imagenes/**
 media/productImages/**
+
+##xmls digital invoicing
+media/electronic_bills/**
+media/electronic_tickets/**
+media/certificates/**
