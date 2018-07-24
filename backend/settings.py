@@ -116,6 +116,7 @@ INSTALLED_APPS = [
     'codes.apps.CodesConfig',
     'factura_digital.apps.FacturaDigitalConfig',
     'taxpayer.apps.TaxpayerConfig',
+    'importer.apps.ImporterConfig',
 ]
 
 MIDDLEWARE = [
