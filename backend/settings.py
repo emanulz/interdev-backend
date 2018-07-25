@@ -25,6 +25,7 @@ sys.path.insert(0, os.path.join(PROJECT_ROOT, '..\\..\\secondary_apps'))
 sys.path.insert(0, os.path.join(PROJECT_ROOT, '..\\..\\custom_apps'))
 # load the library to build the factura xmls
 sys.path.insert(0, os.path.join(PROJECT_ROOT, '..\\..\\parser_factura_digital'))
+sys.path.insert(0, os.path.join(PROJECT_ROOT, '..\\..\\printers_integration'))
 
 # UNIX INSERT TO PATH
 sys.path.insert(0, os.path.join(PROJECT_ROOT, '../../core_apps'))
@@ -32,6 +33,7 @@ sys.path.insert(0, os.path.join(PROJECT_ROOT, '../../secondary_apps'))
 sys.path.insert(0, os.path.join(PROJECT_ROOT, '../../custom_apps'))
 # load the library to build the factura xmls
 sys.path.insert(0, os.path.join(PROJECT_ROOT, '../../parser_factura_digital'))
+sys.path.insert(0, os.path.join(PROJECT_ROOT, '../../printers_integration'))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/
@@ -114,6 +116,7 @@ INSTALLED_APPS = [
     'codes.apps.CodesConfig',
     'factura_digital.apps.FacturaDigitalConfig',
     'taxpayer.apps.TaxpayerConfig',
+    'importer.apps.ImporterConfig',
 ]
 
 MIDDLEWARE = [

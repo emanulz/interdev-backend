@@ -32,6 +32,7 @@ from money_returns.api.views import Money_ReturnViewSet, Credit_VoucherViewSet
 from payables_money_returns.api.views import Credit_VoucherViewSetPayable
 from utils.searchView import SearchViewSet
 from taxpayer.api.views import TaxPayerCreateViewSet
+from importer.api.views import ImporterViewset
 
 # API COPIED FROM  dynamic_preferences into apps.preferences.api package and modified permissions class
 from preferences.api.viewsets import GlobalPreferencesViewSet
@@ -93,6 +94,7 @@ router.register(r'payablescreditvoucherslist', Credit_VoucherViewSetPayable)
 router.register(r'electronicticket', Electronic_TicketViewset)
 router.register(r'electronicticketcreate', Electronic_TicketCreateViewset, base_name='electronicticketcreate')
 router.register(r'taxpayercreate', TaxPayerCreateViewSet, base_name='taxpayercreate')
+router.register(r'importer', ImporterViewset, base_name='importer')
 
 
 urlpatterns = [
