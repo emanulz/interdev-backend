@@ -36,3 +36,9 @@ venv/*
 *.old
 *.env
 yarn.lock
+/media/certificates/*
+/media/electronic_bills/*
+/media/electronic_tickets/*
+/media/factura_digital/*
+/static/*
+/media/productImages/*
