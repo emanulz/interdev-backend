@@ -36,9 +36,45 @@ venv/*
 *.old
 *.env
 yarn.lock
-/media/certificates/*
-/media/electronic_bills/*
-/media/electronic_tickets/*
-/media/factura_digital/*
-/static/*
-/media/productImages/*
+db.sqlite3
+webpack-stats-local.json
+webpack-stats-production.json
+
+## Ignore everything inside static folder but the login and vendor folders
+## This is needed to avoid stash all changes once collectstatic has been executed in server
+static/*
+static/bundles/
+!static/login/
+!static/vendor/
+
+## Ignore local migrations as they mess up with server migrations
+**/migrations/**
+!**/migrations
+!**/migrations/__init__.py
+
+##Daphnee
+daphne.sock
+daphne.sock.lock
+
+##Celery
+celerybeat.pid
+celerybeat-schedule.bak
+celerybeat-schedule.dat
+celerybeat-schedule.dir
+
+
+##Media
+media/avatars/**
+media/keys/**
+media/Imagenes
+media/Imagenes/**
+media/productImages/**
+
+##xmls digital invoicing
+media/electronic_bills/**
+media/electronic_tickets/**
+media/certificates/**
+media/productImages/old**
+media/reports/**
+
+celerybeat-schedule.bak
