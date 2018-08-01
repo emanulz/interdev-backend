@@ -31,7 +31,7 @@ from sales.api.views import SaleCreateViewSet, SaleViewSetReadOnly, ReturnViewSe
 from money_returns.api.views import Money_ReturnViewSet, Credit_VoucherViewSet
 from payables_money_returns.api.views import Credit_VoucherViewSetPayable
 from utils.searchView import SearchViewSet
-from taxpayer.api.views import TaxPayerCreateViewSet
+from taxpayer.api.views import TaxPayerCreateViewSet,TaxPayerReadOnly
 from importer.api.views import ImporterViewset
 from reporting.api.views import ReportDefinition
 
@@ -95,6 +95,7 @@ router.register(r'payablescreditvoucherslist', Credit_VoucherViewSetPayable)
 router.register(r'electronicticket', Electronic_TicketViewset)
 router.register(r'electronicticketcreate', Electronic_TicketCreateViewset, base_name='electronicticketcreate')
 router.register(r'taxpayercreate', TaxPayerCreateViewSet, base_name='taxpayercreate')
+router.register(r'taxpayerreadonly', TaxPayerReadOnly)
 router.register(r'importer', ImporterViewset, base_name='importer')
 #register reporting related routes
 router.register(r'reporting', ReportDefinition, base_name='repoting')
