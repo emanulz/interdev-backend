@@ -5,7 +5,7 @@ from django.contrib import admin
 # from django.urls import path
 from django.conf.urls import include
 from django.conf.urls.static import static
-from profiles.views import profile_get, getUserByCode
+from profiles.views import profile_get, getUserByCode, isPasswordValid
 from django.contrib.auth.decorators import login_required
 from django.views.generic import TemplateView
 # from apps.reporting import urls
@@ -18,6 +18,7 @@ urlpatterns = [
     url(r'^globaladmin/', admin.site.urls),
     url(r'^profile/', profile_get),
     url(r'^getuserbycode/', getUserByCode),
+    url(r'^checkpassword/', isPasswordValid),
 
     # APPS
     url(r'^admin/', adminPage, name='admin'),
