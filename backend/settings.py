@@ -185,6 +185,26 @@ try:
         }
 except KeyError:
     pass
+#point to a db based on host name
+
+try:
+    print("UBUNTU_TEST_BOX variable --> ", os.environ["UBUNTU_TEST_BOX"])
+    print("TARGET_DB --> ", os.environ["TARGET_DB"])
+    if os.environ['UBUNTU_TEST_BOX']:
+        db_name = os.environ["TARGET_DB"]
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.mysql',
+                'USER': 'root',
+                'PASSWORD': '0688moraB',
+                'NAME': db_name,
+                'HOST': 'localhost',
+                'PORT': '3306',
+            }
+        }
+except KeyError:
+    print("NOT FOUND TEST VARIABLES")
+    pass
 
 # IF ITS PROD SERVER USE MYSQL
 if not DEBUG:
