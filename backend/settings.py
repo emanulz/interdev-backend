@@ -192,13 +192,14 @@ try:
     print("TARGET_DB --> ", os.environ["TARGET_DB"])
     if os.environ['UBUNTU_TEST_BOX']:
         db_name = os.environ["TARGET_DB"]
+        target_db_server =  os.environ["DB_SERVER"]
         DATABASES = {
             'default': {
                 'ENGINE': 'django.db.backends.mysql',
                 'USER': 'root',
                 'PASSWORD': '0688moraB',
                 'NAME': db_name,
-                'HOST': 'dante',
+                'HOST': target_db_server,
                 'PORT': '3306',
             }
         }
@@ -229,6 +230,7 @@ try:
 except KeyError:
     pass
 
+print("Final DB connection --> ", DATABASES)
 # Password validation
 # https://docs.djangoproject.com/en/2.0/ref/settings/#auth-password-validators
 
