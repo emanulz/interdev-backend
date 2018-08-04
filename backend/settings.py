@@ -198,7 +198,7 @@ try:
                 'USER': 'root',
                 'PASSWORD': '0688moraB',
                 'NAME': db_name,
-                'HOST': 'localhost',
+                'HOST': 'dante',
                 'PORT': '3306',
             }
         }
