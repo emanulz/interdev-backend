@@ -101,12 +101,11 @@ INSTALLED_APPS = [
     'sales.apps.SalesConfig',
     'credits.apps.CreditsConfig',
     'taxes.apps.TaxesConfig',
-    'senders.apps.SendersConfig',
+    #'senders.apps.SendersConfig',
     'addresses.apps.AddressesConfig',
     'inventories.apps.InventoriesConfig',
     'utils.apps.UtilsConfig',
     'workshop.apps.WorkshopConfig',
-
     'reporting.apps.ReportingConfig',
     'purchases.apps.PurchasesConfig',
     'payables.apps.PayablesConfig',
