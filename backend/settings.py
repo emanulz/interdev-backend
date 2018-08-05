@@ -161,6 +161,7 @@ CHANNEL_LAYERS = {
     },
 }
 
+
 # Database
 # https://docs.djangoproject.com/en/2.0/ref/settings/#databases
 # Default Emanuel Dev
@@ -168,6 +169,10 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+    },
+    'logs_db': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'logs_db.sqlite3'),
     }
 }
 # Try Victor Dev
@@ -181,6 +186,14 @@ try:
                 'NAME': 'django_rj',
                 'HOST': 'localhost',
                 'PORT': '3306',
+            },
+            'logs_db':{
+                'ENGINE': 'django.db.backends.mysql',
+                'USER': 'root',
+                'PASSWORD': '0688moraB',
+                'NAME': 'django_rj_logs',
+                'HOST': 'localhost',
+                'PORT': '3306',
             }
         }
 except KeyError:
@@ -188,9 +201,9 @@ except KeyError:
 #point to a db based on host name
 
 try:
-    print("UBUNTU_TEST_BOX variable --> ", os.environ["UBUNTU_TEST_BOX"])
-    print("TARGET_DB --> ", os.environ["TARGET_DB"])
-    print("DB SERVER --> ", os.environ["DB_SERVER"])
+    #print("UBUNTU_TEST_BOX variable --> ", os.environ["UBUNTU_TEST_BOX"])
+    #print("TARGET_DB --> ", os.environ["TARGET_DB"])
+    #print("DB SERVER --> ", os.environ["DB_SERVER"])
     if os.environ['UBUNTU_TEST_BOX']:
         db_name = os.environ["TARGET_DB"]
         target_db_server =  os.environ["DB_SERVER"]
@@ -201,6 +214,14 @@ try:
                 'PASSWORD': '0688moraB',
                 'NAME': db_name,
                 'HOST': target_db_server,
+                'PORT': '3306',
+            },
+            'logs_db': {
+                'ENGINE': 'django.db.backends.mysql',
+                'USER': 'root',
+                'PASSWORD': '0688moraB',
+                'NAME': db_name,
+                'HOST': target_db_server + '_logs',
                 'PORT': '3306',
             }
         }
@@ -228,6 +249,10 @@ try:
             'default': {
                 'ENGINE': 'django.db.backends.sqlite3',
                 'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+            },
+            'logs_db': {
+                'ENGINE': 'django.db.backends.sqlite3',
+                'NAME': os.path.join(BASE_DIR, 'db.sqlite3')
             }
         }
 except KeyError:
@@ -236,6 +261,8 @@ except KeyError:
 print("Final DB connection --> ", DATABASES)
 # Password validation
 # https://docs.djangoproject.com/en/2.0/ref/settings/#auth-password-validators
+
+DATABASE_ROUTERS = ['backend.db_router.SplitData_LogsRouter']
 
 AUTH_PASSWORD_VALIDATORS = [
     {
