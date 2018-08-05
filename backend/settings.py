@@ -190,7 +190,7 @@ except KeyError:
 try:
     print("UBUNTU_TEST_BOX variable --> ", os.environ["UBUNTU_TEST_BOX"])
     print("TARGET_DB --> ", os.environ["TARGET_DB"])
-    if os.environ['UBUNTU_TEST_BOX']:
+    if os.environ['UBUNTU_TEST_BOX'] =="TRUE":
         db_name = os.environ["TARGET_DB"]
         target_db_server =  os.environ["DB_SERVER"]
         DATABASES = {
