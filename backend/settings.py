@@ -265,7 +265,7 @@ print("Final DB connection --> ", DATABASES)
 # https://docs.djangoproject.com/en/2.0/ref/settings/#auth-password-validators
 
 DATABASE_ROUTERS = ['backend.db_router.SplitData_LogsRouter']
-
+AUTH_PROFILE_MODULE = 'profiles.Profile'
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
