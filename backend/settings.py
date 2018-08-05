@@ -191,7 +191,7 @@ try:
     print("UBUNTU_TEST_BOX variable --> ", os.environ["UBUNTU_TEST_BOX"])
     print("TARGET_DB --> ", os.environ["TARGET_DB"])
     print("DB SERVER --> ", os.environ["DB_SERVER"])
-    if os.environ['UBUNTU_TEST_BOX'] =="TRUE":
+    if os.environ['UBUNTU_TEST_BOX']:
         db_name = os.environ["TARGET_DB"]
         target_db_server =  os.environ["DB_SERVER"]
         DATABASES = {
