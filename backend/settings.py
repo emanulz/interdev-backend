@@ -190,6 +190,7 @@ except KeyError:
 try:
     print("UBUNTU_TEST_BOX variable --> ", os.environ["UBUNTU_TEST_BOX"])
     print("TARGET_DB --> ", os.environ["TARGET_DB"])
+    print("DB SERVER --> ", os.environ["DB_SERVER"])
     if os.environ['UBUNTU_TEST_BOX'] =="TRUE":
         db_name = os.environ["TARGET_DB"]
         target_db_server =  os.environ["DB_SERVER"]
@@ -203,6 +204,7 @@ try:
                 'PORT': '3306',
             }
         }
+        print("SET TO TEST MYSQL")
 except KeyError:
     print("NOT FOUND TEST VARIABLES")
     pass
@@ -221,6 +223,7 @@ if not DEBUG:
 # IF ITS TEST SERVER USE SQL LITE
 try:
     if os.environ["SERVER_NAME"] == "TEST_SERVER":
+        print("SET to debug")
         DATABASES = {
             'default': {
                 'ENGINE': 'django.db.backends.sqlite3',
