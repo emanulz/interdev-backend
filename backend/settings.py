@@ -62,7 +62,6 @@ except Exception as e:
 try:
     if os.environ["SERVER_NAME"] == "PROD_SERVER":
         if os.environ["SERVER_SECRET"]:
-            print('SECRET', os.environ["SERVER_SECRET"])
             SECRET_KEY = os.environ["SERVER_SECRET"]
 except Exception as e:
     pass
@@ -77,7 +76,7 @@ except Exception as e:
     pass
 
 ALLOWED_HOSTS = ['localhost', '192.168.9.254', '192.168.1.254', '192.168.9.56', '192.168.9.107', '192.168.1.144',
-                 'DANTE', '192.168.9.53']
+                 'DANTE', '192.168.9.53', 'app.fudesemillas.net', '162.243.165.124']
 
 # Application definition
 USE_X_FORWARDED_HOST = True
