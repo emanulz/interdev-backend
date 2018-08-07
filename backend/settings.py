@@ -62,6 +62,7 @@ except Exception as e:
 try:
     if os.environ["SERVER_NAME"] == "PROD_SERVER":
         if os.environ["SERVER_SECRET"]:
+            print('SECRET', os.environ["SERVER_SECRET"])
             SECRET_KEY = os.environ["SERVER_SECRET"]
 except Exception as e:
     pass
