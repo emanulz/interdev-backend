@@ -226,9 +226,7 @@ try:
                 'PORT': '3306',
             }
         }
-        print("SET TO TEST MYSQL")
 except KeyError:
-    print("NOT FOUND TEST VARIABLES")
     pass
 
 # IF ITS PROD SERVER USE MYSQL
@@ -245,7 +243,6 @@ if not DEBUG:
 # IF ITS TEST SERVER USE SQL LITE
 try:
     if os.environ["SERVER_NAME"] == "TEST_SERVER":
-        print("SET to debug")
         DATABASES = {
             'default': {
                 'ENGINE': 'django.db.backends.sqlite3',
@@ -259,12 +256,11 @@ try:
 except KeyError:
     pass
 
-print("Final DB connection --> ", DATABASES)
 # Password validation
 # https://docs.djangoproject.com/en/2.0/ref/settings/#auth-password-validators
 
 DATABASE_ROUTERS = ['backend.db_router.SplitData_LogsRouter']
-AUTH_PROFILE_MODULE = 'profiles.Profile'
+
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
