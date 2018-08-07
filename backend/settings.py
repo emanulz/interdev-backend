@@ -50,13 +50,22 @@ try:
 except Exception as e:
     TAX_PAYER_SECRET = '$k0!83_2g^#lw*$r5m86jpb035b-m^imh1u6v1vyf+2p$0n6eg'
 
-
+# CHECK IF SERVER IS PROD, AND IF SERVER_SECRET EXISTS ASSIGNS IT TO SECRET_KEY
 try:
     if os.environ["SERVER_NAME"] == "PROD_SERVER":
         DEBUG = False
         TAX_PAYER_SECRET = os.environ('TAX_PAYER_SECRET')
 except Exception as e:
     pass
+
+# CHECK IF SERVER IS PROD, AND IF SERVER_SECRET EXISTS ASSIGNS IT TO SECRET_KEY
+try:
+    if os.environ["SERVER_NAME"] == "PROD_SERVER":
+        if os.environ["SERVER_SECRET"]:
+            SECRET_KEY = os.environ["SERVER_SECRET"]
+except Exception as e:
+    pass
+
 
 # TEST SERVER DEBUG FALSE
 try:
