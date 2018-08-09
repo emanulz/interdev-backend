@@ -14,6 +14,7 @@ app.config_from_object('django.conf:settings', namespace='CELERY')
 #app.autodiscover_tasks(lambda: [n.name for n in apps.get_app_configs()])
 app.autodiscover_tasks()
 app.autodiscover_tasks(related_name='tasks_mailing') #discover tasks from files with a non standard name
+app.autodiscover_tasks(related_name='the_overseer_tasks')
 @app.task(bind=True)
 def debug_task(self):
     print("Binding?")

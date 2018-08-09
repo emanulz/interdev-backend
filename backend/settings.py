@@ -345,16 +345,15 @@ CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'America/Costa_Rica'
 CELERY_TASK_SOFT_TIME_LIMIT = 180  # avoids a task hanging indefinitively blocking the worker
 CELERY_BEAT_SCHEDULE = {
-    'create_invvalue_report_task': {
-        'task': 'apps.reporting.tasks.create_invvalue_report_task',
-        'schedule': crontab(hour=7, minute=0),
-        'args': ('s', False,),
-    },
 
-    'task-number-two': {
-        'task': 'apps.sales.tasks.task_number_one',
-        'schedule': crontab(minute='*/120'),
+    'the-overseer': {
+        'task': 'factura_digital.the_overseer_tasks.TheOneAboveAll',
+        'schedule': crontab(minute='*/5'),
     },
+    'the-reaper': {
+        'task': 'factura_digital.the_overseer_tasks.ReaperOfDocs',
+        'schedule': crontab(minute='*/30')
+    }
 }
 
 #MAILING CONFIGURATION
