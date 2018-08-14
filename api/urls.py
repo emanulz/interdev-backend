@@ -12,7 +12,7 @@ from credits.views import getClientDebt
 # API
 from rest_framework import routers
 from clients.api.views import ClientViewSet, ClientCategoryViewSet
-from products.api.views import ProductViewSet, ProductDepartmentViewSet, ProductSubDepartmentViewSet, ProductInventoryViewSet
+from products.api.views import ProductViewSet, ProductDepartmentViewSet, ProductSubDepartmentViewSet, ProductInventoryViewSet, UnitViewSet
 from suppliers.api.views import SupplierViewSet, SupplierCustomViewSet, SupplierSearchViewSet
 from profiles.api.views import UserViewSet, PermissionsViewSet, ProfileViewSet
 from sales.api.views import SaleViewSet, Cash_AdvanceViewSet
@@ -53,6 +53,7 @@ router.register(r'logs', LogViewSet)
 router.register(r'cashadvances', Cash_AdvanceViewSet)
 router.register(r'productdepartments', ProductDepartmentViewSet)
 router.register(r'productsubdepartments', ProductSubDepartmentViewSet)
+router.register(r'units', UnitViewSet)
 router.register(r'suppliers', SupplierViewSet)
 router.register(r'supplierscustom', SupplierCustomViewSet, base_name='supplierscustom')
 router.register(r'search', SearchViewSet, base_name='search')
