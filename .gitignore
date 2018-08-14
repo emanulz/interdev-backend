@@ -77,6 +77,7 @@ media/electronic_tickets/**
 media/certificates/**
 media/productImages/old**
 media/reports/**
+media/logos/**
 
 celerybeat-schedule.bak
 

@@ -12,7 +12,7 @@ from credits.views import getClientDebt
 # API
 from rest_framework import routers
 from clients.api.views import ClientViewSet, ClientCategoryViewSet
-from products.api.views import ProductViewSet, ProductDepartmentViewSet, ProductSubDepartmentViewSet, ProductInventoryViewSet
+from products.api.views import ProductViewSet, ProductDepartmentViewSet, ProductSubDepartmentViewSet, ProductInventoryViewSet, UnitViewSet
 from suppliers.api.views import SupplierViewSet, SupplierCustomViewSet, SupplierSearchViewSet
 from profiles.api.views import UserViewSet, PermissionsViewSet, ProfileViewSet
 from sales.api.views import SaleViewSet, Cash_AdvanceViewSet
@@ -31,7 +31,7 @@ from sales.api.views import SaleCreateViewSet, SaleViewSetReadOnly, ReturnViewSe
 from money_returns.api.views import Money_ReturnViewSet, Credit_VoucherViewSet
 from payables_money_returns.api.views import Credit_VoucherViewSetPayable
 from utils.searchView import SearchViewSet
-from taxpayer.api.views import TaxPayerCreateViewSet,TaxPayerReadOnly
+from taxpayer.api.views import TaxPayerCreateViewSet,TaxPayerReadOnly, TaxPayerLocalViewset
 from importer.api.views import ImporterViewset
 from reporting.api.views import ReportDefinition
 
@@ -53,6 +53,7 @@ router.register(r'logs', LogViewSet)
 router.register(r'cashadvances', Cash_AdvanceViewSet)
 router.register(r'productdepartments', ProductDepartmentViewSet)
 router.register(r'productsubdepartments', ProductSubDepartmentViewSet)
+router.register(r'units', UnitViewSet)
 router.register(r'suppliers', SupplierViewSet)
 router.register(r'supplierscustom', SupplierCustomViewSet, base_name='supplierscustom')
 router.register(r'search', SearchViewSet, base_name='search')
@@ -65,7 +66,6 @@ router.register(r'creditpaymentscreate', CreditPaymentCreateViewSet, base_name='
 router.register(r'creditmovementslist', Credit_MovementViewSet, base_name='creditmovementslist')
 router.register(r'creditpaymentslist', Credit_PaymentViewSet, base_name='creditpaymentslist')
 router.register(r'taxes', TaxViewSet)
-#router.register(r'senders', SenderViewSet)
 router.register(r'provinces', ProvinceViewSet)
 router.register(r'cantons', CantonViewSet)
 router.register(r'districts', DistrictViewSet)
@@ -97,6 +97,7 @@ router.register(r'electronicticket', Electronic_TicketViewset)
 router.register(r'electronicticketcreate', Electronic_TicketCreateViewset, base_name='electronicticketcreate')
 router.register(r'taxpayercreate', TaxPayerCreateViewSet, base_name='taxpayercreate')
 router.register(r'taxpayerreadonly', TaxPayerReadOnly)
+router.register(r'taxpayerlocals', TaxPayerLocalViewset)
 router.register(r'importer', ImporterViewset, base_name='importer')
 #register reporting related routes
 router.register(r'reporting', ReportDefinition, base_name='repoting')
