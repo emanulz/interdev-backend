@@ -37,6 +37,7 @@ venv/*
 *.env
 yarn.lock
 db.sqlite3
+logs_db.sqlite3
 webpack-stats-local.json
 webpack-stats-production.json
 
