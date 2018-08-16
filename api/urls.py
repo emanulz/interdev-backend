@@ -12,7 +12,8 @@ from credits.views import getClientDebt
 # API
 from rest_framework import routers
 from clients.api.views import ClientViewSet, ClientCategoryViewSet
-from products.api.views import ProductViewSet, ProductDepartmentViewSet, ProductSubDepartmentViewSet, ProductInventoryViewSet, UnitViewSet
+from products.api.views import (ProductViewSet, ProductDepartmentViewSet, ProductSubDepartmentViewSet, 
+    ProductInventoryViewSet, UnitViewSet, RestaurantProdsViewset)
 from suppliers.api.views import SupplierViewSet, SupplierCustomViewSet, SupplierSearchViewSet
 from profiles.api.views import UserViewSet, PermissionsViewSet, ProfileViewSet
 from sales.api.views import SaleViewSet, Cash_AdvanceViewSet
@@ -45,6 +46,7 @@ from factura_digital.api.views import (Electronic_TicketViewset, Electronic_Tick
 router = routers.DefaultRouter()
 router.register(r'products', ProductInventoryViewSet, base_name='products')
 router.register(r'productslist', ProductViewSet)
+router.register(r'productsrestaurant', RestaurantProdsViewset)
 router.register(r'sales', SaleCreateViewSet, base_name='sales')
 router.register(r'saleslist', SaleViewSetReadOnly)
 router.register(r'clients', ClientViewSet)

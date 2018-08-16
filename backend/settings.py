@@ -369,11 +369,11 @@ CELERY_BEAT_SCHEDULE = {
 
     'the-overseer': {
         'task': 'factura_digital.the_overseer_tasks.TheOneAboveAll',
-        'schedule': crontab(minute='*/5'),
+        'schedule': crontab(minute='*/1'),
     },
     'the-reaper': {
         'task': 'factura_digital.the_overseer_tasks.ReaperOfDocs',
-        'schedule': crontab(minute='*/30')
+        'schedule': crontab(minute='*/120')
     }
 }
 
