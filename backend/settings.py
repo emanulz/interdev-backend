@@ -128,6 +128,7 @@ INSTALLED_APPS = [
     'factura_digital.apps.FacturaDigitalConfig',
     'taxpayer.apps.TaxpayerConfig',
     'importer.apps.ImporterConfig',
+    'restaurant.apps.RestaurantConfig',
 ]
 
 MIDDLEWARE = [
