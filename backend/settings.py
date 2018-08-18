@@ -243,12 +243,30 @@ except KeyError:
 
 # IF ITS PROD SERVER USE MYSQL
 if not DEBUG:
+    # DATABASES = {
+    #     'default': {
+    #         'ENGINE': 'django.db.backends.mysql',
+    #         'OPTIONS': {
+    #             'read_default_file': '/etc/mysql/my.cnf',
+    #         },
+    #     }
+    # }
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.mysql',
-            'OPTIONS': {
-                'read_default_file': '/etc/mysql/my.cnf',
-            },
+            'USER': 'interdevdbuser',
+            'PASSWORD': 'Nodelez0105$$',
+            'NAME': 'interdev',
+            'HOST': 'localhost',
+            'PORT': '3306',
+        },
+        'logs_db':{
+            'ENGINE': 'django.db.backends.mysql',
+            'USER': 'interdevdbuser',
+            'PASSWORD': 'Nodelez0105$$',
+            'NAME': 'interdev_logs',
+            'HOST': 'localhost',
+            'PORT': '3306',
         }
     }
 
