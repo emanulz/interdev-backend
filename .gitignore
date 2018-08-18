@@ -37,6 +37,7 @@ venv/*
 *.env
 yarn.lock
 db.sqlite3
+logs_db.sqlite3
 webpack-stats-local.json
 webpack-stats-production.json
 
@@ -77,5 +78,13 @@ media/electronic_tickets/**
 media/certificates/**
 media/productImages/old**
 media/reports/**
+media/logos/**
 
 celerybeat-schedule.bak
+
+#ignore certificates
+*.p12
+
+#ignore electronic documents xmls
+media/electronic_bills/**
+media/electronic_tickets/**

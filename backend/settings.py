@@ -19,21 +19,24 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # delete? BASE_DIR_TEST = os.path.dirname(os.path.dirname(__file__))
 
 PROJECT_ROOT = os.path.dirname(__file__)
+if os.sys.platform == 'win32':
 # print("THIS --> ", os.path.join(PROJECT_ROOT, '..\\apps'))
-sys.path.insert(0, os.path.join(PROJECT_ROOT, '..\\..\\core_apps'))
-sys.path.insert(0, os.path.join(PROJECT_ROOT, '..\\..\\secondary_apps'))
-sys.path.insert(0, os.path.join(PROJECT_ROOT, '..\\..\\custom_apps'))
-# load the library to build the factura xmls
-sys.path.insert(0, os.path.join(PROJECT_ROOT, '..\\..\\parser_factura_digital'))
-sys.path.insert(0, os.path.join(PROJECT_ROOT, '..\\..\\printers_integration'))
-
-# UNIX INSERT TO PATH
-sys.path.insert(0, os.path.join(PROJECT_ROOT, '../../core_apps'))
-sys.path.insert(0, os.path.join(PROJECT_ROOT, '../../secondary_apps'))
-sys.path.insert(0, os.path.join(PROJECT_ROOT, '../../custom_apps'))
-# load the library to build the factura xmls
-sys.path.insert(0, os.path.join(PROJECT_ROOT, '../../parser_factura_digital'))
-sys.path.insert(0, os.path.join(PROJECT_ROOT, '../../printers_integration'))
+    sys.path.insert(0, os.path.join(PROJECT_ROOT, '..\\..\\core_apps'))
+    sys.path.insert(0, os.path.join(PROJECT_ROOT, '..\\..\\secondary_apps'))
+    sys.path.insert(0, os.path.join(PROJECT_ROOT, '..\\..\\custom_apps'))
+    # load the library to build the factura xmls
+    sys.path.insert(0, os.path.join(PROJECT_ROOT, '..\\..\\parser_factura_digital'))
+    sys.path.insert(0, os.path.join(PROJECT_ROOT, '..\\..\\printers_integration'))
+    sys.path.insert(0, os.path.join(PROJECT_ROOT, '..\\..\\pdf_maker'))
+else:
+    # UNIX INSERT TO PATH
+    sys.path.insert(0, os.path.join(PROJECT_ROOT, '../../core_apps'))
+    sys.path.insert(0, os.path.join(PROJECT_ROOT, '../../secondary_apps'))
+    sys.path.insert(0, os.path.join(PROJECT_ROOT, '../../custom_apps'))
+    # load the library to build the factura xmls
+    sys.path.insert(0, os.path.join(PROJECT_ROOT, '../../parser_factura_digital'))
+    sys.path.insert(0, os.path.join(PROJECT_ROOT, '../../printers_integration'))
+    sys.path.insert(0, os.path.join(PROJECT_ROOT, '../../pdf_maker'))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/
@@ -109,12 +112,11 @@ INSTALLED_APPS = [
     'sales.apps.SalesConfig',
     'credits.apps.CreditsConfig',
     'taxes.apps.TaxesConfig',
-    'senders.apps.SendersConfig',
+    #'senders.apps.SendersConfig',
     'addresses.apps.AddressesConfig',
     'inventories.apps.InventoriesConfig',
     'utils.apps.UtilsConfig',
     'workshop.apps.WorkshopConfig',
-
     'reporting.apps.ReportingConfig',
     'purchases.apps.PurchasesConfig',
     'payables.apps.PayablesConfig',
@@ -126,6 +128,7 @@ INSTALLED_APPS = [
     'factura_digital.apps.FacturaDigitalConfig',
     'taxpayer.apps.TaxpayerConfig',
     'importer.apps.ImporterConfig',
+    'restaurant.apps.RestaurantConfig',
 ]
 
 MIDDLEWARE = [
@@ -167,8 +170,10 @@ CHANNEL_LAYERS = {
         'CONFIG': {
             "hosts": [('127.0.0.1', 6379)],
         },
+        #"ROUTING": "factura_digital.routing.channel_routing",
     },
 }
+
 
 # Database
 # https://docs.djangoproject.com/en/2.0/ref/settings/#databases
@@ -177,6 +182,10 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+    },
+    'logs_db': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'logs_db.sqlite3'),
     }
 }
 # Try Victor Dev
@@ -189,6 +198,43 @@ try:
                 'PASSWORD': '0688moraB',
                 'NAME': 'django_rj',
                 'HOST': 'localhost',
+                'PORT': '3306',
+            },
+            'logs_db':{
+                'ENGINE': 'django.db.backends.mysql',
+                'USER': 'root',
+                'PASSWORD': '0688moraB',
+                'NAME': 'django_rj_logs',
+                'HOST': 'localhost',
+                'PORT': '3306',
+            }
+        }
+except KeyError:
+    pass
+#point to a db based on host name
+
+try:
+    #print("UBUNTU_TEST_BOX variable --> ", os.environ["UBUNTU_TEST_BOX"])
+    #print("TARGET_DB --> ", os.environ["TARGET_DB"])
+    #print("DB SERVER --> ", os.environ["DB_SERVER"])
+    if os.environ['UBUNTU_TEST_BOX']:
+        db_name = os.environ["TARGET_DB"]
+        target_db_server =  os.environ["DB_SERVER"]
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.mysql',
+                'USER': 'root',
+                'PASSWORD': '0688moraB',
+                'NAME': db_name,
+                'HOST': target_db_server,
+                'PORT': '3306',
+            },
+            'logs_db': {
+                'ENGINE': 'django.db.backends.mysql',
+                'USER': 'root',
+                'PASSWORD': '0688moraB',
+                'NAME': db_name,
+                'HOST': target_db_server + '_logs',
                 'PORT': '3306',
             }
         }
@@ -213,6 +259,10 @@ try:
             'default': {
                 'ENGINE': 'django.db.backends.sqlite3',
                 'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+            },
+            'logs_db': {
+                'ENGINE': 'django.db.backends.sqlite3',
+                'NAME': os.path.join(BASE_DIR, 'db.sqlite3')
             }
         }
 except KeyError:
@@ -220,6 +270,8 @@ except KeyError:
 
 # Password validation
 # https://docs.djangoproject.com/en/2.0/ref/settings/#auth-password-validators
+
+DATABASE_ROUTERS = ['backend.db_router.SplitData_LogsRouter']
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -254,13 +306,23 @@ LOGIN_URL = '/login/'
 LOGOUT_REDIRECT_URL = '/login/'
 LOGIN_REDIRECT_URL = '/'
 
+DEFAULT_RENDERER_CLASSES = (
+    'rest_framework.renderers.JSONRenderer',
+)
+
+if DEBUG:
+    DEFAULT_RENDERER_CLASSES = DEFAULT_RENDERER_CLASSES + (
+        'rest_framework.renderers.BrowsableAPIRenderer',
+    )
+
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.DjangoModelPermissions',
         ),
     'DEFAULT_FILTER_BACKENDS': ('django_filters.rest_framework.DjangoFilterBackend',),
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
-    'PAGE_SIZE': 50
+    'PAGE_SIZE': 50,
+    'DEFAULT_RENDERER_CLASSES': (DEFAULT_RENDERER_CLASSES)
     }
 
 
@@ -305,16 +367,15 @@ CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'America/Costa_Rica'
 CELERY_TASK_SOFT_TIME_LIMIT = 180  # avoids a task hanging indefinitively blocking the worker
 CELERY_BEAT_SCHEDULE = {
-    'create_invvalue_report_task': {
-        'task': 'apps.reporting.tasks.create_invvalue_report_task',
-        'schedule': crontab(hour=7, minute=0),
-        'args': ('s', False,),
-    },
 
-    'task-number-two': {
-        'task': 'apps.sales.tasks.task_number_one',
-        'schedule': crontab(minute='*/120'),
+    'the-overseer': {
+        'task': 'factura_digital.the_overseer_tasks.TheOneAboveAll',
+        'schedule': crontab(minute='*/1'),
     },
+    'the-reaper': {
+        'task': 'factura_digital.the_overseer_tasks.ReaperOfDocs',
+        'schedule': crontab(minute='*/120')
+    }
 }
 
 #MAILING CONFIGURATION
