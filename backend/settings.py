@@ -79,7 +79,7 @@ except Exception as e:
     pass
 
 ALLOWED_HOSTS = ['localhost', '192.168.9.254', '192.168.1.254', '192.168.9.56', '192.168.9.107', '192.168.1.144',
-                 'DANTE', '192.168.9.53', 'app.fudesemillas.net', '162.243.165.124']
+                 'DANTE', '192.168.9.53', 'app.fudesemillas.net', '162.243.165.124', '192.168.2.254']
 
 # Application definition
 USE_X_FORWARDED_HOST = True
