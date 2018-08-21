@@ -88,3 +88,4 @@ celerybeat-schedule.bak
 #ignore electronic documents xmls
 media/electronic_bills/**
 media/electronic_tickets/**
+secret.txt
