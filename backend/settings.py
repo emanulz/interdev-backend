@@ -77,9 +77,21 @@ try:
         TAX_PAYER_SECRET = os.environ('TAX_PAYER_SECRET')
 except Exception as e:
     pass
-
-ALLOWED_HOSTS = ['localhost', '192.168.9.254', '192.168.1.254', '192.168.9.56', '192.168.9.107', '192.168.1.144',
+ALLOWED_HOSTS = []
+if DEBUG:
+    ALLOWED_HOSTS = ['localhost', '192.168.9.254', '192.168.1.254', '192.168.9.56', '192.168.9.107', '192.168.1.144',
                  'DANTE', '192.168.9.53', 'app.fudesemillas.net', '162.243.165.124', '192.168.2.254']
+else:
+
+    file_loc = os.path.join(PROJECT_ROOT, 'project_settings.prod')
+    with open(file_loc, 'r') as f:
+        settings = f.readlines()
+        hosts_line = settings[0].split('=')[1].split(',')
+        for host in hosts_line:
+            ALLOWED_HOSTS.append(host)
+
+        
+                
 
 # Application definition
 USE_X_FORWARDED_HOST = True
@@ -112,7 +124,6 @@ INSTALLED_APPS = [
     'sales.apps.SalesConfig',
     'credits.apps.CreditsConfig',
     'taxes.apps.TaxesConfig',
-    #'senders.apps.SendersConfig',
     'addresses.apps.AddressesConfig',
     'inventories.apps.InventoriesConfig',
     'utils.apps.UtilsConfig',
