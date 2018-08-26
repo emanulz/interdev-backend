@@ -88,7 +88,7 @@ else:
         settings = f.readlines()
         hosts_line = settings[0].split('=')[1].split(',')
         for host in hosts_line:
-            ALLOWED_HOSTS.append(host)
+            ALLOWED_HOSTS.append(host.strip())
 
         
                 
