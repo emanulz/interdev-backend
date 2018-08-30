@@ -89,3 +89,5 @@ celerybeat-schedule.bak
 media/electronic_bills/**
 media/electronic_tickets/**
 secret.txt
+db2.sqlite3
+celerybeat-schedule
