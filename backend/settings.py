@@ -403,7 +403,7 @@ CELERY_BEAT_SCHEDULE = {
     },
     'the-reaper': {
         'task': 'factura_digital.the_overseer_tasks.ReaperOfDocs',
-        'schedule': crontab(minute='*/120')
+        'schedule': crontab(minute='*/1')
     }
 }
 
