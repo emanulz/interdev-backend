@@ -70,7 +70,7 @@ media/keys/**
 media/Imagenes
 media/Imagenes/**
 media/productImages/**
-media/logos/**
+#media/logos/**
 
 ##xmls digital invoicing
 media/electronic_bills/**
@@ -88,4 +88,6 @@ celerybeat-schedule.bak
 #ignore electronic documents xmls
 media/electronic_bills/**
 media/electronic_tickets/**
+media/electronic_credit_notes/**
+media/purchases/**
 secret.txt
