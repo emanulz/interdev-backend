@@ -1,2 +1,15 @@
-ALLOWED_HOSTS=dante,192.168.9.254,192.168.1.254
-DB_CRED=interdev interdevdbuser Nodelez0105$$
+# comma separated list of allowed hosts
+ALLOWED_HOSTS=dante 192.168.9.254 192.168.1.254
+#django db backend engine
+ENGINE = django.db.backends.mysql
+#expects a list of django_nam, USER, PASS, DBNAME, HOST, PORT
+DB_CRED = default interdev interdevdbuser Nodelez0105$$ localhost 3306
+DB_CRED = logs_db interdev_logs interdevdbuser Nodelez0105$$ localhost 3306
+# expects host, port, host_user, password and use TLS
+MAILING = smtp.gmail.com 587 devtestsvm@gmail.com InterdevTestEmail True
+# tax payer secret
+TAX_PAYER_SECRET = $k0!83_2g^#lw*$r5m86jpb035b-m^imh1u6v1vyf+2p$0n6eg
+# django hashing secret
+DJANGO_SECRET = $k0!83_2g^#lw*$r5m86jpb035b-m^imh1u6v1vyf+2p$0n6eg
+# load the server name
+SERVER_NAME = PROD_SERVER
