@@ -395,15 +395,24 @@ CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'America/Costa_Rica'
 CELERY_TASK_SOFT_TIME_LIMIT = 180  # avoids a task hanging indefinitively blocking the worker
+
+beat_overseer_cycle = 1
+beat_reaper_cycle = 1
 CELERY_BEAT_SCHEDULE = {
 
     'the-overseer': {
         'task': 'factura_digital.the_overseer_tasks.TheOneAboveAll',
-        'schedule': crontab(minute='*/1'),
+        'schedule': crontab(minute='*/{}'.format(beat_overseer_cycle)),
+        'options': {
+            'expires': int(beat_overseer_cycle*65)
+        }
     },
     'the-reaper': {
         'task': 'factura_digital.the_overseer_tasks.ReaperOfDocs',
-        'schedule': crontab(minute='*/1')
+        'schedule': crontab(minute='*/{}'.format(beat_reaper_cycle)),
+        'options': {
+            'expires': int(beat_reaper_cycle*65)
+        }
     }
 }
 
