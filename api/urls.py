@@ -42,7 +42,9 @@ from preferences.api.viewsets import GlobalPreferencesViewSet
 
 from clients.views import createClientQuick
 
-from factura_digital.api.views import (Electronic_TicketViewset, Electronic_TicketCreateViewset, ElectronicDocsReception)
+from factura_digital.api.views import (Electronic_TicketViewset, Electronic_TicketCreateViewset, 
+    ElectronicDocsReception, Electronic_TicketViewset, Electronic_InvoiceViewset, Electronic_CreditNoteViewset,
+    Electronic_DebitNoteViewset)
 
 router = routers.DefaultRouter()
 router.register(r'products', ProductInventoryViewSet, base_name='products')
@@ -97,6 +99,9 @@ router.register(r'payablescreditvoucherslist', Credit_VoucherViewSetPayable)
 #register urls related to digital invoicing
 router.register(r'facturareception', ElectronicDocsReception, base_name="electronicreception")
 router.register(r'electronicticket', Electronic_TicketViewset)
+router.register(r'electronicinvoice', Electronic_InvoiceViewset)
+router.register(r'electroniccreditnote', Electronic_CreditNoteViewset)
+router.register(r'electronicdebitnote', Electronic_DebitNoteViewset)
 router.register(r'electronicticketcreate', Electronic_TicketCreateViewset, base_name='electronicticketcreate')
 router.register(r'taxpayercreate', TaxPayerCreateViewSet, base_name='taxpayercreate')
 router.register(r'taxpayerreadonly', TaxPayerReadOnly)

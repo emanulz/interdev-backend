@@ -75,10 +75,13 @@ media/productImages/**
 ##xmls digital invoicing
 media/electronic_bills/**
 media/electronic_tickets/**
+media/electronic_credit_notes/**
+media/electronic_debit_notes/**
 media/certificates/**
 media/productImages/old**
 media/reports/**
 media/logos/**
+media/purchases/**
 
 celerybeat-schedule.bak
 
@@ -91,3 +94,5 @@ media/electronic_tickets/**
 media/electronic_credit_notes/**
 media/purchases/**
 secret.txt
+db2.sqlite3
+celerybeat-schedule
