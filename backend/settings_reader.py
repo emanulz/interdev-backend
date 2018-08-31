@@ -78,8 +78,8 @@ class ProdSettings():
             db_settings = {
                     'ENGINE': self._ENGINE,
                     'NAME': db[1],
-                    'PASSWORD': db[2],
-                    'USER': db[3],
+                    'PASSWORD': db[3],
+                    'USER': db[2],
                     'HOST': db[4],
                     'PORT': db[5]
                     }
