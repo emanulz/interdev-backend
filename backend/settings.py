@@ -14,6 +14,10 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 
 import os
 from celery.schedules import crontab
+from .settings_reader import ProdSettings
+
+
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # delete? BASE_DIR_TEST = os.path.dirname(os.path.dirname(__file__))
@@ -38,6 +42,11 @@ else:
     sys.path.insert(0, os.path.join(PROJECT_ROOT, '../../printers_integration'))
     sys.path.insert(0, os.path.join(PROJECT_ROOT, '../../pdf_maker'))
 
+#load settings to run the system
+file_loc = os.path.join(PROJECT_ROOT, 'project_settings.prod')
+interdev_sett = ProdSettings(file_loc)
+
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/
 
@@ -45,7 +54,11 @@ else:
 SECRET_KEY = 'pq0v9v3y@4dnny%jgrod5*_%snma=t(q6-h&@sf)+uptk54z82'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = interdev_sett._DEBUG
+
+print("DB settings --> ", interdev_sett._DB_CREDENTIALS)
+print("DB hosts --> ", interdev_sett._ALLOWED_HOSTS)
+
 TAX_PAYER_SECRET = None
 try:
     TAX_PAYER_SECRET = os.environ('TAX_PAYER_SECRET')
@@ -82,16 +95,8 @@ if DEBUG:
     ALLOWED_HOSTS = ['localhost', '192.168.9.254', '192.168.1.254', '192.168.9.56', '192.168.9.107', '192.168.1.144',
                  'DANTE', '192.168.9.53', 'app.fudesemillas.net', '162.243.165.124', '192.168.2.254']
 else:
-
-    file_loc = os.path.join(PROJECT_ROOT, 'project_settings.prod')
-    with open(file_loc, 'r') as f:
-        settings = f.readlines()
-        hosts_line = settings[0].split('=')[1].split(',')
-        for host in hosts_line:
-            ALLOWED_HOSTS.append(host.strip())
-
+    ALLOWED_HOSTS = interdev_sett._ALLOWED_HOSTS    
         
-                
 
 # Application definition
 USE_X_FORWARDED_HOST = True
@@ -254,32 +259,25 @@ except KeyError:
 
 # IF ITS PROD SERVER USE MYSQL
 if not DEBUG:
+    DATABASES = interdev_sett._DB_CREDENTIALS
     # DATABASES = {
     #     'default': {
     #         'ENGINE': 'django.db.backends.mysql',
-    #         'OPTIONS': {
-    #             'read_default_file': '/etc/mysql/my.cnf',
-    #         },
+    #         'USER': 'interdevdbuser',
+    #         'PASSWORD': 'Nodelez0105$$',
+    #         'NAME': 'interdev',
+    #         'HOST': 'localhost',
+    #         'PORT': '3306',
+    #     },
+    #     'logs_db':{
+    #         'ENGINE': 'django.db.backends.mysql',
+    #         'USER': 'interdevdbuser',
+    #         'PASSWORD': 'Nodelez0105$$',
+    #         'NAME': 'interdev_logs',
+    #         'HOST': 'localhost',
+    #         'PORT': '3306',
     #     }
-    # }
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.mysql',
-            'USER': 'interdevdbuser',
-            'PASSWORD': 'Nodelez0105$$',
-            'NAME': 'interdev',
-            'HOST': 'localhost',
-            'PORT': '3306',
-        },
-        'logs_db':{
-            'ENGINE': 'django.db.backends.mysql',
-            'USER': 'interdevdbuser',
-            'PASSWORD': 'Nodelez0105$$',
-            'NAME': 'interdev_logs',
-            'HOST': 'localhost',
-            'PORT': '3306',
-        }
-    }
+    #}
 
 # IF ITS TEST SERVER USE SQL LITE
 try:
@@ -417,6 +415,13 @@ CELERY_BEAT_SCHEDULE = {
 }
 
 #MAILING CONFIGURATION
+
+EMAIL_HOST = interdev_sett._EMAIL_HOST
+EMAIL_PORT = interdev_sett._EMAIL_PORT
+EMAIL_HOST_USER = interdev_sett._EMAIL_HOST_USER
+EMAIL_HOST_PASSWORD = interdev_sett._EMAIL_HOST_PASSWORD
+EMAIL_USE_TLS = interdev_sett._EMAIL_USE_TLS
+
 if DEBUG:
     EMAIL_HOST = 'smtp.gmail.com'
     EMAIL_PORT = 587
