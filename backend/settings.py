@@ -56,8 +56,8 @@ SECRET_KEY = 'pq0v9v3y@4dnny%jgrod5*_%snma=t(q6-h&@sf)+uptk54z82'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = interdev_sett._DEBUG
 
-print("DB settings --> ", interdev_sett._DB_CREDENTIALS)
-print("DB hosts --> ", interdev_sett._ALLOWED_HOSTS)
+#print("DB settings --> ", interdev_sett._DB_CREDENTIALS)
+#print("DB hosts --> ", interdev_sett._ALLOWED_HOSTS)
 
 TAX_PAYER_SECRET = None
 try:
