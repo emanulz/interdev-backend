@@ -94,3 +94,4 @@ media/electronic_tickets/**
 secret.txt
 db2.sqlite3
 celerybeat-schedule
+backend/project_settings.prod
