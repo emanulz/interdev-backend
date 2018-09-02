@@ -73,7 +73,6 @@ class ProdSettings():
 
                 
         #prepare the db credentials
-        print("self raw cred ", self._raw_db_credentials)
         for db in self._raw_db_credentials:
             db_settings = {
                     'ENGINE': self._ENGINE,
