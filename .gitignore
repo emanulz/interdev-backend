@@ -70,7 +70,7 @@ media/keys/**
 media/Imagenes
 media/Imagenes/**
 media/productImages/**
-media/logos/**
+# media/logos/**
 
 ##xmls digital invoicing
 media/electronic_bills/**
