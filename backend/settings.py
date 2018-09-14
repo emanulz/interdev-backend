@@ -194,14 +194,33 @@ CHANNEL_LAYERS = {
 # Database
 # https://docs.djangoproject.com/en/2.0/ref/settings/#databases
 # Default Emanuel Dev
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+#     },
+#     'logs_db': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': os.path.join(BASE_DIR, 'logs_db.sqlite3'),
+#     }
+# }
+# Default Emanuel Dev
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.mysql',
+        'USER': 'root',
+        'PASSWORD': '',
+        'NAME': 'interdev',
+        'HOST': '127.0.0.1',
+        'PORT': '3306',
     },
     'logs_db': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'logs_db.sqlite3'),
+        'ENGINE': 'django.db.backends.mysql',
+        'USER': 'root',
+        'PASSWORD': '',
+        'NAME': 'interdev_logs',
+        'HOST': '127.0.0.1',
+        'PORT': '3306',
     }
 }
 # Try Victor Dev
@@ -216,7 +235,7 @@ try:
                 'HOST': 'localhost',
                 'PORT': '3306',
             },
-            'logs_db':{
+            'logs_db': {
                 'ENGINE': 'django.db.backends.mysql',
                 'USER': 'root',
                 'PASSWORD': '0688moraB',
