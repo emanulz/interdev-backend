@@ -35,7 +35,7 @@ from utils.searchView import SearchViewSet
 from taxpayer.api.views import TaxPayerCreateViewSet,TaxPayerReadOnly, TaxPayerLocalViewset
 from importer.api.views import ImporterViewset
 from reporting.api.views import ReportDefinition
-from restaurant.api.views import TableViewSet, ServiceOrderViewSet
+from restaurant.api.views import TableViewSet, ServiceOrderViewSet, ServiceOrderActionViewSet
 
 # API COPIED FROM  dynamic_preferences into apps.preferences.api package and modified permissions class
 from preferences.api.viewsets import GlobalPreferencesViewSet
@@ -114,6 +114,7 @@ router.register(r'reporting', ReportDefinition, base_name='repoting')
 #register restaurant related views
 router.register(r'restauranttables', TableViewSet)
 router.register(r'restaurantserviceorders', ServiceOrderViewSet)
+router.register(r'restaurantserviceorderactions', ServiceOrderActionViewSet)
 
 
 urlpatterns = [
