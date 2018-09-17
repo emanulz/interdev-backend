@@ -1,6 +1,25 @@
 
 class ProdSettings():
 
+    def __str__(self):
+        
+        rep = "self._DEBUG --> {}".format(self._DEBUG )
+        rep += "self._ENGINE --> {0}".format(self._ENGINE)
+        rep += "self._ALLOWED_HOSTS --> {0}".format(self._ALLOWED_HOSTS)
+        rep += "self._DB_CREDENTIALS --> {0}".format(self._DB_CREDENTIALS)
+        rep += "self._MAIL_SETTINGS --> {0}".format(self._MAIL_SETTINGS)
+        rep += "self._SECRET_KEY --> {0}".format(self._SECRET_KEY)
+        rep += "self._TAX_PAYER_SECRET --> {0}".format(self._TAX_PAYER_SECRET)
+        rep += "self._EMAIL_HOST --> {0}".format(self._EMAIL_HOST)
+        rep += "self._EMAIL_PORT --> {0}".format(self._EMAIL_PORT)
+        rep += "self._EMAIL_HOST_USER --> {0}".format(self._EMAIL_HOST_USER)
+        rep += "self._EMAIL_HOST_PASSWORD --> {0}".format(self._EMAIL_HOST_PASSWORD)
+        rep += "self._EMAIL_USE_TLS --> {0}".format(self._EMAIL_USE_TLS)
+        rep += "self._SERVER_NAME --> {0}".format(self._SERVER_NAME)
+        rep += "self._CELERY_BROKER_URL --> {0}".format(self._CELERY_BROKER_URL)
+        rep += "self._CELERY_RESULT_BACKEND --> {0}".format(self._CELERY_RESULT_BACKEND)
+        return rep
+
     def __init__(self, settings_file):
         """
         Reads the configuration settings
@@ -17,6 +36,9 @@ class ProdSettings():
         self._raw_db_credentials = []
         self._MAIL_SETTINGS = None
 
+        self._SECRET_KEY = None
+        self._TAX_PAYER_SECRET = None
+
         self._EMAIL_HOST = None
         self._EMAIL_PORT = None
         self._EMAIL_HOST_USER = None
@@ -26,10 +48,19 @@ class ProdSettings():
         self._SERVER_NAME = None
         self._DEBUG = True
 
+        #celery settings
+        self._CELERY_BROKER_URL = None
+        self._CELERY_RESULT_BACKEND = None
+
         for line in self._settings:
             if line.startswith("#"):
                 continue
-            setting_name, setting_value = line.split('=')
+            #find first equal on line to do the split
+            index_equal = line.find("=")
+
+            setting_name = line[0:index_equal]
+            setting_value=line[index_equal+1::]
+            
             setting_name = setting_name.strip()
             setting_value = setting_value.strip()
 
@@ -67,6 +98,15 @@ class ProdSettings():
                 if self._SERVER_NAME == "PROD_SERVER":
                     self._DEBUG = False
 
+            elif setting_name == 'CELERY_BROKER_URL':
+                self._CELERY_BROKER_URL = setting_value.strip()
+
+            elif setting_name == 'CELERY_RESULT_BACKEND':
+                self._CELERY_RESULT_BACKEND = setting_value
+            elif setting_name == 'SECRET_KEY':
+                self._SECRET_KEY = setting_value
+            elif setting_name == 'TAX_PAYER_SECRET':
+                self._TAX_PAYER_SECRET = setting_value
             else:
                 print("Unknown setting, pass")
                 pass
@@ -85,3 +125,5 @@ class ProdSettings():
 
             self._DB_CREDENTIALS[db[0].strip()] = db_settings
         
+
+
