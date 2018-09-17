@@ -10,6 +10,9 @@ MAILING = smtp.gmail.com 587 devtestsvm@gmail.com InterdevTestEmail True
 # tax payer secret
 TAX_PAYER_SECRET = $k0!83_2g^#lw*$r5m86jpb035b-m^imh1u6v1vyf+2p$0n6eg
 # django hashing secret
-DJANGO_SECRET = $k0!83_2g^#lw*$r5m86jpb035b-m^imh1u6v1vyf+2p$0n6eg
+SECRET_KEY = $k0!83_2g^#lw*$r5m86jpb035b-m^imh1u6v1vyf+2p$0n6eg
 # load the server name
 SERVER_NAME = PROD_SERVER
+#define celery instance details
+CELERY_BROKER_URL=redis://localhost:6379
+CELERY_RESULT_BACKEND=redis://localhost:6379
