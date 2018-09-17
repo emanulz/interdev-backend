@@ -45,7 +45,7 @@ else:
 #load settings to run the system
 file_loc = os.path.join(PROJECT_ROOT, 'project_settings.prod')
 interdev_sett = ProdSettings(file_loc)
-
+print(interdev_sett)
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/
@@ -62,7 +62,6 @@ DEBUG = interdev_sett._DEBUG
 TAX_PAYER_SECRET = None
 try:
     TAX_PAYER_SECRET = os.environ('TAX_PAYER_SECRET')
-    print("TAX_PAYER_SECRET_LOADED")
 except Exception as e:
     TAX_PAYER_SECRET = '$k0!83_2g^#lw*$r5m86jpb035b-m^imh1u6v1vyf+2p$0n6eg'
 
@@ -249,9 +248,6 @@ except KeyError:
 #point to a db based on host name
 
 try:
-    #print("UBUNTU_TEST_BOX variable --> ", os.environ["UBUNTU_TEST_BOX"])
-    #print("TARGET_DB --> ", os.environ["TARGET_DB"])
-    #print("DB SERVER --> ", os.environ["DB_SERVER"])
     if os.environ['UBUNTU_TEST_BOX']:
         db_name = os.environ["TARGET_DB"]
         target_db_server =  os.environ["DB_SERVER"]
