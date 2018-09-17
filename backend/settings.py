@@ -66,29 +66,11 @@ except Exception as e:
     TAX_PAYER_SECRET = '$k0!83_2g^#lw*$r5m86jpb035b-m^imh1u6v1vyf+2p$0n6eg'
 
 # CHECK IF SERVER IS PROD, AND IF SERVER_SECRET EXISTS ASSIGNS IT TO SECRET_KEY
-try:
-    if os.environ["SERVER_NAME"] == "PROD_SERVER":
-        DEBUG = False
-        TAX_PAYER_SECRET = os.environ('TAX_PAYER_SECRET')
-except Exception as e:
-    pass
-
-# CHECK IF SERVER IS PROD, AND IF SERVER_SECRET EXISTS ASSIGNS IT TO SECRET_KEY
-try:
-    if os.environ["SERVER_NAME"] == "PROD_SERVER":
-        if os.environ["SERVER_SECRET"]:
-            SECRET_KEY = os.environ["SERVER_SECRET"]
-except Exception as e:
-    pass
+if not DEBUG:
+    TAX_PAYER_SECRET = interdev_sett._TAX_PAYER_SECRET
+    SECRET_KEY = interdev_sett._SECRET_KEY
 
 
-# TEST SERVER DEBUG FALSE
-try:
-    if os.environ["SERVER_NAME"] == "TEST_SERVER":
-        DEBUG = False
-        TAX_PAYER_SECRET = os.environ('TAX_PAYER_SECRET')
-except Exception as e:
-    pass
 ALLOWED_HOSTS = []
 if DEBUG:
     ALLOWED_HOSTS = ['localhost', '192.168.9.254', '192.168.1.254', '192.168.9.56', '192.168.9.107', '192.168.1.144',
@@ -401,8 +383,8 @@ if DEBUG:
         }
 
 # CELERY CONFIGURATION
-CELERY_BROKER_URL = 'redis://localhost:6379'
-CELERY_RESULT_BACKEND = 'redis://localhost:6379'
+CELERY_BROKER_URL = interdev_sett._CELERY_BROKER_URL
+CELERY_RESULT_BACKEND = interdev_sett._CELERY_RESULT_BACKEND
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'

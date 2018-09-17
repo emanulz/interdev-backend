@@ -3,21 +3,21 @@ class ProdSettings():
 
     def __str__(self):
         
-        rep = "self._DEBUG --> {}".format(self._DEBUG )
-        rep += "self._ENGINE --> {0}".format(self._ENGINE)
-        rep += "self._ALLOWED_HOSTS --> {0}".format(self._ALLOWED_HOSTS)
-        rep += "self._DB_CREDENTIALS --> {0}".format(self._DB_CREDENTIALS)
-        rep += "self._MAIL_SETTINGS --> {0}".format(self._MAIL_SETTINGS)
-        rep += "self._SECRET_KEY --> {0}".format(self._SECRET_KEY)
-        rep += "self._TAX_PAYER_SECRET --> {0}".format(self._TAX_PAYER_SECRET)
-        rep += "self._EMAIL_HOST --> {0}".format(self._EMAIL_HOST)
-        rep += "self._EMAIL_PORT --> {0}".format(self._EMAIL_PORT)
-        rep += "self._EMAIL_HOST_USER --> {0}".format(self._EMAIL_HOST_USER)
-        rep += "self._EMAIL_HOST_PASSWORD --> {0}".format(self._EMAIL_HOST_PASSWORD)
-        rep += "self._EMAIL_USE_TLS --> {0}".format(self._EMAIL_USE_TLS)
-        rep += "self._SERVER_NAME --> {0}".format(self._SERVER_NAME)
-        rep += "self._CELERY_BROKER_URL --> {0}".format(self._CELERY_BROKER_URL)
-        rep += "self._CELERY_RESULT_BACKEND --> {0}".format(self._CELERY_RESULT_BACKEND)
+        rep = "self._DEBUG --> {}\n".format(self._DEBUG )
+        rep += "self._ENGINE --> {0}\n".format(self._ENGINE)
+        rep += "self._ALLOWED_HOSTS --> {0}\n".format(self._ALLOWED_HOSTS)
+        rep += "self._DB_CREDENTIALS --> {0}\n".format(self._DB_CREDENTIALS)
+        rep += "self._MAIL_SETTINGS --> {0}\n".format(self._MAIL_SETTINGS)
+        rep += "self._SECRET_KEY --> {0}\n".format(self._SECRET_KEY)
+        rep += "self._TAX_PAYER_SECRET --> {0}\n".format(self._TAX_PAYER_SECRET)
+        rep += "self._EMAIL_HOST --> {0}\n".format(self._EMAIL_HOST)
+        rep += "self._EMAIL_PORT --> {0}\n".format(self._EMAIL_PORT)
+        rep += "self._EMAIL_HOST_USER --> {0}\n".format(self._EMAIL_HOST_USER)
+        rep += "self._EMAIL_HOST_PASSWORD --> {0}\n".format(self._EMAIL_HOST_PASSWORD)
+        rep += "self._EMAIL_USE_TLS --> {0}\n".format(self._EMAIL_USE_TLS)
+        rep += "self._SERVER_NAME --> {0}\n".format(self._SERVER_NAME)
+        rep += "self._CELERY_BROKER_URL --> {0}\n".format(self._CELERY_BROKER_URL)
+        rep += "self._CELERY_RESULT_BACKEND --> {0}\n".format(self._CELERY_RESULT_BACKEND)
         return rep
 
     def __init__(self, settings_file):
