@@ -45,7 +45,7 @@ else:
 #load settings to run the system
 file_loc = os.path.join(PROJECT_ROOT, 'project_settings.prod')
 interdev_sett = ProdSettings(file_loc)
-print(interdev_sett)
+
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/

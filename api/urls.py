@@ -28,7 +28,7 @@ from purchases.api.views import PurchaseViewSet, PurchaseCreateViewSet, Purchase
 from dynamic_preferences.users.viewsets import UserPreferencesViewSet
 from payables.api.views import Credit_MovementPayableViewSet, Credit_PaymentPayableViewSet, CreditPaymentCreateViewSetPayables
 from presales.api.views import PresaleViewSet, PresalePatchViewSet
-from sales.api.views import SaleCreateViewSet, SaleViewSetReadOnly, ReturnViewSet
+from sales.api.views import SaleCreateViewSet, SaleViewSetReadOnly, ReturnViewSet, CurrencyViewset
 from money_returns.api.views import Money_ReturnViewSet, Credit_VoucherViewSet
 from payables_money_returns.api.views import Credit_VoucherViewSetPayable
 from utils.searchView import SearchViewSet
@@ -51,6 +51,7 @@ router = routers.DefaultRouter()
 router.register(r'products', ProductInventoryViewSet, base_name='products')
 router.register(r'productslist', ProductViewSet)
 router.register(r'productsrestaurant', RestaurantProdsViewset)
+router.register(r'currency', CurrencyViewset)
 router.register(r'sales', SaleCreateViewSet, base_name='sales')
 router.register(r'saleslist', SaleViewSetReadOnly)
 router.register(r'clients', ClientViewSet)
