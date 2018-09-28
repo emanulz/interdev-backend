@@ -36,7 +36,9 @@ from taxpayer.api.views import TaxPayerCreateViewSet,TaxPayerReadOnly, TaxPayerL
 from importer.api.views import ImporterViewset
 from reporting.api.views import ReportDefinition
 from restaurant.api.views import (TableViewSet, ServiceOrderViewSet, ServiceOrderActionViewSet, 
-    DispatchLocationViewset, ProductDispatchLocationViewSet, DispatchLocationViewset) 
+                                  DispatchLocationViewset, ProductDispatchLocationViewSet, DispatchLocationViewset) 
+from sales.api.cash_register_views import MoneyBillViewSetReadOnly
+
 
 # API COPIED FROM  dynamic_preferences into apps.preferences.api package and modified permissions class
 from preferences.api.viewsets import GlobalPreferencesViewSet
@@ -98,6 +100,7 @@ router.register(r'presalespatch', PresalePatchViewSet, base_name='presalespatch'
 router.register(r'returns', ReturnViewSet)
 router.register(r'creditvoucherslist', Credit_VoucherViewSet)
 router.register(r'moneyreturnlist', Money_ReturnViewSet)
+router.register(r'moneybills', MoneyBillViewSetReadOnly)
 router.register(r'payablescreditvoucherslist', Credit_VoucherViewSetPayable)
 #register urls related to digital invoicing
 router.register(r'facturareception', ElectronicDocsReception, base_name="electronicreception")
