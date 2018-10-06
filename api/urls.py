@@ -13,7 +13,7 @@ from credits.views import getClientDebt
 from rest_framework import routers
 from clients.api.views import ClientViewSet, ClientCategoryViewSet
 from products.api.views import (ProductViewSet, ProductDepartmentViewSet, ProductSubDepartmentViewSet, 
-    ProductInventoryViewSet, UnitViewSet, RestaurantProdsViewset)
+    ProductInventoryViewSet, UnitViewSet, RestaurantProdsViewset, ClientProductViewset)
 from suppliers.api.views import SupplierViewSet, SupplierCustomViewSet, SupplierSearchViewSet
 from profiles.api.views import UserViewSet, PermissionsViewSet, ProfileViewSet
 from sales.api.views import SaleViewSet, Cash_AdvanceViewSet
@@ -36,7 +36,9 @@ from taxpayer.api.views import TaxPayerCreateViewSet,TaxPayerReadOnly, TaxPayerL
 from importer.api.views import ImporterViewset
 from reporting.api.views import ReportDefinition
 from restaurant.api.views import (TableViewSet, ServiceOrderViewSet, ServiceOrderActionViewSet, 
-    DispatchLocationViewset, ProductDispatchLocationViewSet, DispatchLocationViewset) 
+                                  DispatchLocationViewset, ProductDispatchLocationViewSet, DispatchLocationViewset) 
+from sales.api.cash_register_views import MoneyBillViewSetReadOnly,RegisterClosureViewset, RegisterMovementViewsetReadOnly
+
 
 # API COPIED FROM  dynamic_preferences into apps.preferences.api package and modified permissions class
 from preferences.api.viewsets import GlobalPreferencesViewSet
@@ -48,6 +50,7 @@ from factura_digital.api.views import (Electronic_TicketViewset, Electronic_Tick
     Electronic_DebitNoteViewset, ActionRequieredViewset, ReceivedElectronicDocViewset)
 
 router = routers.DefaultRouter()
+router.register(r'clientproduct', ClientProductViewset)
 router.register(r'products', ProductInventoryViewSet, base_name='products')
 router.register(r'productslist', ProductViewSet)
 router.register(r'productsrestaurant', RestaurantProdsViewset)
@@ -97,6 +100,9 @@ router.register(r'presalespatch', PresalePatchViewSet, base_name='presalespatch'
 router.register(r'returns', ReturnViewSet)
 router.register(r'creditvoucherslist', Credit_VoucherViewSet)
 router.register(r'moneyreturnlist', Money_ReturnViewSet)
+router.register(r'moneybills', MoneyBillViewSetReadOnly)
+router.register(r'registerclosure', RegisterClosureViewset)
+router.register(r'registermovements', RegisterMovementViewsetReadOnly)
 router.register(r'payablescreditvoucherslist', Credit_VoucherViewSetPayable)
 #register urls related to digital invoicing
 router.register(r'facturareception', ElectronicDocsReception, base_name="electronicreception")
