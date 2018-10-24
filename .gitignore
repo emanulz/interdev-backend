@@ -40,6 +40,8 @@ db.sqlite3
 logs_db.sqlite3
 webpack-stats-local.json
 webpack-stats-production.json
+webpack-stats-css-local.json
+webpack-stats-css-production.json
 
 ## Ignore everything inside static folder but the login and vendor folders
 ## This is needed to avoid stash all changes once collectstatic has been executed in server

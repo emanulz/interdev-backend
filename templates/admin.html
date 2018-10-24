@@ -11,8 +11,9 @@
 
 {% block appStyles %}
   <link rel="stylesheet" href="{% static "vendor/font-awesome/css/font-awesome.min.css" %}">
-  <link rel="stylesheet" href="{% static "vendor/dataTables/dataTables.min.css" %}">
-  <link rel="stylesheet" href="{% static "bundles/css/admin.css" %}">
+  {% comment %} <link rel="stylesheet" href="{% static "vendor/dataTables/dataTables.min.css" %}"> {% endcomment %}
+  {% comment %} <link rel="stylesheet" href="{% static "bundles/css/admin.css" %}"> {% endcomment %}
+  {% render_bundle 'admin' 'css' 'CSS' %}
 {% endblock %}
 
 {% block content %}

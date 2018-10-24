@@ -11,7 +11,9 @@
 
 {% block appStyles %}
   <link rel="stylesheet" href="{% static "vendor/font-awesome/css/font-awesome.min.css" %}">
-  <link rel="stylesheet" href="{% static "bundles/css/payables.css" %}">
+  {% comment %} <link rel="stylesheet" href="{% static "bundles/css/payables.css" %}"> {% endcomment %}
+  {% render_bundle 'payables' 'css' 'CSS' %}
+  
 {% endblock %}
 
 {% block content %}
