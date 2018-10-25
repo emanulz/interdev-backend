@@ -46,7 +46,6 @@ numpy==1.14.3
 openpyxl==2.5.3
 persisting-theory==0.2.1
 Pillow==5.0.0
-pkg-resources==0.0.0
 pyasn1==0.4.4
 pyasn1-modules==0.2.2
 pycodestyle==2.3.1
