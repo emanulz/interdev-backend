@@ -190,7 +190,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'USER': 'root',
-        'PASSWORD': '',
+        'PASSWORD': 'root',
         'NAME': 'interdev',
         'HOST': '127.0.0.1',
         'PORT': '3306',
@@ -198,7 +198,7 @@ DATABASES = {
     'logs_db': {
         'ENGINE': 'django.db.backends.mysql',
         'USER': 'root',
-        'PASSWORD': '',
+        'PASSWORD': 'root',
         'NAME': 'interdev_logs',
         'HOST': '127.0.0.1',
         'PORT': '3306',
@@ -420,7 +420,6 @@ CELERY_BEAT_SCHEDULE = {
 }
 
 #MAILING CONFIGURATION
-
 EMAIL_HOST = interdev_sett._EMAIL_HOST
 EMAIL_PORT = interdev_sett._EMAIL_PORT
 EMAIL_HOST_USER = interdev_sett._EMAIL_HOST_USER
