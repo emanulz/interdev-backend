@@ -14,7 +14,6 @@
   <link rel="stylesheet" href="{% static "vendor/font-awesome/css/font-awesome.min.css" %}">
   {% comment %} <link rel="stylesheet" href="{% static "vendor/dataTables/dataTables.min.css" %}"> {% endcomment %}
   {% comment %} <link rel="stylesheet" href="{% static "bundles/css/inventories.css" %}"> {% endcomment %}
-  {% render_bundle 'inventories' 'css' 'CSS' %}
 {% endblock %}
 
 {% block content %}
@@ -24,7 +23,6 @@
 {% block js %}
 
   {# <script defer type="text/javascript" src="{% static "vendor/font-awesome/fontawesome-all.js" %}"></script> #}
-  {% render_bundle 'vendors' %}
   {% render_bundle 'inventories' %}
   <script type="text/javascript">
   alertify.defaults.theme.ok = "btn btn-success";
