@@ -126,6 +126,7 @@ INSTALLED_APPS = [
     'taxpayer.apps.TaxpayerConfig',
     'importer.apps.ImporterConfig',
     'restaurant.apps.RestaurantConfig',
+    # 'cloud_backup.apps.CloudBackupConfig',
 ]
 
 MIDDLEWARE = [
