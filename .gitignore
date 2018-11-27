@@ -84,6 +84,7 @@ media/certificates/**
 media/productImages/old**
 media/reports/**
 media/purchases/**
+media/inv_transfers/**
 
 celerybeat-schedule.bak
 
