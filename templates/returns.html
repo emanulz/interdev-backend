@@ -12,7 +12,6 @@
 {% block appStyles %}
   <link rel="stylesheet" href="{% static "vendor/font-awesome/css/font-awesome.min.css" %}">
   <link rel="stylesheet" href="{% static "bundles/css/returns.css" %}">
-  {% render_bundle 'returns' 'css' 'CSS' %}
 {% endblock %}
 
 {% block content %}
@@ -22,7 +21,6 @@
 {% block js %}
 
   {# <script defer type="text/javascript" src="{% static "vendor/font-awesome/fontawesome-all.js" %}"></script> #}
-  {% render_bundle 'vendors' %}
   {% render_bundle 'returns' %}
   <script type="text/javascript">
   alertify.defaults.theme.ok = "btn btn-success";

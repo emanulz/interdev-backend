@@ -22,7 +22,7 @@ from credits.api.views import Credit_MovementViewSet, Credit_PaymentViewSet, Cre
 from taxes.api.views import TaxViewSet
 #from senders.api.views import SenderViewSet
 from addresses.api.views import ProvinceViewSet, CantonViewSet, DistrictViewSet, TownViewSet
-from inventories.api.views import Inventory_MovementViewSet, WarehouseViewSet, PhysicalTakeViewSet
+from inventories.api.views import Inventory_MovementViewSet, WarehouseViewSet, PhysicalTakeViewSet, InventoryFileTransferViewSet
 from workshop.api.views import Work_OrderViewSet, Work_OrderCreateViewSet, Work_OrderWarantyViewset, Work_OrderWarantyBDViewset, Work_OrderNoRepairViewset
 from purchases.api.views import PurchaseViewSet, PurchaseCreateViewSet, PurchaseIncompleteViewSet, PurchaseCompleteViewSet
 from dynamic_preferences.users.viewsets import UserPreferencesViewSet
@@ -82,6 +82,7 @@ router.register(r'cantons', CantonViewSet)
 router.register(r'districts', DistrictViewSet)
 router.register(r'towns', TownViewSet)
 router.register(r'inventorymovementslist', Inventory_MovementViewSet)
+router.register(r'filetransferslist', InventoryFileTransferViewSet)
 router.register(r'warehouses', WarehouseViewSet)
 router.register(r'physicaltakes', PhysicalTakeViewSet, base_name='physicaltakes')
 router.register(r'listworkorders', Work_OrderViewSet)
