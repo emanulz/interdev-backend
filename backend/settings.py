@@ -372,10 +372,6 @@ WEBPACK_LOADER = {
     'DEFAULT': {
         'BUNDLE_DIR_NAME': 'bundles/production/',  # end with slash
         'STATS_FILE': os.path.join(BASE_DIR, 'webpack-stats-production.json'),
-        },
-    'CSS': {
-        'BUNDLE_DIR_NAME': 'bundles/production/',  # end with slash
-        'STATS_FILE': os.path.join(BASE_DIR, 'webpack-stats-css-production.json'),
         }
     }
 
@@ -384,10 +380,6 @@ if DEBUG:
         'DEFAULT': {
             'BUNDLE_DIR_NAME': 'bundles/local/',  # end with slash
             'STATS_FILE': os.path.join(BASE_DIR, 'webpack-stats-local.json'),
-            },
-        'CSS': {
-            'BUNDLE_DIR_NAME': 'bundles/local/',  # end with slash
-            'STATS_FILE': os.path.join(BASE_DIR, 'webpack-stats-css-local.json'),
             }
         }
 
