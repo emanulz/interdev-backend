@@ -396,8 +396,6 @@ beat_overseer_cycle = 1
 beat_reaper_cycle = 1
 GRAVE_DIGGER_GRAVES = interdev_sett._GRAVE_DIGGER_GRAVES
 
-actionRequiredDisposer
-
 CELERY_BEAT_SCHEDULE = {
 
     'the-overseer': {
