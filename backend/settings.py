@@ -126,7 +126,7 @@ INSTALLED_APPS = [
     'taxpayer.apps.TaxpayerConfig',
     'importer.apps.ImporterConfig',
     'restaurant.apps.RestaurantConfig',
-    # 'cloud_backup.apps.CloudBackupConfig',
+    #'cloud_backup.apps.CloudBackupConfig',
 ]
 
 MIDDLEWARE = [
@@ -394,6 +394,7 @@ CELERY_TASK_SOFT_TIME_LIMIT = 180  # avoids a task hanging indefinitively blocki
 
 beat_overseer_cycle = 1
 beat_reaper_cycle = 1
+GRAVE_DIGGER_GRAVES = interdev_sett._GRAVE_DIGGER_GRAVES
 CELERY_BEAT_SCHEDULE = {
 
     'the-overseer': {
@@ -408,6 +409,13 @@ CELERY_BEAT_SCHEDULE = {
         'schedule': crontab(minute='*/{}'.format(beat_reaper_cycle)),
         'options': {
             'expires': int(beat_reaper_cycle*65)
+        }
+    },
+    'grave-digger':{
+        'task': 'factura_digital.the_overseer_tasks.graveDigger',
+        'schedule': crontab(minute='*/{}'.format(interdev_sett._GRAVE_DIGGER_DELAY)),
+        'options': {
+            'expires': int(beat_overseer_cycle*65)
         }
     }
 }

@@ -52,6 +52,10 @@ class ProdSettings():
         self._CELERY_BROKER_URL = None
         self._CELERY_RESULT_BACKEND = None
 
+        #grave digger frecuency in minutes
+        self._GRAVE_DIGGER_DELAY = 60
+        self._GRAVE_DIGGER_GRAVES = 25
+
         for line in self._settings:
             if line.startswith("#"):
                 continue
@@ -70,6 +74,10 @@ class ProdSettings():
                     self._ALLOWED_HOSTS.append(
                         host.strip()
                     )
+            elif setting_name == "GRAVE_DIGGER_DELAY":
+                self._GRAVE_DIGGER_DELAY = int(setting_value.strip())
+            elif setting_name =="GRAVE_DIGGER_GRAVES":
+                self._GRAVE_DIGGER_GRAVES = int(setting_value.strip())
             elif setting_name == "DB_CRED":
                 creds = setting_value.split(' ')
                 if len(creds) < 6:

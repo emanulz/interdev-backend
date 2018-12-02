@@ -16,3 +16,5 @@ SERVER_NAME = PROD_SERVER
 #define celery instance details
 CELERY_BROKER_URL=redis://localhost:6379
 CELERY_RESULT_BACKEND=redis://localhost:6379
+#GRAVE_DIGGER_DELAY = 60
+#GRAVE_DIGGER_GRAVES = 25
