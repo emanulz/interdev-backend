@@ -395,6 +395,9 @@ CELERY_TASK_SOFT_TIME_LIMIT = 180  # avoids a task hanging indefinitively blocki
 beat_overseer_cycle = 1
 beat_reaper_cycle = 1
 GRAVE_DIGGER_GRAVES = interdev_sett._GRAVE_DIGGER_GRAVES
+
+actionRequiredDisposer
+
 CELERY_BEAT_SCHEDULE = {
 
     'the-overseer': {
@@ -415,7 +418,14 @@ CELERY_BEAT_SCHEDULE = {
         'task': 'factura_digital.the_overseer_tasks.graveDigger',
         'schedule': crontab(minute='*/{}'.format(interdev_sett._GRAVE_DIGGER_DELAY)),
         'options': {
-            'expires': int(beat_overseer_cycle*65)
+            'expires': int(interdev_sett._GRAVE_DIGGER_DELAY*55)
+        }
+    },
+    'actions-disposer':{
+        'task': 'factura_digital.the_overseer_tasks.actionRequiredDisposer',
+        'schedule': crontab(minute='*/{}'.format(interdev_sett._ACTION_DISPOSER_DELAY)),
+        'options': {
+            'expires': int(interdev_sett._ACTION_DISPOSER_DELAY*55)
         }
     }
 }

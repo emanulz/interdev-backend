@@ -56,6 +56,9 @@ class ProdSettings():
         self._GRAVE_DIGGER_DELAY = 60
         self._GRAVE_DIGGER_GRAVES = 25
 
+        #action required disposer frequency in minutes
+        self._ACTION_DISPOSER_DELAY = 180
+
         for line in self._settings:
             if line.startswith("#"):
                 continue
@@ -74,10 +77,14 @@ class ProdSettings():
                     self._ALLOWED_HOSTS.append(
                         host.strip()
                     )
+
+            elif setting_name == "ACTION_DISPOSER_DELAY":
+                self._ACTION_DISPOSER_DELAY = int(setting_value.strip())
             elif setting_name == "GRAVE_DIGGER_DELAY":
                 self._GRAVE_DIGGER_DELAY = int(setting_value.strip())
             elif setting_name =="GRAVE_DIGGER_GRAVES":
                 self._GRAVE_DIGGER_GRAVES = int(setting_value.strip())
+            
             elif setting_name == "DB_CRED":
                 creds = setting_value.split(' ')
                 if len(creds) < 6:
