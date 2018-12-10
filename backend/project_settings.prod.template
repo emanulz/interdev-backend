@@ -19,3 +19,7 @@ CELERY_RESULT_BACKEND=redis://localhost:6379
 #GRAVE_DIGGER_DELAY = 60
 #GRAVE_DIGGER_GRAVES = 25
 #ACTION_DISPOSER_DELAY = 180
+#service account in charge of uploading the files with no user interaction or grant
+#GSERVICE_EMAIL = "backupworker@fd-backer.iam.gserviceaccount.com"
+#secret to authenticate the service account
+#GDRIVE_SECRET = "8a09d056e64730cb7178cd2b93b1d1373d4d2d5f"
