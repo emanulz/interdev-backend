@@ -428,6 +428,10 @@ CELERY_BEAT_SCHEDULE = {
     }
 }
 
+#GDRIVE cloud settings
+GSERVICE_EMAIL = interdev_sett._GSERVICE_EMAIL
+GDRIVE_SECRET = interdev_sett._GDRIVE_SECRET
+
 #MAILING CONFIGURATION
 EMAIL_HOST = interdev_sett._EMAIL_HOST
 EMAIL_PORT = interdev_sett._EMAIL_PORT
