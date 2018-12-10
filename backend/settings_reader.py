@@ -59,6 +59,13 @@ class ProdSettings():
         #action required disposer frequency in minutes
         self._ACTION_DISPOSER_DELAY = 180
 
+        #define the worker email for GDrive
+        self._GSERVICE_EMAIL = None
+        ##define the secret for the GDRIVE Service
+        self._GDRIVE_SECRET = None
+
+
+
         for line in self._settings:
             if line.startswith("#"):
                 continue
@@ -77,7 +84,10 @@ class ProdSettings():
                     self._ALLOWED_HOSTS.append(
                         host.strip()
                     )
-
+            elif setting_name == "GSERVICE_EMAIL":
+                self._GSERVICE_EMAIL = setting_value.strip()
+            elif setting_name == "GDRIVE_SECRET":
+                self._GDRIVE_SECRET = setting_value.strip()
             elif setting_name == "ACTION_DISPOSER_DELAY":
                 self._ACTION_DISPOSER_DELAY = int(setting_value.strip())
             elif setting_name == "GRAVE_DIGGER_DELAY":
