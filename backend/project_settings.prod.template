@@ -23,3 +23,6 @@ CELERY_RESULT_BACKEND=redis://localhost:6379
 #GSERVICE_EMAIL = "backupworker@fd-backer.iam.gserviceaccount.com"
 #secret to authenticate the service account
 #GDRIVE_SECRET = "8a09d056e64730cb7178cd2b93b1d1373d4d2d5f"
+
+#setting to force printing in prod from debug calls and flush to output, 1 for True and 0 for False
+FORCE_PRINT = 0
