@@ -87,7 +87,7 @@ class ProdSettings():
                         host.strip()
                     )
             elif setting_name == "FORCE_PRINT":
-                self._FORCE_PRINT = 0 == int(setting_value.strip())
+                self._FORCE_PRINT = 1 == int(setting_value.strip())
             elif setting_name == "GSERVICE_EMAIL":
                 self._GSERVICE_EMAIL = setting_value.strip()
             elif setting_name == "GDRIVE_SECRET":
