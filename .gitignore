@@ -74,6 +74,7 @@ media/Imagenes
 media/Imagenes/**
 media/productImages/**
 media/logos/**
+media/compressed/**
 
 ##xmls digital invoicing
 media/electronic_bills/**
