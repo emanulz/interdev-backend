@@ -445,3 +445,6 @@ if DEBUG:
     EMAIL_HOST_USER = 'devtestsvm@gmail.com'
     EMAIL_HOST_PASSWORD = 'InterdevTestEmail'
     EMAIL_USE_TLS = True
+
+#force debug messages printin to main stream
+FORCE_PRINT = interdev_sett._FORCE_PRINT
