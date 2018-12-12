@@ -64,6 +64,8 @@ class ProdSettings():
         ##define the secret for the GDRIVE Service
         self._GDRIVE_SECRET = None
 
+        #control debug messages print
+        self._FORCE_PRINT = False
 
 
         for line in self._settings:
@@ -84,6 +86,8 @@ class ProdSettings():
                     self._ALLOWED_HOSTS.append(
                         host.strip()
                     )
+            elif setting_name == "FORCE_PRINT":
+                self._FORCE_PRINT = 0 == int(setting_value.strip())
             elif setting_name == "GSERVICE_EMAIL":
                 self._GSERVICE_EMAIL = setting_value.strip()
             elif setting_name == "GDRIVE_SECRET":
