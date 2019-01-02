@@ -126,7 +126,7 @@ INSTALLED_APPS = [
     'taxpayer.apps.TaxpayerConfig',
     'importer.apps.ImporterConfig',
     'restaurant.apps.RestaurantConfig',
-    #'cloud_backup.apps.CloudBackupConfig',
+    'cloud_backup.apps.CloudBackupConfig',
 ]
 
 MIDDLEWARE = [
@@ -392,9 +392,17 @@ CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'America/Costa_Rica'
 CELERY_TASK_SOFT_TIME_LIMIT = 180  # avoids a task hanging indefinitively blocking the worker
 
-beat_overseer_cycle = 1
-beat_reaper_cycle = 1
+beat_overseer_cycle = interdev_sett._BEAT_OVERSEER_CYCLE
+beat_reaper_cycle = interdev_sett._BEAT_REAPER_CYCLE
 GRAVE_DIGGER_GRAVES = interdev_sett._GRAVE_DIGGER_GRAVES
+
+
+#CLOUD_BACKUP SETTINGS
+GSERVICE_EMAIL = interdev_sett._GSERVICE_EMAIL
+GDRIVE_SECRET =  interdev_sett._GDRIVE_SECRET
+GIMPERSONATED = interdev_sett._GIMPERSONATED
+GUPLOAD_BATCH_SIZE = interdev_sett._GUPLOAD_BATCH_SIZE
+GUPLOAD_FREQUENCY = interdev_sett._GUPLOAD_FREQUENCY
 
 CELERY_BEAT_SCHEDULE = {
 
@@ -424,6 +432,13 @@ CELERY_BEAT_SCHEDULE = {
         'schedule': crontab(minute='*/{}'.format(interdev_sett._ACTION_DISPOSER_DELAY)),
         'options': {
             'expires': int(interdev_sett._ACTION_DISPOSER_DELAY*55)
+        }
+    },
+    'cloud-backup':{
+        'task': 'cloud_backup.google_drive.tasks.upload_docs_batch',
+        'schedule': crontab(minute='*/{}'.format(GUPLOAD_FREQUENCY)),
+        'options': {
+            'expires': int(GUPLOAD_FREQUENCY*50)
         }
     }
 }

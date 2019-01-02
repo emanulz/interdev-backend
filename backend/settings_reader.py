@@ -52,6 +52,9 @@ class ProdSettings():
         self._CELERY_BROKER_URL = None
         self._CELERY_RESULT_BACKEND = None
 
+        self._BEAT_OVERSEER_CYCLE = 2
+        self._BEAT_REAPER_CYCLE = 2
+
         #grave digger frecuency in minutes
         self._GRAVE_DIGGER_DELAY = 60
         self._GRAVE_DIGGER_GRAVES = 25
@@ -65,6 +68,10 @@ class ProdSettings():
         self._GDRIVE_SECRET = None
         #define the account that the service account should impersonate
         self._GIMPERSONATED = "vmora@bruncastorage.space"
+        #define the size of the batch to attempt upload
+        self._GUPLOAD_BATCH_SIZE = 20
+        #define the frequency at wich the uploader will run
+        self._GUPLOAD_FREQUENCY = 15
 
         #control debug messages print
         self._FORCE_PRINT = False
@@ -91,6 +98,14 @@ class ProdSettings():
                     self._ALLOWED_HOSTS.append(
                         host.strip()
                     )
+            elif setting_name == "BEAT_OVERSEER_CYCLE":
+                self._BEAT_OVERSEER_CYCLE = int(setting_value.strip())
+            elif setting_name == "BEAT_REAPER_CYCLE":
+                self._BEAT_REAPER_CYCLE = int(setting_value.strip())
+            elif setting_name == "GUPLOAD_BATCH_SIZE":
+                self._GUPLOAD_BATCH_SIZE = int(setting_value.strip())
+            elif setting_name == "GUPLOAD_FREQUENCY":
+                self._GUPLOAD_FREQUENCY = int(setting_value.strip())
             elif setting_name == "GIMPERSONATED":
                 self._GIMPERSONATED = setting_value.strip()
             elif setting_name == "CHANNELS_SOCKET":
