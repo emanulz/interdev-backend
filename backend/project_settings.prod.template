@@ -26,7 +26,7 @@ BEAT_REAPER_CYCLE = 2
 #secret to authenticate the service account
 #GDRIVE_SECRET = fd-backup-225501-8bf58ac07209.p12
 #account that should be the owner of the backedup files
-#GIMPERSONATED = "vmora@bruncastorage.space"
+#GIMPERSONATED = vmora@bruncastorage.space
 #number of electronic docs that will be uploaded on each upload attempt
 #GUPLOAD_BATCH_SIZE = 20
 #frequency at which the uploader job will be run in minutes
