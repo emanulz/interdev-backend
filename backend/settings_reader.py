@@ -69,6 +69,9 @@ class ProdSettings():
         #control debug messages print
         self._FORCE_PRINT = False
 
+        #CHANNELS SOCKET
+        self._CHANNELS_SOCKET = 6379
+
 
         for line in self._settings:
             if line.startswith("#"):
@@ -88,8 +91,13 @@ class ProdSettings():
                     self._ALLOWED_HOSTS.append(
                         host.strip()
                     )
+<<<<<<< HEAD
             elif setting_name == "GIMPERSONATED":
                 self._GIMPERSONATED = setting_value.strip()
+=======
+            elif setting_name == "CHANNELS_SOCKET":
+                self._CHANNELS_SOCKET = int(setting_value.strip())
+>>>>>>> 5633599dada506e80554f350c97e38cd6108cbda
             elif setting_name == "FORCE_PRINT":
                 self._FORCE_PRINT = 1 == int(setting_value.strip())
             elif setting_name == "GSERVICE_EMAIL":
