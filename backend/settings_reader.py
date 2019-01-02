@@ -61,8 +61,10 @@ class ProdSettings():
 
         #define the worker email for GDrive
         self._GSERVICE_EMAIL = None
-        ##define the secret for the GDRIVE Service
+        #define the secret for the GDRIVE Service
         self._GDRIVE_SECRET = None
+        #define the account that the service account should impersonate
+        self._GIMPERSONATED = "vmora@bruncastorage.space"
 
         #control debug messages print
         self._FORCE_PRINT = False
@@ -86,6 +88,8 @@ class ProdSettings():
                     self._ALLOWED_HOSTS.append(
                         host.strip()
                     )
+            elif setting_name == "GIMPERSONATED":
+                self._GIMPERSONATED = setting_value.strip()
             elif setting_name == "FORCE_PRINT":
                 self._FORCE_PRINT = 1 == int(setting_value.strip())
             elif setting_name == "GSERVICE_EMAIL":

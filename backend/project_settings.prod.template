@@ -22,7 +22,9 @@ CELERY_RESULT_BACKEND=redis://localhost:6379
 #service account in charge of uploading the files with no user interaction or grant
 #GSERVICE_EMAIL = "backupworker@fd-backer.iam.gserviceaccount.com"
 #secret to authenticate the service account
-#GDRIVE_SECRET = "8a09d056e64730cb7178cd2b93b1d1373d4d2d5f"
+#GDRIVE_SECRET = "fd-backup-225501-8bf58ac07209.p12"
+#account that should be the owner of the backedup files
+#GIMPERSONATED = "vmora@bruncastorage.space"
 
 #setting to force printing in prod from debug calls and flush to output, 1 for True and 0 for False
 FORCE_PRINT = 0
