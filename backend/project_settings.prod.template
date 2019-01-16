@@ -35,3 +35,5 @@ BEAT_REAPER_CYCLE = 2
 #setting to force printing in prod from debug calls and flush to output, 1 for True and 0 for False
 FORCE_PRINT = 0
 #CHANNELS_SOCKET = 6379
+#setting to identify a machine when emailing without need to get the to_objects
+#WHO_AM_I = "MISAEL"

@@ -79,6 +79,9 @@ class ProdSettings():
         #CHANNELS SOCKET
         self._CHANNELS_SOCKET = 6379
 
+        #WHO_AM_
+        self._WHO_AM_I = "NOT SET"
+
 
         for line in self._settings:
             if line.startswith("#"):
@@ -98,6 +101,8 @@ class ProdSettings():
                     self._ALLOWED_HOSTS.append(
                         host.strip()
                     )
+            elif setting_name == 'WHO_AM_I':
+                self._WHO_AM_I = setting_value.strip()
             elif setting_name == "BEAT_OVERSEER_CYCLE":
                 self._BEAT_OVERSEER_CYCLE = int(setting_value.strip())
             elif setting_name == "BEAT_REAPER_CYCLE":
