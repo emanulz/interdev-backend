@@ -16,7 +16,7 @@ from products.api.views import (ProductViewSet, ProductDepartmentViewSet, Produc
     ProductInventoryViewSet, UnitViewSet, RestaurantProdsViewset, ClientProductViewset)
 from suppliers.api.views import SupplierViewSet, SupplierCustomViewSet, SupplierSearchViewSet
 from profiles.api.views import UserViewSet, PermissionsViewSet, ProfileViewSet
-from sales.api.views import SaleViewSet, Cash_AdvanceViewSet
+from sales.api.views import Cash_AdvanceViewSet
 from logs.api.views import LogViewSet
 from credits.api.views import Credit_MovementViewSet, Credit_PaymentViewSet, CreditPaymentCreateViewSet
 from taxes.api.views import TaxViewSet
