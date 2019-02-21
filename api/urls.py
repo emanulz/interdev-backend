@@ -38,7 +38,7 @@ from reporting.api.views import ReportDefinition
 from restaurant.api.views import (TableViewSet, ServiceOrderViewSet, ServiceOrderActionViewSet, 
                                   DispatchLocationViewset, ProductDispatchLocationViewSet, DispatchLocationViewset) 
 from sales.api.cash_register_views import MoneyBillViewSetReadOnly,RegisterClosureViewset, RegisterMovementViewsetReadOnly
-
+from cross_reference.api.views import ProdHistoryCustomViewset
 
 # API COPIED FROM  dynamic_preferences into apps.preferences.api package and modified permissions class
 from preferences.api.viewsets import GlobalPreferencesViewSet
@@ -127,6 +127,7 @@ router.register(r'restaurantserviceorders', ServiceOrderViewSet)
 router.register(r'restaurantserviceorderactions', ServiceOrderActionViewSet)
 router.register(r'restaurantdispatchlocs', DispatchLocationViewset)
 router.register(r'restaurantproddispatchlocs', ProductDispatchLocationViewSet)
+router.register(r'cross_reference', ProdHistoryCustomViewset, base_name="cross_reference")
 
 
 urlpatterns = [
