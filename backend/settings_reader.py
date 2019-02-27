@@ -82,6 +82,9 @@ class ProdSettings():
         #WHO_AM_
         self._WHO_AM_I = "NOT SET"
 
+        #money vouchers auto expiry period
+        self._VOUCHERS_VALID_DAYS = -1
+
 
         for line in self._settings:
             if line.startswith("#"):
@@ -103,6 +106,8 @@ class ProdSettings():
                     )
             elif setting_name == 'WHO_AM_I':
                 self._WHO_AM_I = setting_value.strip()
+            elif setting_name == 'VOUCHERS_VALID_DAYS':
+                self._VOUCHERS_VALID_DAYS = int(setting_value.strip())
             elif setting_name == "BEAT_OVERSEER_CYCLE":
                 self._BEAT_OVERSEER_CYCLE = int(setting_value.strip())
             elif setting_name == "BEAT_REAPER_CYCLE":

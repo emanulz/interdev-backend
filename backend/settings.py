@@ -56,8 +56,8 @@ SECRET_KEY = 'pq0v9v3y@4dnny%jgrod5*_%snma=t(q6-h&@sf)+uptk54z82'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = interdev_sett._DEBUG
 
-#print("DB settings --> ", interdev_sett._DB_CREDENTIALS)
-#print("DB hosts --> ", interdev_sett._ALLOWED_HOSTS)
+#load money vouchers expiry period
+VOUCHERS_VALID_DAYS = interdev_sett._VOUCHERS_VALID_DAYS
 
 TAX_PAYER_SECRET = None
 try:
@@ -433,6 +433,13 @@ CELERY_BEAT_SCHEDULE = {
         'schedule': crontab(minute='*/{}'.format(interdev_sett._ACTION_DISPOSER_DELAY)),
         'options': {
             'expires': int(interdev_sett._ACTION_DISPOSER_DELAY*55)
+        }
+    },
+    'expire_vouchers':{
+        'task': 'money_returns.tasks.expire_vouchers',
+        'schedule': crontab(hour='*/{}'.format(8)),
+        'options': {
+            'expires': 600
         }
     },
     'cloud-backup':{

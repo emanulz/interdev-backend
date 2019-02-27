@@ -37,3 +37,5 @@ FORCE_PRINT = 0
 #CHANNELS_SOCKET = 6379
 #setting to identify a machine when emailing without need to get the to_objects
 #WHO_AM_I = "MISAEL"
+#setting to control for how long will the money vouchers be valid, -1 for not expiring
+#VOUCHERS_VALID_DAYS = 1
