@@ -127,7 +127,8 @@ INSTALLED_APPS = [
     'importer.apps.ImporterConfig',
     'restaurant.apps.RestaurantConfig',
     'cloud_backup.apps.CloudBackupConfig',
-    'cross_reference.apps.CrossReferenceConfig'
+    'cross_reference.apps.CrossReferenceConfig',
+    'construction.apps.ConstructionConfig',
 ]
 
 MIDDLEWARE = [
