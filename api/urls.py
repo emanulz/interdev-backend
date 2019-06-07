@@ -49,7 +49,7 @@ from factura_digital.api.views import (Electronic_TicketViewset, Electronic_Tick
     ElectronicDocsReception, Electronic_TicketViewset, Electronic_InvoiceViewset, Electronic_CreditNoteViewset,
     Electronic_DebitNoteViewset, ActionRequieredViewset, ReceivedElectronicDocViewset)
 
-from administration.api.views import HelperModelViewSet
+from administration.api.views import HelperModelViewSet, HelperTasksViewSet
 from construction.api.views import ProjectViewSet, ActivityViewSet
 
 router = routers.DefaultRouter()
@@ -134,7 +134,9 @@ router.register(r'restaurantproddispatchlocs', ProductDispatchLocationViewSet)
 router.register(r'cross_reference', ProdHistoryCustomViewset, base_name="cross_reference")
 router.register(r'projects', ProjectViewSet, base_name="projects")
 router.register(r'activities', ActivityViewSet, base_name="activities")
+router.register(r'administration/helpertasks', HelperTasksViewSet)
 router.register(r'administration', HelperModelViewSet)
+
 
 
 urlpatterns = [
