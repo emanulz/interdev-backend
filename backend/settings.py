@@ -59,6 +59,10 @@ DEBUG = interdev_sett._DEBUG
 #load money vouchers expiry period
 VOUCHERS_VALID_DAYS = interdev_sett._VOUCHERS_VALID_DAYS
 
+#SIC API DATA
+SIC_LOCATION = interdev_sett._SIC_LOCATION
+SIC_KEY = interdev_sett._SIC_KEY
+
 TAX_PAYER_SECRET = None
 try:
     TAX_PAYER_SECRET = os.environ('TAX_PAYER_SECRET')

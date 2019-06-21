@@ -85,6 +85,9 @@ class ProdSettings():
         #money vouchers auto expiry period
         self._VOUCHERS_VALID_DAYS = -1
 
+        #SIC API settings
+        self._SIC_LOCATION = None
+        self._SIC_KEY = None
 
         for line in self._settings:
             if line.startswith("#"):
@@ -170,6 +173,10 @@ class ProdSettings():
                 self._SECRET_KEY = setting_value
             elif setting_name == 'TAX_PAYER_SECRET':
                 self._TAX_PAYER_SECRET = setting_value
+            elif setting_name == 'SIC_LOCATION':
+                self._SIC_LOCATION = setting_value
+            elif setting_name == 'SIC_KEY':
+                self._SIC_KEY = setting_value
             else:
                 print("Unknown setting, pass")
                 pass

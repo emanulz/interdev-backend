@@ -39,3 +39,7 @@ FORCE_PRINT = 0
 #WHO_AM_I = "MISAEL"
 #setting to control for how long will the money vouchers be valid, -1 for not expiring
 #VOUCHERS_VALID_DAYS = 1
+
+#location of the SIC API
+SIC_LOCATION = http://sicapi.bruncastorage.space/
+SIC_KEY = lalala123__lalala123
