@@ -197,7 +197,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'USER': 'root',
-        'PASSWORD': 'root',
+        'PASSWORD': '',
         'NAME': 'interdev2',
         'HOST': '127.0.0.1',
         'PORT': '3306',
@@ -205,8 +205,8 @@ DATABASES = {
     'logs_db': {
         'ENGINE': 'django.db.backends.mysql',
         'USER': 'root',
-        'PASSWORD': 'root',
-        'NAME': 'interdev2_logs',
+        'PASSWORD': '',
+        'NAME': 'interdev_logs',
         'HOST': '127.0.0.1',
         'PORT': '3306',
     }
