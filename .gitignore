@@ -89,6 +89,7 @@ media/productImages/old**
 media/reports/**
 media/purchases/**
 media/inv_transfers/**
+media/selfpurchases/**
 
 celerybeat-schedule.bak
 
