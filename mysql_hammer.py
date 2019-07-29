@@ -6,10 +6,10 @@ def main():
 
     base_path = r"D:\Users\thor0\Desktop\COTOCO"
     print("BASE PATH --> ", base_path)
-    departments_source = base_path + r"\department.csv"
-    subdepartments_source = base_path + r"\subdepartment.csv"
-    activities_source = base_path + r"\activity.csv"
-    products_source = base_path + r"\product.csv"
+    departments_source = base_path + r"\DEPARTAMENTOS.csv"
+    subdepartments_source = base_path + r"\SUBDEPARTAMENTOS.csv"
+    activities_source = base_path + r"\ACTIVIDADES.csv"
+    products_source = base_path + r"\PRODUCTOS.csv"
 
 
     print(departments_source)
