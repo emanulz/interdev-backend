@@ -215,7 +215,7 @@ DATABASES = {
 }
 # Try Victor Dev
 try:
-    if os.environ['DJANGO_BACKEND'] == 'MYSQL':
+    if WHO_AM_I == 'TEST_VM':
         DATABASES = {
             'default': {
                 'ENGINE': 'django.db.backends.mysql',
@@ -234,12 +234,13 @@ try:
                 'PORT': '3306',
             }
         }
+        
 except KeyError:
     pass
 #point to a db based on host name
 
 try:
-    if os.environ['UBUNTU_TEST_BOX']:
+    if os.environ['UBUNTU_TEST_BOX!']:
         db_name = os.environ["TARGET_DB"]
         target_db_server =  os.environ["DB_SERVER"]
         DATABASES = {
@@ -260,6 +261,7 @@ try:
                 'PORT': '3306',
             }
         }
+        print("FUCK UBUNTU TEST BOX")
 except KeyError:
     pass
 
@@ -414,49 +416,57 @@ GUPLOAD_FREQUENCY = interdev_sett._GUPLOAD_FREQUENCY
 
 CELERY_BEAT_SCHEDULE = {
 
-    'the-overseer': {
-        'task': 'factura_digital.the_overseer_tasks.TheOneAboveAll',
-        'schedule': crontab(minute='*/{}'.format(beat_overseer_cycle)),
+    # 'the-overseer': {
+    #     'task': 'factura_digital.the_overseer_tasks.TheOneAboveAll',
+    #     'schedule': crontab(minute='*/{}'.format(beat_overseer_cycle)),
+    #     'options': {
+    #         'expires': int(beat_overseer_cycle*65)
+    #     }
+    # },
+    # 'the-reaper': {
+    #     'task': 'factura_digital.the_overseer_tasks.ReaperOfDocs',
+    #     'schedule': crontab(minute='*/{}'.format(beat_reaper_cycle)),
+    #     'options': {
+    #         'expires': int(beat_reaper_cycle*65)
+    #     }
+    # },
+    # 'grave-digger':{
+    #     'task': 'factura_digital.the_overseer_tasks.graveDigger',
+    #     'schedule': crontab(minute='*/{}'.format(interdev_sett._GRAVE_DIGGER_DELAY)),
+    #     'options': {
+    #         'expires': int(interdev_sett._GRAVE_DIGGER_DELAY*55)
+    #     }
+    # },
+    # 'actions-disposer':{
+    #     'task': 'factura_digital.the_overseer_tasks.actionRequiredDisposer',
+    #     'schedule': crontab(minute='*/{}'.format(interdev_sett._ACTION_DISPOSER_DELAY)),
+    #     'options': {
+    #         'expires': int(interdev_sett._ACTION_DISPOSER_DELAY*55)
+    #     }
+    # },
+    # 'expire_vouchers':{
+    #     'task': 'money_returns.tasks.expire_vouchers',
+    #     'schedule': crontab(hour='*/{}'.format(8)),
+    #     'options': {
+    #         'expires': 600
+    #     }
+    # },
+    # 'cloud-backup':{
+    #     'task': 'cloud_backup.google_drive.tasks.upload_docs_batch',
+    #     'schedule': crontab(minute='*/{}'.format(GUPLOAD_FREQUENCY)),
+    #     'options': {
+    #         'expires': int(GUPLOAD_FREQUENCY*50)
+    #     }
+    # },
+    'reports_manager':{
+        'task': 'reporting.tasks.reportsManager',
+        'schedule': crontab(minute='*/{}'.format(1)),
         'options': {
-            'expires': int(beat_overseer_cycle*65)
-        }
-    },
-    'the-reaper': {
-        'task': 'factura_digital.the_overseer_tasks.ReaperOfDocs',
-        'schedule': crontab(minute='*/{}'.format(beat_reaper_cycle)),
-        'options': {
-            'expires': int(beat_reaper_cycle*65)
-        }
-    },
-    'grave-digger':{
-        'task': 'factura_digital.the_overseer_tasks.graveDigger',
-        'schedule': crontab(minute='*/{}'.format(interdev_sett._GRAVE_DIGGER_DELAY)),
-        'options': {
-            'expires': int(interdev_sett._GRAVE_DIGGER_DELAY*55)
-        }
-    },
-    'actions-disposer':{
-        'task': 'factura_digital.the_overseer_tasks.actionRequiredDisposer',
-        'schedule': crontab(minute='*/{}'.format(interdev_sett._ACTION_DISPOSER_DELAY)),
-        'options': {
-            'expires': int(interdev_sett._ACTION_DISPOSER_DELAY*55)
-        }
-    },
-    'expire_vouchers':{
-        'task': 'money_returns.tasks.expire_vouchers',
-        'schedule': crontab(hour='*/{}'.format(8)),
-        'options': {
-            'expires': 600
-        }
-    },
-    'cloud-backup':{
-        'task': 'cloud_backup.google_drive.tasks.upload_docs_batch',
-        'schedule': crontab(minute='*/{}'.format(GUPLOAD_FREQUENCY)),
-        'options': {
-            'expires': int(GUPLOAD_FREQUENCY*50)
+            'expires': int(10)
         }
     }
 }
+
 
 #GDRIVE cloud settings
 GSERVICE_EMAIL = interdev_sett._GSERVICE_EMAIL
