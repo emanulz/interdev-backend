@@ -47,7 +47,8 @@ from clients.views import createClientQuick
 
 from factura_digital.api.views import (Electronic_TicketViewset, Electronic_TicketCreateViewset, 
     ElectronicDocsReception, Electronic_TicketViewset, Electronic_InvoiceViewset, Electronic_CreditNoteViewset,
-    Electronic_DebitNoteViewset, ActionRequieredViewset, ReceivedElectronicDocViewset)
+    Electronic_DebitNoteViewset, ActionRequieredViewset, ReceivedElectronicDocViewset, Electronic_SelfPurchaseCreateViewset,
+    Electronic_SelfPurchaseReadOnlyViewset)
 
 from administration.api.views import HelperModelViewSet, HelperTasksViewSet
 from construction.api.views import ProjectViewSet, ActivityViewSet, OrderViewSet, RequestViewSet
@@ -119,6 +120,9 @@ router.register(r'electronicdebitnote', Electronic_DebitNoteViewset)
 router.register(r'receivedelectronicdoc', ReceivedElectronicDocViewset)
 router.register(r'electronicticketcreate', Electronic_TicketCreateViewset, base_name='electronicticketcreate')
 router.register(r'docactionrequired', ActionRequieredViewset)
+router.register(r'electronicselfpurchase', Electronic_SelfPurchaseCreateViewset)
+router.register(r'electronicselfpurchaselist', Electronic_SelfPurchaseReadOnlyViewset)
+
 router.register(r'taxpayercreate', TaxPayerCreateViewSet, base_name='taxpayercreate')
 router.register(r'taxpayerreadonly', TaxPayerReadOnly)
 router.register(r'taxpayerlocals', TaxPayerLocalViewset)
