@@ -18,7 +18,7 @@ from suppliers.api.views import SupplierViewSet, SupplierCustomViewSet, Supplier
 from profiles.api.views import UserViewSet, PermissionsViewSet, ProfileViewSet
 from sales.api.views import Cash_AdvanceViewSet
 from logs.api.views import LogViewSet
-from credits.api.views import Credit_MovementViewSet, Credit_PaymentViewSet, CreditPaymentCreateViewSet
+from credits.api.views import Credit_MovementViewSet, Credit_PaymentViewSet, CreditPaymentCreateViewSet, CreditSaleRecordViewset
 from taxes.api.views import TaxViewSet
 #from senders.api.views import SenderViewSet
 from addresses.api.views import ProvinceViewSet, CantonViewSet, DistrictViewSet, TownViewSet
@@ -86,6 +86,9 @@ router.register(r'globalprefs', GlobalPreferencesViewSet, base_name='globalprefs
 router.register(r'creditpaymentscreate', CreditPaymentCreateViewSet, base_name='credits')
 router.register(r'creditmovementslist', Credit_MovementViewSet, base_name='creditmovementslist')
 router.register(r'creditpaymentslist', Credit_PaymentViewSet, base_name='creditpaymentslist')
+
+router.register(r'creditsalerecord', CreditSaleRecordViewset, base_name='creditsalerecord')
+
 router.register(r'taxes', TaxViewSet)
 router.register(r'provinces', ProvinceViewSet)
 router.register(r'cantons', CantonViewSet)
