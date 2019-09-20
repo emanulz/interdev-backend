@@ -41,6 +41,7 @@ from reporting.api.views import ReportDefinition, ReportRecordViewset, ReportRec
 from restaurant.api.views import (TableViewSet, ServiceOrderViewSet, ServiceOrderActionViewSet, 
                                   DispatchLocationViewset, ProductDispatchLocationViewSet, DispatchLocationViewset) 
 from sales.api.cash_register_views import MoneyBillViewSetReadOnly,RegisterClosureViewset, RegisterMovementViewsetReadOnly
+from sales.api.free_notes_view import FreeReturnsViewset
 from cross_reference.api.views import ProdHistoryCustomViewset
 
 # API COPIED FROM  dynamic_preferences into apps.preferences.api package and modified permissions class
@@ -66,6 +67,7 @@ router.register(r'sales', SaleCreateViewSet, base_name='sales')
 router.register(r'additions', AdditionViewSetReadOnly)
 router.register(r'saleslist', SaleViewSetReadOnly)
 router.register(r'saleslistcustom', CustomSaleViewset)
+router.register(r'freereturns', FreeReturnsViewset)
 
 
 router.register(r'clients', ClientViewSet)
