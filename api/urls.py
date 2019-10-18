@@ -5,7 +5,7 @@ from profiles.views import checkUserPassword
 
 # Permsions
 from profiles.views import checkUserPermission, checkUserPermissions, checkSingleUserPermissions
-from profiles.views import assingUserPermission
+from profiles.views import assingUserPermission, assingUserProfile
 
 from credits.views import getClientDebt
 
@@ -166,6 +166,7 @@ urlpatterns = [
     url(r'^checkpermission/', checkUserPermission),
     url(r'^checkpermissions/', checkUserPermissions),
     url(r'^assinguserpermission/', assingUserPermission),
+    url(r'^assinguserprofile/', assingUserProfile),
     url(r'^checksingleuserpermissions/', checkSingleUserPermissions),
     url(r'^clientquickcreate/', createClientQuick),
     ]
