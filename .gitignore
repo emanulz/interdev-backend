@@ -107,3 +107,4 @@ db2.sqlite3
 celerybeat-schedule
 backend/project_settings.prod
 celerybeat-schedule.db
+celerybeat-schedule.db
