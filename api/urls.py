@@ -12,6 +12,7 @@ from credits.views import getClientDebt
 # API
 from rest_framework import routers
 from clients.api.views import ClientViewSet, ClientCategoryViewSet
+from clients.api.client_local_view import ClientLocalViewset
 from products.api.views import (ProductViewSet, ProductDepartmentViewSet, ProductSubDepartmentViewSet, 
     ProductInventoryViewSet, UnitViewSet, RestaurantProdsViewset, ClientProductViewset)
 from suppliers.api.views import SupplierViewSet, SupplierCustomViewSet, SupplierSearchViewSet
@@ -71,6 +72,7 @@ router.register(r'freereturns', FreeReturnsViewset)
 
 
 router.register(r'clients', ClientViewSet)
+router.register(r'clientlocal', ClientLocalViewset)
 router.register(r'clientcategories', ClientCategoryViewSet)
 router.register(r'logs', LogViewSet)
 router.register(r'cashadvances', Cash_AdvanceViewSet)
