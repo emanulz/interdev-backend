@@ -80,7 +80,7 @@ if not DEBUG:
 ALLOWED_HOSTS = []
 if DEBUG:
     ALLOWED_HOSTS = ['localhost', '192.168.9.254', '192.168.1.254', '192.168.9.56', '192.168.9.107', '192.168.1.144',
-                 'DANTE', '192.168.9.53', 'app.fudesemillas.net', '162.243.165.124', '192.168.2.254', '192.168.8.101']
+                 'DANTE', '192.168.9.53', 'app.fudesemillas.net', '162.243.165.124', '192.168.2.254', '192.168.8.101', '192.168.9.66']
 else:
     ALLOWED_HOSTS = interdev_sett._ALLOWED_HOSTS    
         
@@ -221,10 +221,11 @@ try:
                 'ENGINE': 'django.db.backends.mysql',
                 'USER': 'root',
                 'PASSWORD': '0688moraB',
-                #'NAME': 'interdev',
+                # 'NAME': 'interdev',
                 'NAME': 'django_rj',
                 'HOST': 'localhost',
                 'PORT': '3306',
+                'CONN_MAX_AGE': 600
             },
             'logs_db': {
                 'ENGINE': 'django.db.backends.mysql',
@@ -233,6 +234,7 @@ try:
                 'NAME': 'django_rj_logs',
                 'HOST': 'localhost',
                 'PORT': '3306',
+                'CONN_MAX_AGE': 600
             }
         }
         
@@ -252,6 +254,7 @@ try:
                 'NAME': db_name,
                 'HOST': target_db_server,
                 'PORT': '3306',
+                'CONN_MAX_AGE': 0
             },
             'logs_db': {
                 'ENGINE': 'django.db.backends.mysql',
@@ -260,6 +263,7 @@ try:
                 'NAME': db_name,
                 'HOST': target_db_server + '_logs',
                 'PORT': '3306',
+                'CONN_MAX_AGE': 0
             }
         }
         print("FUCK UBUNTU TEST BOX")
@@ -489,3 +493,4 @@ if DEBUG:
 
 #force debug messages printin to main stream
 FORCE_PRINT = interdev_sett._FORCE_PRINT
+
