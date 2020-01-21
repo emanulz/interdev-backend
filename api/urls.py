@@ -15,7 +15,7 @@ from clients.api.views import ClientViewSet, ClientCategoryViewSet
 from clients.api.client_local_view import ClientLocalViewset
 from products.api.views import (ProductViewSet, ProductDepartmentViewSet, ProductSubDepartmentViewSet, 
     ProductInventoryViewSet, UnitViewSet, RestaurantProdsViewset, ClientProductViewset)
-from products.api.product_marking_views import ProductMarkerViewset
+from products.api.product_marking_views import ProductMarkerViewset, ProductMarkerLinksViewset
 from suppliers.api.views import SupplierViewSet, SupplierCustomViewSet, SupplierSearchViewSet
 from profiles.api.views import UserViewSet, PermissionsViewSet, ProfileViewSet
 from sales.api.views import Cash_AdvanceViewSet
@@ -63,6 +63,7 @@ router = routers.DefaultRouter()
 router.register(r'clientproduct', ClientProductViewset)
 router.register(r'products', ProductInventoryViewSet, base_name='products')
 router.register(r'productmarker', ProductMarkerViewset, base_name='productmarker')
+router.register(r'productmarkerlinks', ProductMarkerLinksViewset, base_name='productmarkerlinks')
 router.register(r'productslist', ProductViewSet)
 router.register(r'productsrestaurant', RestaurantProdsViewset)
 router.register(r'currency', CurrencyViewset)
