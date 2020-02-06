@@ -213,6 +213,31 @@ DATABASES = {
         'PORT': '8889',
     }
 }
+# WINDOWS EMANUEL
+try:
+    if WHO_AM_I == 'EMANUEL_WINDOWS':
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.mysql',
+                'USER': 'interdevdbuser',
+                'PASSWORD': 'Nodelez0105$$',
+                'NAME': 'interdev',
+                'HOST': 'localhost',
+                'PORT': '3306'
+            },
+            'logs_db': {
+                'ENGINE': 'django.db.backends.mysql',
+                'USER': 'interdevdbuser',
+                'PASSWORD': 'Nodelez0105$$',
+                'NAME': 'interdev_logs',
+                'HOST': 'localhost',
+                'PORT': '3306'
+            }
+        }
+        
+except KeyError:
+    pass
+
 # Try Victor Dev
 try:
     if WHO_AM_I == 'TEST_VM':
