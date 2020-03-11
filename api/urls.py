@@ -56,7 +56,7 @@ from factura_digital.api.views import (Electronic_TicketViewset, Electronic_Tick
     Electronic_DebitNoteViewset, ActionRequieredViewset, ReceivedElectronicDocViewset, Electronic_SelfPurchaseCreateViewset,
     Electronic_SelfPurchaseReadOnlyViewset)
 
-from administration.api.views import HelperModelViewSet, HelperTasksViewSet
+from administration.api.views import HelperModelViewSet, HelperTasksViewSet, LicenseViewSet
 from construction.api.views import ProjectViewSet, ActivityViewSet, OrderViewSet, RequestViewSet
 
 router = routers.DefaultRouter()
@@ -162,7 +162,9 @@ router.register(r'activities', ActivityViewSet, base_name="activities")
 router.register(r'orders', OrderViewSet, base_name="orders")
 router.register(r'requests', RequestViewSet, base_name="requests")
 router.register(r'administration/helpertasks', HelperTasksViewSet)
+router.register(r'administration/license', LicenseViewSet)
 router.register(r'administration', HelperModelViewSet)
+
 
 urlpatterns = [
 

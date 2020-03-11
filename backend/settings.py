@@ -53,6 +53,8 @@ interdev_sett = ProdSettings(file_loc)
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'pq0v9v3y@4dnny%jgrod5*_%snma=t(q6-h&@sf)+uptk54z82'
 
+#LICENSE SERVER ADDRESS
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = interdev_sett._DEBUG
 
@@ -145,6 +147,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'administration.license_middleware.LicenseRedirectMiddleware'
 ]
 
 ROOT_URLCONF = 'backend.urls'
@@ -445,7 +448,13 @@ GUPLOAD_BATCH_SIZE = interdev_sett._GUPLOAD_BATCH_SIZE
 GUPLOAD_FREQUENCY = interdev_sett._GUPLOAD_FREQUENCY
 
 CELERY_BEAT_SCHEDULE = {
-
+    'the-licenser': {
+        'task': 'factura_digital.the_overseer_tasks.theLicenser',
+        'schedule': crontab(minute='*/{}'.format(10)),
+        'options': {
+            'expires': int(beat_overseer_cycle*65)
+        }
+    },
     'the-overseer': {
         'task': 'factura_digital.the_overseer_tasks.TheOneAboveAll',
         'schedule': crontab(minute='*/{}'.format(beat_overseer_cycle)),

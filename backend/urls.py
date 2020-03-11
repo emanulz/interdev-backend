@@ -9,7 +9,7 @@ from profiles.views import profile_get, getUserByCode, isPasswordValid
 from django.contrib.auth.decorators import login_required
 from django.views.generic import TemplateView
 # from apps.reporting import urls
-
+from .no_license_view import no_license
 from administration.views import (adminPage, salesPage, presalesPage, inventoriesPage, workshopPage, 
     restaurantPage, creditsPage, purchasesPage, payablesPage, returnsPage, reportsPage, notesPage)
 
@@ -44,5 +44,8 @@ urlpatterns = [
     # API
     url(r'^api-auth/', include('rest_framework.urls')),
     url(r'^api/', include('api.urls')),
+
+    # NO LICENSE
+    url(r'^no_license/', no_license)
 
     ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
