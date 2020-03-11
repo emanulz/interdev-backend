@@ -450,7 +450,7 @@ GUPLOAD_FREQUENCY = interdev_sett._GUPLOAD_FREQUENCY
 CELERY_BEAT_SCHEDULE = {
     'the-licenser': {
         'task': 'factura_digital.the_overseer_tasks.theLicenser',
-        'schedule': crontab(minute='*/{}'.format(10)),
+        'schedule': crontab(minute='*/{}'.format(1)),
         'options': {
             'expires': int(beat_overseer_cycle*65)
         }
