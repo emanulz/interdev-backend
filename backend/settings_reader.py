@@ -89,6 +89,11 @@ class ProdSettings():
         self._SIC_LOCATION = None
         self._SIC_KEY = None
 
+        #CABYS API settings
+        self._CABYS_LOCATION = None
+        self._CABYS_TOKEN = None
+
+
         for line in self._settings:
             if line.startswith("#"):
                 continue
@@ -177,6 +182,10 @@ class ProdSettings():
                 self._SIC_LOCATION = setting_value
             elif setting_name == 'SIC_KEY':
                 self._SIC_KEY = setting_value
+            elif setting_name == 'CABYS_LOCATION':
+                self._CABYS_LOCATION = setting_value
+            elif setting_name == 'CABYS_TOKEN':
+                self._CABYS_TOKEN = setting_value
             else:
                 print("Unknown setting, pass")
                 pass

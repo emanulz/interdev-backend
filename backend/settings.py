@@ -65,6 +65,11 @@ VOUCHERS_VALID_DAYS = interdev_sett._VOUCHERS_VALID_DAYS
 SIC_LOCATION = interdev_sett._SIC_LOCATION
 SIC_KEY = interdev_sett._SIC_KEY
 
+#CABYS API DATA
+CABYS_LOCATION = interdev_sett._CABYS_LOCATION
+CABYS_TOKEN = interdev_sett._CABYS_TOKEN
+
+
 WHO_AM_I = interdev_sett._WHO_AM_I
 
 TAX_PAYER_SECRET = None
@@ -81,7 +86,7 @@ if not DEBUG:
 
 ALLOWED_HOSTS = []
 if DEBUG:
-    ALLOWED_HOSTS = ['localhost', '192.168.9.254', '192.168.1.254', '192.168.9.56', '192.168.9.107', '192.168.1.144',
+    ALLOWED_HOSTS = ['af7a90b4.ngrok.io', '.ngrok.io', '.localhost.run', 'localhost', '192.168.9.254', '192.168.1.254', '192.168.9.56', '192.168.9.107', '192.168.1.144',
                  'DANTE', '192.168.9.53', 'app.fudesemillas.net', '162.243.165.124', '192.168.2.254', '192.168.8.101', '192.168.9.66']
 else:
     ALLOWED_HOSTS = interdev_sett._ALLOWED_HOSTS    
@@ -249,7 +254,7 @@ try:
                 'ENGINE': 'django.db.backends.mysql',
                 'USER': 'root',
                 'PASSWORD': '0688moraB',
-                # 'NAME': 'interdev',
+                #'NAME': 'delete',
                 'NAME': 'django_rj',
                 'HOST': 'localhost',
                 'PORT': '3306',
