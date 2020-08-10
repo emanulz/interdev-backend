@@ -37,7 +37,7 @@ from sales.api.views import (SaleCreateViewSet, SaleViewSetReadOnly,
 from money_returns.api.views import Money_ReturnViewSet, Credit_VoucherViewSet
 from payables_money_returns.api.views import Credit_VoucherViewSetPayable
 from utils.searchView import SearchViewSet
-from taxpayer.api.views import TaxPayerCreateViewSet,TaxPayerReadOnly, TaxPayerLocalViewset
+from taxpayer.api.views import TaxPayerCreateViewSet,TaxPayerReadOnly, TaxPayerLocalViewset, TaxPayerLocalReadOnly
 from importer.api.views import ImporterViewset
 from reporting.api.views import ReportDefinition, ReportRecordViewset, ReportRecordReadOnly
 from restaurant.api.views import (TableViewSet, ServiceOrderViewSet, ServiceOrderActionViewSet, 
@@ -145,6 +145,7 @@ router.register(r'electronicselfpurchaselist', Electronic_SelfPurchaseReadOnlyVi
 router.register(r'taxpayercreate', TaxPayerCreateViewSet, base_name='taxpayercreate')
 router.register(r'taxpayerreadonly', TaxPayerReadOnly)
 router.register(r'taxpayerlocals', TaxPayerLocalViewset)
+router.register(r'taxpayerlocalsro', TaxPayerLocalReadOnly)
 router.register(r'importer', ImporterViewset, base_name='importer')
 #register reporting related routes
 router.register(r'reporting', ReportDefinition, base_name='repoting')
